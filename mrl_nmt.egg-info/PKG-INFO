@@ -1,0 +1,44 @@
+Metadata-Version: 2.1
+Name: mrl-nmt
+Version: 0.0.1
+Summary: NMT for MRL
+Home-page: https://nonexistent.site
+Author: Jonne Saleva
+Author-email: jonnesaleva@brandeis.edu
+License: MIT
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: ~=3.8
+Description-Content-Type: text/markdown
+
+# NAACL 2022 Paper on Multi-Task Learning for NMT
+
+## Notes on requirements
+- uralicNLP
+- pycountry
+- sacremoses
+- toml
+- attrs
+
+## Notes on languages
+- Czech
+- German
+- Estonian
+- Finnish
+- Inuktitut
+- Russian
+- Turkish
+- Uzbek
+
+## Notes on installation
+
+### HFST
+On both Python 3.8 and Python 3.9, it seems like `pip install hfst` still fails despite the manylinux version purportedly on PyPi.
+
+Got things to work following this: https://github.com/hfst/hfst/issues/557#issuecomment-881652221
+
+

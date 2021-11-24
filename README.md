@@ -4,50 +4,18 @@
 - uralicNLP
 - pycountry
 - sacremoses
+- toml
+- attrs
 
 ## Notes on languages
-
-```
-#################################################
-
-# Constraint grammar
-[UralicNLP] Finnish, cg: True
-[UralicNLP] Russian, cg: True
-[UralicNLP] Czech, cg: True
-[UralicNLP] German, cg: True
-[UralicNLP] Amharic, cg: True
-[UralicNLP] Swahili, cg: False
-[UralicNLP] Turkish, cg: False
-[UralicNLP] Inuktitut, cg: True
-
-#################################################
-
-# Dictionary
-
-[UralicNLP] Finnish, dictionary: True
-[UralicNLP] Russian, dictionary: True
-[UralicNLP] Czech, dictionary: False
-[UralicNLP] German, dictionary: True
-[UralicNLP] Amharic, dictionary: False
-[UralicNLP] Swahili, dictionary: False
-[UralicNLP] Turkish, dictionary: False
-[UralicNLP] Inuktitut, dictionary: False
-
-#################################################
-
-# Morphology
-
-[UralicNLP] Finnish, morph: True
-[UralicNLP] Russian, morph: True
-[UralicNLP] Czech, morph: True
-[UralicNLP] German, morph: True
-[UralicNLP] Amharic, morph: True
-[UralicNLP] Swahili, morph: False
-[UralicNLP] Turkish, morph: False
-[UralicNLP] Inuktitut, morph: True
-
-#################################################
-```
+- Czech
+- German
+- Estonian
+- Finnish
+- Inuktitut
+- Russian
+- Turkish
+- Uzbek
 
 ## Notes on installation
 

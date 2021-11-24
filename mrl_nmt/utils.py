@@ -1,24 +1,38 @@
-from typing import List, Union, Iterable
+from typing import Union, Iterable, Dict, Any
 from pathlib import Path
-import abc
 
-import sacremoses as sm
-
-
-class Tokenizer(abc.ABC):
-    def tokenize(self, line: str) -> List[str]:
-        raise NotImplementedError
+import attr
+import toml
 
 
-class SentenceLoader:
-    def __init__(
-        self, tokenizer: Union[Tokenizer, sm.MosesTokenizer], encoding="utf-8"
-    ) -> None:
-        self.tokenizer = tokenizer
-        self.encoding = encoding
+def read_txt(path: Union[str, Path]) -> str:
+    with open(path, encoding="utf-8") as f:
+        return f.read()
 
-    def read_sentences(self, file_path: Path) -> Iterable[List[str]]:
-        """Streams data from file_path, tokenizing them on the fly"""
-        with open(file_path, encoding=self.encoding) as f_in:
-            for line in f_in:
-                yield self.tokenizer.tokenize(line)
+
+def read_lines(path: Union[str, Path], load_to_memory: bool = False) -> Iterable[str]:
+    """Reads lines from a file, outputting an iterable.
+
+    Optionally, loads the lines into memory.
+    """
+    with open(path, encoding="utf-8") as f:
+        lines = (line.strip() for line in f)
+        return [line for line in lines] if load_to_memory else lines
+
+
+def write_lines(path: Union[str, Path], lines=Iterable[str]) -> None:
+    with open(path, mode="w", encoding="utf-8") as fout:
+        fout.writelines(lines)
+
+
+@attr.s(auto_attribs=True)
+class TOMLConfigReader:
+    def __call__(self, toml_path: Union[str, Path]) -> Dict[str, Any]:
+        config_dict = toml.load(toml_path)
+        if not self.validate_schema(config_dict):
+            raise ValueError("Invalid TOML config!")
+        return config_dict
+
+    # TODO: maybe implement this?
+    def validate_schema(self, d: dict) -> bool:
+        return True
