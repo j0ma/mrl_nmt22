@@ -6,6 +6,9 @@
 - sacremoses
 - toml
 - attrs
+- sentencepiece
+- fairseq
+- click
 
 ## Notes on languages
 - Czech

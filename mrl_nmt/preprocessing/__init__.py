@@ -94,14 +94,13 @@ class ExperimentPreprocessingPipeline:
         """
         config = self.config[lang_pair]
         splits = config["splits"]
-        output_base_path = Path(config["output_base_path"])
         src, tgt = config["src"], config["tgt"]
         lines: DefaultDict[Dict[str, Any]] = defaultdict(dict)
 
         # Load in all the data and preprocess it
         for split in splits:
             split_config = config[split]
-            input_base_path = Path(split_config["input_base_path"])
+            input_base_path = Path(split_config["input_base_path"]).expanduser()
             for f in split_config["files"]:
 
                 # Take note of source/target, the preprocessing steps and input
@@ -126,6 +125,6 @@ class ExperimentPreprocessingPipeline:
 
         # Finally write all the data out
         for split, corpus_split in corpus_splits.items():
-            output_folder = output_base_path
+            output_folder = Path(config["output_base_path"]).expanduser()
             output_folder.mkdir(parents=True, exist_ok=True)
             corpus_split.write_to_disk(folder=output_folder)

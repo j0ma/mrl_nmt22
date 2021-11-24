@@ -22,8 +22,8 @@ def read_lines(path: Union[str, Path], load_to_memory: bool = False) -> Iterable
 
 def write_lines(path: Union[str, Path], lines=Iterable[str]) -> None:
     with open(path, mode="w", encoding="utf-8") as fout:
-        fout.writelines(lines)
-
+        for line in lines:
+            fout.write(f"{line}\n")
 
 @attr.s(auto_attribs=True)
 class TOMLConfigReader:

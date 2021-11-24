@@ -1,13 +1,13 @@
 name = "turkic_bilingual_baseline"
 
 lang_pairs = [
-    "en-tr" #, "en-uz"
+    "en-tr", "en-uz"
 ]
 
 [en-tr]
 src = "en"
 tgt = "tr"
-output_base_path = "~/datasets/mrl_nmt22/processed/en-tr"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
 splits = ["train", "dev"]
 
 [en-tr.train]
@@ -21,6 +21,16 @@ input_base_path = "~/datasets/mrl_nmt22/tr/en-tr"
         name = "read_lines"
         options = {"load_to_memory" = true}
 
+        [[en-tr.train.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-tr.train.files.preprocessing_steps.options]
+            vocab_size = 32000
+            input_sentence_size = 5000000
+            shuffle_input_sentence = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
+            model_file = "spm_model.en"
+
     [[en-tr.train.files]]
     path = "en-tr.tr"
     kind = "tgt"
@@ -28,6 +38,16 @@ input_base_path = "~/datasets/mrl_nmt22/tr/en-tr"
         [[en-tr.train.files.preprocessing_steps]]
         name = "read_lines"
         options = {"load_to_memory" = true}
+
+        [[en-tr.train.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-tr.train.files.preprocessing_steps.options]
+            vocab_size = 32000
+            input_sentence_size = 5000000
+            shuffle_input_sentence = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
+            model_file = "spm_model.tr"
 
 [en-tr.dev]
 input_base_path = "~/datasets/flores-101/dev"
@@ -41,6 +61,15 @@ options = {}
         name = "read_lines"
         options = {"load_to_memory" = true}
 
+        [[en-tr.dev.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-tr.dev.files.preprocessing_steps.options]
+            vocab_size = 32000
+            use_pretrained_model = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
+            model_file = "spm_model.en"
+
     [[en-tr.dev.files]]
     path = "tur.dev"
     kind = "tgt"
@@ -49,4 +78,94 @@ options = {}
         name = "read_lines"
         options = {"load_to_memory" = true}
 
-# TODO: create Uzbek
+        [[en-tr.dev.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-tr.dev.files.preprocessing_steps.options]
+            vocab_size = 32000
+            use_pretrained_model = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
+            model_file = "spm_model.tr"
+
+[en-uz]
+src = "en"
+tgt = "uz"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+splits = ["train", "dev"]
+
+[en-uz.train]
+input_base_path = "~/datasets/mrl_nmt22/uz/en-uz"
+
+    [[en-uz.train.files]]
+    path = "en-uz.en"
+    kind = "src"
+
+        [[en-uz.train.files.preprocessing_steps]]
+        name = "read_lines"
+        options = {"load_to_memory" = true}
+
+        [[en-uz.train.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-uz.train.files.preprocessing_steps.options]
+            vocab_size = 32000
+            input_sentence_size = 5000000
+            shuffle_input_sentence = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+            model_file = "spm_model.en"
+
+    [[en-uz.train.files]]
+    path = "en-uz.uz"
+    kind = "tgt"
+
+        [[en-uz.train.files.preprocessing_steps]]
+        name = "read_lines"
+        options = {"load_to_memory" = true}
+
+        [[en-uz.train.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-uz.train.files.preprocessing_steps.options]
+            vocab_size = 32000
+            input_sentence_size = 5000000
+            shuffle_input_sentence = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+            model_file = "spm_model.uz"
+
+[en-uz.dev]
+input_base_path = "~/datasets/flores-101/dev"
+options = {}
+
+    [[en-uz.dev.files]]
+    path = "eng.dev"
+    kind = "src"
+
+        [[en-uz.dev.files.preprocessing_steps]]
+        name = "read_lines"
+        options = {"load_to_memory" = true}
+
+        [[en-uz.dev.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-uz.dev.files.preprocessing_steps.options]
+            vocab_size = 32000
+            use_pretrained_model = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+            model_file = "spm_model.en"
+
+    [[en-uz.dev.files]]
+    path = "tur.dev"
+    kind = "tgt"
+
+        [[en-uz.dev.files.preprocessing_steps]]
+        name = "read_lines"
+        options = {"load_to_memory" = true}
+
+        [[en-uz.dev.files.preprocessing_steps]]
+        name = "process_with_sentencepiece"
+
+            [en-uz.dev.files.preprocessing_steps.options]
+            vocab_size = 32000
+            use_pretrained_model = true
+            model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+            model_file = "spm_model.uz"
