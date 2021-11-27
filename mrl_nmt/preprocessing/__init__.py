@@ -1,4 +1,15 @@
-from typing import Any, Iterable, Dict, Union, DefaultDict
+from typing import (
+    Any,
+    Iterable,
+    Dict,
+    Union,
+    DefaultDict,
+    Set,
+    Callable,
+    Sequence,
+    Optional,
+    Mapping,
+)
 from pathlib import Path
 from collections import defaultdict
 import multiprocessing
@@ -44,6 +55,143 @@ class FairseqPreprocessor:
 
 
 @attr.s(auto_attribs=True)
+class LoadedFile:
+    path: Union[str, Path]
+    side: str  # src, tgt, both
+
+    # language or "multi" if multilingual
+    language: str
+
+    # use this to toggle streaming/loading to ram
+    load_to_memory: bool = True
+
+    # use this to toggle loading of intermediate lines to RAM
+    load_intermediate: bool = False
+
+    sides: Set[str] = set(["src", "tgt", "both"])
+
+    parse_language_func: Optional[Callable[[str], str]] = None
+
+    def parse_language(self, s: str) -> str:
+        if self.parse_language_func is None:
+            return self.language
+
+        return self.parse_language_func(s)
+
+    def __attrs_post_init__(self) -> None:
+        assert self.side in self.sides, f"'kind' must be one of {self.sides}"
+        self.both_sides = self.side == "both"
+        self.path = Path(self.path).expanduser()
+
+    def stream_lines(self) -> Iterable[str]:
+        raise NotImplementedError
+
+    def lines(self) -> Iterable[str]:
+        raise NotImplementedError
+
+    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+        raise NotImplementedError
+
+
+@attr.s(auto_attribs=True)
+class LoadedTextFile(LoadedFile):
+
+    parse_src_tgt_func: Optional[Callable[[Any], Dict[str, str]]] = None
+
+    def line_to_dict(self, line: str) -> Dict[str, Dict[str, Optional[str]]]:
+        """Parses a raw line to dictionary form depending on side"""
+
+        if self.both_sides:
+            raise NotImplementedError("Text files can only handle one side per file!")
+        else:
+            other_side = {"src": "tgt", "tgt": "src"}[self.side]
+
+            return {
+                self.side: {"text": line, "language": self.parse_language(line)},
+                other_side: {"text": "", "language": None},
+            }
+
+    @property
+    def stream_lines(self) -> Iterable[str]:
+        return u.stream_lines(self.path)
+
+    @property
+    def lines(self) -> Iterable[str]:
+        if not (self.load_to_memory or self.load_intermediate):
+            raise ValueError(
+                "Cannot load lines to RAM without either load_to_memory=True "
+                "or load_intermediate=True. Use stream_lines instead."
+            )
+
+        return u.read_lines(self.path)
+
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+
+        line_iterator = self.lines if self.load_intermediate else self.stream_lines
+
+        lines = (self.line_to_dict(line) for line in line_iterator)
+
+        return list(lines) if self.load_to_memory else lines
+
+
+@attr.s(auto_attribs=True)
+class LoadedTSVFile(LoadedFile):
+
+    src_column: Optional[Union[str, int]] = None
+    tgt_column: Optional[Union[str, int]] = None
+    fieldnames: Optional[Sequence[str]] = []
+    delimiter: str = "\t"
+
+    def __attrs_post_init__(self):
+        self.use_dict_reader = bool(self.fieldnames)
+
+    def line_to_dict(
+        self, line: Mapping[Union[str, int], str]
+    ) -> Dict[str, Dict[str, Optional[str]]]:
+        """Parses a raw line to dictionary form depending on side"""
+
+        out: Dict[str, Dict[str, Optional[str]]] = {}
+
+        if self.src_column is not None:
+            src_line = line[self.src_column]
+            out["src"] = {"text": src_line, "language": self.parse_language(src_line)}
+        else:
+            out["src"] = {"text": "", "language": None}
+
+        if self.tgt_column is not None:
+            tgt_line = line[self.tgt_column]
+            out["tgt"] = {"text": tgt_line, "language": self.parse_language(tgt_line)}
+        else:
+            out["tgt"] = {"text": "", "language": None}
+
+        return out
+
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+
+        if self.use_dict_reader:
+            line_iterator = u.read_tsv_dict(
+                self.path,
+                field_names=self.fieldnames,
+                delimiter=self.delimiter,
+                load_to_memory=self.load_intermediate,
+            )
+        else:
+            line_iterator = u.read_tsv_list(
+                self.path,
+                delimiter=self.delimiter,
+                load_to_memory=self.load_intermediate,
+            )
+
+        if self.load_to_memory:
+            return [self.line_to_dict(line) for line in line_iterator]
+        else:
+            for line in line_iterator:
+                yield self.line_to_dict(line)
+
+
+@attr.s(auto_attribs=True)
 class CorpusSplit:
     src_lang: str
     tgt_lang: str
@@ -59,6 +207,7 @@ class CorpusSplit:
         default value of <src>-<tgt>.<split> will be used
         """
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
+
         for side, lines in self.lines.items():
             lang = {"src": self.src_lang, "tgt": self.tgt_lang}[side]
             output_file = folder / f"{prefix}.{lang}"
@@ -71,16 +220,19 @@ class Preprocessor:
 
     def apply_op(self, input_obj: Any, op_name: str, options: dict) -> Any:
         op_func = getattr(ops, op_name)
+
         if self.verbose:
             print(f"[Preprocessor.apply_op] op_name={op_name}")
             print(f"[Preprocessor.apply_op] options={options}")
         output = op_func(input_obj, **options)
+
         return output
 
     # TODO: tweak the type annotations
     def __call__(self, input_obj: Any, ops: Iterable[Dict[str, Any]]) -> Any:
 
         output = input_obj
+
         for op_dict in ops:
             op = op_dict["name"]
             try:
@@ -112,6 +264,7 @@ class ExperimentPreprocessingPipeline:
 
     def maybe_print(self, msg: str) -> None:
         """Print out msg if verbose mode is on."""
+
         if self.verbose:
             print(msg)
 
@@ -121,6 +274,7 @@ class ExperimentPreprocessingPipeline:
     ) -> "ExperimentPreprocessingPipeline":
         toml_reader = u.TOMLConfigReader()
         config_dict = toml_reader(toml_path)
+
         return cls(config=config_dict, verbose=verbose)
 
     def process(self):
@@ -143,9 +297,11 @@ class ExperimentPreprocessingPipeline:
         lines: DefaultDict[Dict[str, Any]] = defaultdict(dict)
 
         # Load in all the data and preprocess it
+
         for split in splits:
             split_config = config[split]
             input_base_path = Path(split_config["input_base_path"]).expanduser()
+
             for f in split_config["files"]:
 
                 # Take note of source/target, the preprocessing steps and input
@@ -166,10 +322,11 @@ class ExperimentPreprocessingPipeline:
                 split=split,
                 verbose=self.verbose,
             )
+
             for split in splits
         }
 
-        # Write all the data out
+        # Finally write all the data out
         for split, corpus_split in corpus_splits.items():
             output_folder = Path(config["output_base_path"]).expanduser()
             output_folder.mkdir(parents=True, exist_ok=True)
