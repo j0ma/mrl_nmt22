@@ -14,13 +14,13 @@ def read_txt(path: Union[str, Path]) -> str:
 def read_lines(path: Union[str, Path]) -> Iterable[str]:
     """Reads lines from a file, outputting an iterable."""
     with open(path, encoding="utf-8") as f:
-        return [line for line in f]
+        return [line.strip() for line in f]
 
 
 def stream_lines(path: Union[str, Path]) -> Generator[str, None, None]:
     with open(path, encoding="utf-8") as f:
         for line in f:
-            yield line
+            yield line.strip()
 
 
 def read_tsv_dict(
