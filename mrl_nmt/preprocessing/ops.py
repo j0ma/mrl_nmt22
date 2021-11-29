@@ -16,17 +16,15 @@ def process_with_sentencepiece(
     shuffle_input_sentence: bool = False,
 ) -> Iterable[str]:
 
-    # create an iterator
-    lines_iterator = iter(lines)
+    # TODO: handle case where lines aren't in RAM and can't iterate twice
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
     if not model_file.parent.exists():
         model_file.parent.mkdir(parents=True)
 
-    model_file = str(model_file)
-
     if use_pretrained_model:
+        model_file = str(model_file)
         sp = spm.SentencePieceProcessor(model_file=model_file)
 
     else:
@@ -36,7 +34,7 @@ def process_with_sentencepiece(
 
         # train the model
         spm.SentencePieceTrainer.train(
-            sentence_iterator=lines_iterator,
+            sentence_iterator=iter(lines),
             model_writer=model,
             vocab_size=vocab_size,
             input_sentence_size=input_sentence_size,
@@ -44,6 +42,7 @@ def process_with_sentencepiece(
         )
 
         # write model to disk
+
         if model_file:
             with open(model_file, "wb") as f:
                 f.write(model.getvalue())

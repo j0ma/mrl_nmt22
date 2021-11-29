@@ -23,6 +23,9 @@ Description-Content-Type: text/markdown
 - sacremoses
 - toml
 - attrs
+- sentencepiece
+- fairseq
+- click
 
 ## Notes on languages
 - Czech

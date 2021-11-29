@@ -70,7 +70,7 @@ class LoadedFile:
 
     sides: Set[str] = set(["src", "tgt", "both"])
 
-    parse_language_func: Optional[Callable[[str], str]] = None
+    parse_language_func: Optional[Callable[[Any], str]] = None
 
     def parse_language(self, s: str) -> str:
         if self.parse_language_func is None:
@@ -83,13 +83,16 @@ class LoadedFile:
         self.both_sides = self.side == "both"
         self.path = Path(self.path).expanduser()
 
+    @property
     def stream_lines(self) -> Iterable[str]:
         raise NotImplementedError
 
+    @property
     def lines(self) -> Iterable[str]:
         raise NotImplementedError
 
-    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
         raise NotImplementedError
 
 
@@ -98,7 +101,7 @@ class LoadedTextFile(LoadedFile):
 
     parse_src_tgt_func: Optional[Callable[[Any], Dict[str, str]]] = None
 
-    def line_to_dict(self, line: str) -> Dict[str, Dict[str, Optional[str]]]:
+    def line_to_dict(self, line: str) -> Dict[str, Optional[Dict[str, Optional[str]]]]:
         """Parses a raw line to dictionary form depending on side"""
 
         if self.both_sides:
@@ -108,7 +111,7 @@ class LoadedTextFile(LoadedFile):
 
             return {
                 self.side: {"text": line, "language": self.parse_language(line)},
-                other_side: {"text": "", "language": None},
+                other_side: None,
             }
 
     @property
@@ -126,7 +129,7 @@ class LoadedTextFile(LoadedFile):
         return u.read_lines(self.path)
 
     @property
-    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
 
         line_iterator = self.lines if self.load_intermediate else self.stream_lines
 
@@ -138,6 +141,9 @@ class LoadedTextFile(LoadedFile):
 @attr.s(auto_attribs=True)
 class LoadedTSVFile(LoadedFile):
 
+    language: str = "multi"
+    src_language: Optional[str] = None
+    tgt_language: Optional[str] = None
     src_column: Optional[Union[str, int]] = None
     tgt_column: Optional[Union[str, int]] = None
     fieldnames: Optional[Sequence[str]] = []
@@ -145,30 +151,50 @@ class LoadedTSVFile(LoadedFile):
 
     def __attrs_post_init__(self):
         self.use_dict_reader = bool(self.fieldnames)
+        self.validate_columns()
+
+    def validate_columns(self) -> None:
+        """If we are using csv.DictReader, need string keys.
+
+        Otherwise, need integer keys for csv.reader.
+        """
+        ftype = str if self.use_dict_reader else int
+        assert isinstance(
+            self.src_column, ftype
+        ), f"src_column must be {ftype} when fieldnames={self.fieldnames}"
+        assert isinstance(
+            self.tgt_column, ftype
+        ), f"tgt_column must be {ftype} when fieldnames={self.fieldnames}"
 
     def line_to_dict(
         self, line: Mapping[Union[str, int], str]
-    ) -> Dict[str, Dict[str, Optional[str]]]:
+    ) -> Dict[str, Optional[Dict[str, Optional[str]]]]:
         """Parses a raw line to dictionary form depending on side"""
 
-        out: Dict[str, Dict[str, Optional[str]]] = {}
+        out: Dict[str, Optional[Dict[str, Optional[str]]]] = {}
 
         if self.src_column is not None:
             src_line = line[self.src_column]
-            out["src"] = {"text": src_line, "language": self.parse_language(src_line)}
+            out["src"] = {
+                "text": src_line,
+                "language": self.src_language or self.parse_language(src_line),
+            }
         else:
-            out["src"] = {"text": "", "language": None}
+            out["src"] = None
 
         if self.tgt_column is not None:
             tgt_line = line[self.tgt_column]
-            out["tgt"] = {"text": tgt_line, "language": self.parse_language(tgt_line)}
+            out["tgt"] = {
+                "text": tgt_line,
+                "language": self.tgt_language or self.parse_language(tgt_line),
+            }
         else:
-            out["tgt"] = {"text": "", "language": None}
+            out["tgt"] = None
 
         return out
 
     @property
-    def lines_as_dicts(self) -> Iterable[Dict[str, Dict[str, Optional[str]]]]:
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
 
         if self.use_dict_reader:
             line_iterator = u.read_tsv_dict(
@@ -193,11 +219,14 @@ class LoadedTSVFile(LoadedFile):
 
 @attr.s(auto_attribs=True)
 class CorpusSplit:
-    src_lang: str
-    tgt_lang: str
     split: str
-    lines: Dict[str, Iterable[str]]
-    verbose: bool
+    lines: Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]
+    src_lang: Optional[str] = None
+    tgt_lang: Optional[str] = None
+    verbose: bool = True
+
+    def __attrs_post_init__(self) -> None:
+        assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
 
     def write_to_disk(self, folder: Path, prefix: str = "") -> None:
         """Writes self.lines to the folder specified by folder,
@@ -209,9 +238,42 @@ class CorpusSplit:
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
 
         for side, lines in self.lines.items():
-            lang = {"src": self.src_lang, "tgt": self.tgt_lang}[side]
-            output_file = folder / f"{prefix}.{lang}"
-            u.write_lines(path=output_file, lines=self.lines[side])
+            if lines:
+                lang = {"src": self.src_lang, "tgt": self.tgt_lang}[side]
+                output_file = folder / f"{prefix}.{lang}"
+                lines = (d[side]["text"] for d in lines)
+                u.write_lines(path=output_file, lines=self.lines[side])
+
+    @classmethod
+    def from_src_tgt(
+        cls, src: LoadedFile, tgt: LoadedFile, split: str, verbose: bool = True
+    ) -> "CorpusSplit":
+
+        joined_lines = (
+            {"src": src_line["src"], "tgt": tgt_line["tgt"]}
+
+            for src_line, tgt_line in zip(src.lines_as_dicts, tgt.lines_as_dicts)
+        )
+
+        return cls(
+            src_lang=src.language,
+            tgt_lang=tgt.language,
+            split=split,
+            verbose=verbose,
+            lines=joined_lines,
+        )
+
+    @classmethod
+    def from_tsv(
+        cls, tsv: LoadedTSVFile, split: str, verbose: bool = True
+    ) -> "CorpusSplit":
+        return cls(
+            src_lang=tsv.src_language,
+            tgt_lang=tsv.tgt_language,
+            split=split,
+            verbose=verbose,
+            lines=tsv.lines_as_dicts,
+        )
 
 
 @attr.s
