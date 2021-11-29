@@ -1,5 +1,8 @@
 # NAACL 2022 Paper on Multi-Task Learning for NMT
 
+## Initialization
+- Create folders `checkpoints` and `experiments`
+
 ## Notes on requirements
 - uralicNLP
 - pycountry

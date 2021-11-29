@@ -1,13 +1,15 @@
 name = "turkic_bilingual_baseline"
 
 lang_pairs = [
-    "en-tr", "en-uz"
+    #"en-tr", "en-uz"
+    "en-uz"
 ]
 
 [en-tr]
 src = "en"
 tgt = "tr"
 output_base_path = "~/datasets/mrl_nmt22/processed/en-tr/bpe32k"
+data_bin_folder = "./data-bin/en-tr/bpe32k"
 splits = ["train", "dev"]
 
 [en-tr.train]
@@ -91,6 +93,7 @@ options = {}
 src = "en"
 tgt = "uz"
 output_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
+data_bin_folder = "./data-bin/en-uz/bpe4k"
 splits = ["train", "dev"]
 
 [en-uz.train]
@@ -108,7 +111,7 @@ input_base_path = "~/datasets/mrl_nmt22/uz/en-uz"
         name = "process_with_sentencepiece"
 
             [en-uz.train.files.preprocessing_steps.options]
-            vocab_size = 32000
+            vocab_size = 4000
             input_sentence_size = 5000000
             shuffle_input_sentence = true
             model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
@@ -126,7 +129,7 @@ input_base_path = "~/datasets/mrl_nmt22/uz/en-uz"
         name = "process_with_sentencepiece"
 
             [en-uz.train.files.preprocessing_steps.options]
-            vocab_size = 32000
+            vocab_size = 4000
             input_sentence_size = 5000000
             shuffle_input_sentence = true
             model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
@@ -148,13 +151,13 @@ options = {}
         name = "process_with_sentencepiece"
 
             [en-uz.dev.files.preprocessing_steps.options]
-            vocab_size = 32000
+            vocab_size = 4000
             use_pretrained_model = true
             model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
             model_file = "spm_model.en"
 
     [[en-uz.dev.files]]
-    path = "tur.dev"
+    path = "uzb.dev"
     kind = "tgt"
 
         [[en-uz.dev.files.preprocessing_steps]]
@@ -165,7 +168,7 @@ options = {}
         name = "process_with_sentencepiece"
 
             [en-uz.dev.files.preprocessing_steps.options]
-            vocab_size = 32000
+            vocab_size = 4000
             use_pretrained_model = true
             model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/bpe4k"
             model_file = "spm_model.uz"

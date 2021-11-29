@@ -1,0 +1,225 @@
+- config: basic-flags
+  flags:
+    experiment_name:
+      type: string
+      required: true
+    seed:
+      type: int
+      default: 1917
+    gpu_device:
+      type: int
+      default: 1
+- config: transformer-flags
+  flags:
+    criterion:
+      type: string
+      default: "label_smoothed_cross_entropy"
+    label_smoothing:
+      type: float
+      default: 0.1
+    lr:
+      type: float
+      default: 0.0003
+    lr_scheduler:
+      type: string
+      default: "fixed"
+    warmup_init_lr:
+      type: float
+      default: 0.00000001
+    clip_norm:
+      type: float
+      default: 1.0
+    save_interval:
+      type: int
+      default: 5
+    activation_fn:
+      type: string
+      default: "relu"
+    encoder_layers:
+      type: int
+      default: 4
+    decoder_layers:
+      type: int
+      default: 4
+    encoder_attention_heads:
+      type: int
+      default: 8
+    decoder_attention_heads:
+      type: int
+      default: 8
+    decoder_embedding_dim:
+      type: int
+      default: 200
+    decoder_hidden_size:
+      type: int
+      default: 1024
+    encoder_embedding_dim:
+      type: int
+      default: 200
+    encoder_hidden_size:
+      type: int
+      default: 1024
+    batch_size:
+      type: int
+      default: 64
+    optimizer:
+      type: string
+      default: "adadelta"
+    p_dropout:
+      type: float
+      default: 0.2
+    max_update:
+      type: int
+      default: 90000
+    validate_interval:
+      type: int
+      default: 1
+    validate_interval_updates:
+      type: int
+      default: 5000
+    warmup_updates:
+      type: int
+      default: 10000
+
+- operations:
+    prep_experiment:
+      description: "Prepares an experiment folder for a Trabina experiment"
+      exec: "bash prep_experiment.sh ${experiment_name} ${normalization_type} ${corpus_name}"
+      flags:
+        $include: basic-flags
+        corpus_name:
+          type: string
+          required: true
+      requires:
+        - file: data
+        - file: data-bin
+        - file: models
+        - file: checkpoints
+        - file: experiments
+        - file: prep_experiment.sh
+    train_transformer:
+      description: "Train transformer model"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang}"
+      flags:
+        $include:
+          - basic-flags
+          - transformer-flags
+        src_lang:
+            type: string
+            required: true
+        tgt_lang:
+            type: string
+            required: true
+      requires:
+        - file: data-bin
+        - file: scripts
+        - file: checkpoints
+        - file: experiments
+    evaluate_transformer:
+      description: "Evaluate transformer model"
+      exec: "bash models/transformer/evaluate ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} transformer"
+      flags:
+        $include:
+          - basic-flags
+        mode:
+          type: string
+          default: "test"
+        beam_size:
+          type: int
+          default: 5
+      output-scalars:
+          - word_acc: 'Word Accuracy\t(\value)'
+          - mean_f1: 'Mean F1\t(\value)'
+          - ler: 'LER\t(\value)'
+          - wer: 'WER\t(\value)'
+          - bleu: 'BLEU\t(\value)'
+      requires:
+        - file: data
+        - file: data-bin
+        - file: models
+        - file: checkpoints
+        - file: experiments
+        - file: evaluate.py
+      compare:
+        - ler
+        - wer
+        - mean_f1
+        - word_acc
+        - bleu
+    experiment_pipeline:
+      description: "Prep experiment -> train model -> evaluate model"
+      flags:
+        $include:
+          - basic-flags
+          - transformer-flags
+        corpus_name:
+          type: string
+          required: true
+        normalization_type:
+          type: string
+          required: true
+        mode:
+          type: string
+          default: "dev"
+        beam_size:
+          type: int
+          default: 5
+        suffix:
+          default: ''
+      steps:
+        - run: prep_experiment
+          flags:
+            experiment_name: '${experiment_name}-lr${lr}-eed${encoder_embedding_dim}-ehs${encoder_hidden_size}-ded${decoder_embedding_dim}-dhs${decoder_hidden_size}-bs${batch_size}-dropout${p_dropout}-clip_norm${clip_norm}-gpu${gpu_device}'
+            normalization_type: '${normalization_type}'
+        - run: train_loresmt_transformer
+          flags:
+            experiment_name: '${experiment_name}-lr${lr}-eed${encoder_embedding_dim}-ehs${encoder_hidden_size}-ded${decoder_embedding_dim}-dhs${decoder_hidden_size}-bs${batch_size}-dropout${p_dropout}-clip_norm${clip_norm}-gpu${gpu_device}'
+            criterion: '${criterion}'
+            label_smoothing: '${label_smoothing}'
+            lr: '${lr}'
+            lr_scheduler: '${lr_scheduler}'
+            warmup_init_lr: '${warmup_init_lr}'
+            clip_norm: '${clip_norm}'
+            save_interval: '${save_interval}'
+            activation_fn: '${activation_fn}'
+            gpu_device: '${gpu_device}'
+            encoder_layers: '${encoder_layers}'
+            decoder_layers: '${decoder_layers}'
+            encoder_attention_heads: '${encoder_attention_heads}'
+            decoder_attention_heads: '${decoder_attention_heads}'
+            decoder_hidden_size: '${decoder_hidden_size}'
+            decoder_embedding_dim: '${decoder_embedding_dim}'
+            encoder_hidden_size: '${encoder_hidden_size}'
+            encoder_embedding_dim: '${encoder_embedding_dim}'
+            batch_size: '${batch_size}'
+            optimizer: '${optimizer}'
+            p_dropout: '${p_dropout}'
+            max_update: '${max_update}'
+            validate_interval: '${validate_interval}'
+            validate_interval_updates: '${validate_interval_updates}'
+            warmup_updates: '${warmup_updates}'
+        - run: evaluate_transformer
+          flags:
+            experiment_name: '${experiment_name}-lr${lr}-eed${encoder_embedding_dim}-ehs${encoder_hidden_size}-ded${decoder_embedding_dim}-dhs${decoder_hidden_size}-bs${batch_size}-dropout${p_dropout}-clip_norm${clip_norm}-gpu${gpu_device}'
+            mode: '${mode}'
+            beam_size: '${beam_size}'
+            gpu_device: '${gpu_device}'
+            corpus_name: '${corpus_name}'
+      requires:
+        - file: data
+        - file: data-bin
+        - file: models
+        - file: checkpoints
+        - file: experiments
+        - file: evaluate.py
+      compare:
+        - ler
+        - wer
+        - mean_f1
+        - word_acc
+        - bleu
+
+# learning rate decay linear scheduling
+# [] --decay_steps 10000 \                                  -> learning rate decay happens every this many steps
+# [x] --warmup_steps 10000 \                                 -> number of warmup steps for custom decay [what was the one used here?]
+# [] --max_relative_positions 2 \                           -> max distance between inputs in relative positions representations

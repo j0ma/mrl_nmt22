@@ -1,11 +1,46 @@
 from typing import Any, Iterable, Dict, Union, DefaultDict
 from pathlib import Path
 from collections import defaultdict
+import multiprocessing
+import subprocess
 
 import attr
 import toml
 import mrl_nmt.utils as u
 import mrl_nmt.preprocessing.ops as ops
+
+CPU_COUNT = multiprocessing.cpu_count()
+
+
+@attr.s(auto_attribs=True)
+class FairseqPreprocessor:
+    src_lang: str
+    tgt_lang: str
+    data_folder: str
+    data_bin_folder: str
+    n_workers: int = attr.ib(default=CPU_COUNT)
+    verbose: bool = attr.ib(default=False)
+
+    fairseq_cmd: str = "scripts/preprocess_with_fairseq.sh"
+
+    def process(self) -> None:
+        """Runs fairseq-preprocess using scripts/preprocess_with_fairseq.sh"""
+        popen_args = [
+            self.fairseq_cmd,
+            self.src_lang,
+            self.tgt_lang,
+            self.data_folder,
+            self.data_bin_folder,
+        ]
+        if self.n_workers > 0:
+            popen_args.append(str(self.n_workers))
+
+        completed_pid = subprocess.run(
+            popen_args,
+            capture_output=False,
+            encoding="utf-8",
+            text=True,
+        )
 
 
 @attr.s(auto_attribs=True)
@@ -66,6 +101,14 @@ class ExperimentPreprocessingPipeline:
 
     def __attrs_post_init__(self):
         self.lang_pairs = self.config["lang_pairs"]
+        try:
+            self.use_fairseq = self.config["use_fairseq"]
+        except KeyError:
+            self.maybe_print(
+                "[ExperimentPreprocessingPipeline] Fairseq is on by default! "
+                "To turn off, set 'use_fairseq=false' in the TOML config."
+            )
+            self.use_fairseq = True
 
     def maybe_print(self, msg: str) -> None:
         """Print out msg if verbose mode is on."""
@@ -82,7 +125,9 @@ class ExperimentPreprocessingPipeline:
 
     def process(self):
         for lang_pair in self.lang_pairs:
-            self.maybe_print(f"[TranslationExperiment] Language pair: {lang_pair}")
+            self.maybe_print(
+                f"[ExperimentPreprocessingPipeline] Language pair: {lang_pair}"
+            )
             self.process_lang_pair(lang_pair)
 
     def process_lang_pair(self, lang_pair: str) -> None:
@@ -110,6 +155,7 @@ class ExperimentPreprocessingPipeline:
                 # Use Preprocessor class to execute the steps
                 preprocessor = Preprocessor(verbose=self.verbose)
                 lines[split][kind] = preprocessor(input_obj=input_file_path, ops=steps)
+                # TODO: handle files like CSVs where kind = "combined"
 
         # Then create CorpusSplit objects out of the lines
         corpus_splits = {
@@ -123,8 +169,20 @@ class ExperimentPreprocessingPipeline:
             for split in splits
         }
 
-        # Finally write all the data out
+        # Write all the data out
         for split, corpus_split in corpus_splits.items():
             output_folder = Path(config["output_base_path"]).expanduser()
             output_folder.mkdir(parents=True, exist_ok=True)
             corpus_split.write_to_disk(folder=output_folder)
+
+        # Finally binarize using fairseq if needed
+        if self.use_fairseq:
+            data_bin_folder = Path(config["data_bin_folder"]).expanduser()
+            data_bin_folder.mkdir(parents=True, exist_ok=True)
+            fairseq = FairseqPreprocessor(
+                src_lang=src,
+                tgt_lang=tgt,
+                data_folder=str(output_folder),
+                data_bin_folder=str(data_bin_folder),
+            )
+            fairseq.process()

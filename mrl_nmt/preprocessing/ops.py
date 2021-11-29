@@ -6,7 +6,6 @@ import attr
 from mrl_nmt.utils import read_lines
 import sentencepiece as spm
 
-
 def process_with_sentencepiece(
     lines: Iterable[str],
     vocab_size: int,
