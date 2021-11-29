@@ -1,0 +1,36 @@
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="cs" trgLang="en">
+<file id="1417">
+<unit id="1">
+<segment>
+<source xml:lang="cs">Vídeň 3. května 2007</source>
+<target xml:lang="en">Luxembourg, 2 May 2007</target>
+</segment>
+</unit>
+<unit id="2">
+<segment>
+<source xml:lang="cs">Kontakty pro tisk:</source>
+<target xml:lang="en">Press contacts:</target>
+</segment>
+</unit>
+<unit id="3">
+<segment>
+<source xml:lang="cs">Další informace o EIB, JASPERS a nástrojích regionální politiky EU jsou k dispozici na těchto internetových adresách: www.eib.org a www.jaspers.europa.eu a http://ec.europa.eu/regional_policy/index_en.htm</source>
+<target xml:lang="en">For further information about the EIB, kindly see: http://www.eib.org.</target>
+</segment>
+</unit>
+</file>
+<file id="1418">
+<unit id="1">
+<segment>
+<source xml:lang="cs">BEI/07/33</source>
+<target xml:lang="en">BEI/07/33</target>
+</segment>
+</unit>
+<unit id="2">
+<segment>
+<source xml:lang="cs">Vídeň 3. května 2007</source>
+<target xml:lang="en">Vienna, 3 May 2007</target>
+</segment>
+</unit>
+</file>
+</xliff>

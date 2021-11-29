@@ -1,0 +1,22 @@
+<xliff version="1.0">
+  <file origin="Some/Folder/proj/SomeFile.strings" source-language="en" target-language="hr" datatype="strings" product="Product BlahBlah" product-version="3.9.12" build-num="1" x-train="Blurt">
+    <header>
+      <count-group name="SomeFile.strings">
+        <count count-type="total" unit="word">2</count>
+      </count-group>
+    </header>
+    <body>
+      <trans-unit id="8.text" restype="string" resname=""><source>End</source><target match-quality="80" match-description="_predecessor(22) _path(0) _file(15) datatype(5) id(17) restype(6) resname(4) _reserved(11) _one-word-threshold(-25)" state="signed-off" x-match-attributes="preserved-stable" state-qualifier="exact-match" x-leverage-path="predecessor-ice">Kraj</target><note>This is a note</note></trans-unit>
+    </body>
+  </file>
+  <file origin="Some/Folder/proj/SomeOtherFile.strings" source-language="en" target-language="hr" datatype="strings" product="Product BlahBlah2" product-version="3.12.56" build-num="1" x-train="Blurt2">
+    <header>
+      <count-group name="SomeOtherFile.strings">
+        <count count-type="total" unit="word">4</count>
+      </count-group>
+    </header>
+    <body>
+      <trans-unit id="14.accessibilityLabel" restype="string" resname=""><source>return to project list</source><target match-quality="80" match-description="_predecessor(22) _path(0) _file(15) datatype(5) id(17) restype(6) resname(4) _reserved(11)" state="signed-off" x-match-attributes="preserved-stable" state-qualifier="exact-match" x-leverage-path="predecessor-ice">povratak na popis projekata</target><note>This is again a note</note></trans-unit>
+    </body>
+  </file>
+</xliff>
