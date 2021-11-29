@@ -9,6 +9,7 @@ from typing import (
     Sequence,
     Optional,
     Mapping,
+    Tuple,
 )
 from pathlib import Path
 from collections import defaultdict
@@ -17,6 +18,7 @@ import subprocess
 
 import attr
 import toml
+import lxml.etree as etree
 import mrl_nmt.utils as u
 import mrl_nmt.preprocessing.ops as ops
 
@@ -43,6 +45,7 @@ class FairseqPreprocessor:
             self.data_folder,
             self.data_bin_folder,
         ]
+
         if self.n_workers > 0:
             popen_args.append(str(self.n_workers))
 
@@ -132,6 +135,73 @@ class LoadedTextFile(LoadedFile):
     def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
 
         line_iterator = self.lines if self.load_intermediate else self.stream_lines
+
+        lines = (self.line_to_dict(line) for line in line_iterator)
+
+        return list(lines) if self.load_to_memory else lines
+
+
+@attr.s(auto_attribs=True)
+class LoadedXLIFFFile(LoadedFile):
+
+    language: str = "multi"
+    side: str = "both"
+
+    src_language: Optional[str] = None
+    tgt_language: Optional[str] = None
+
+    load_to_memory: bool = True
+
+    def __attrs_post_init__(self):
+        parsed_xml = self.parse_xml()
+        self.src_lines = parsed_xml["src"]["lines"]
+        self.tgt_lines = parsed_xml["tgt"]["lines"]
+
+    def parse_xml(self) -> Dict[str, Dict[str, Union[str, Iterable[str]]]]:
+
+        # load xml into memory
+        tree = etree.parse(self.path).getroot()
+
+        src_lang = tree.attrib["srcLang"]
+        tgt_lang = tree.attrib["trgLang"]
+
+        # find all source and targetlines
+        src_lines = [
+            element.text for element in tree.xpath("//*[local-name() = 'source']")
+        ]
+        tgt_lines = [
+            element.text for element in tree.xpath("//*[local-name() = 'target']")
+        ]
+
+        return {
+            "src": {"language": src_lang, "lines": src_lines},
+            "tgt": {"language": tgt_lang, "lines": tgt_lines},
+        }
+
+    def line_to_dict(
+        self, line: Tuple[str, str]
+    ) -> Dict[str, Optional[Dict[str, Optional[str]]]]:
+        """Parses a raw line to dictionary form depending on side"""
+
+        out: Dict[str, Optional[Dict[str, Optional[str]]]] = {}
+        src_line, tgt_line = line
+
+        out["src"] = {
+            "text": src_line,
+            "language": self.src_language or self.parse_language(src_line),
+        }
+
+        out["tgt"] = {
+            "text": tgt_line,
+            "language": self.tgt_language or self.parse_language(tgt_line),
+        }
+
+        return out
+
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
+
+        line_iterator = zip(self.src_lines, self.tgt_lines)
 
         lines = (self.line_to_dict(line) for line in line_iterator)
 
@@ -389,12 +459,14 @@ class ExperimentPreprocessingPipeline:
         }
 
         # Finally write all the data out
+
         for split, corpus_split in corpus_splits.items():
             output_folder = Path(config["output_base_path"]).expanduser()
             output_folder.mkdir(parents=True, exist_ok=True)
             corpus_split.write_to_disk(folder=output_folder)
 
         # Finally binarize using fairseq if needed
+
         if self.use_fairseq:
             data_bin_folder = Path(config["data_bin_folder"]).expanduser()
             data_bin_folder.mkdir(parents=True, exist_ok=True)
