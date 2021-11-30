@@ -1,11 +1,13 @@
 from pathlib import Path
 import unittest
 import sys
+from typing import Iterable, Any
 
 import mrl_nmt.preprocessing as pp
 
 # if we're not in test/ append it to the paths
 import mrl_nmt.preprocessing.corpora
+from mrl_nmt.preprocessing import ops
 
 prefix = Path("") if str(Path.cwd()).endswith("/test") else Path("test")
 
@@ -45,15 +47,15 @@ class TestLoadedTextFileRAM(unittest.TestCase):
         print("\n" + 70 * "=")
         print("Here are a few line bigrams:\n")
 
-        with open("/dev/null", "w") as dev_null:
-            for ix, (first, second) in enumerate(
-                zip(self.swe_in_ram_src.lines, self.swe_in_ram_src.lines[1:])
-            ):
-                print(
-                    {"first": first, "second": second},
-                    file=(sys.stdout if ix < 5 else dev_null),
+        print_a_few_lines(
+            msg="Here area few line bigrams:",
+            line_iter=(
+                {"first": first, "second": second}
+                for first, second in enumerate(
+                    zip(self.swe_in_ram_src.lines, self.swe_in_ram_src.lines[1:])
                 )
-        print("\n" + 70 * "=")
+            ),
+        )
 
     def test_src_has_only_source(self):
         for line_dict in self.swe_in_ram_src.lines_as_dicts:
@@ -113,16 +115,13 @@ class TestLoadedTextFileStream(unittest.TestCase):
         # throw away first value
         next(second_iter)
 
-        print("\n" + 70 * "=")
-        print("Here are a few line bigrams:\n")
-
-        with open("/dev/null", "w") as dev_null:
-            for ix, (first, second) in enumerate(zip(first_iter, second_iter)):
-                print(
-                    {"first": first, "second": second},
-                    file=(sys.stdout if ix < 5 else dev_null),
-                )
-        print("\n" + 70 * "=")
+        print_a_few_lines(
+            msg="Here are a few line bigrams:",
+            line_iter=(
+                {"first": first, "second": second}
+                for first, second in enumerate(zip(first_iter, second_iter))
+            ),
+        )
 
     def test_src_has_only_source(self):
         for line_dict in self.swe_streaming_src.lines_as_dicts:
@@ -194,14 +193,7 @@ class TestXLIFFFile(unittest.TestCase):
         )
 
     def test_can_print_lines(self) -> None:
-
-        print("\n" + 70 * "=")
-        print("Here are a few lines:\n")
-
-        with open("/dev/null", "w") as dev_null:
-            for ix, line in enumerate(self.xliff.lines_as_dicts):
-                print(line, file=(sys.stdout if ix < 5 else dev_null))
-        print("\n" + 70 * "=")
+        print_a_few_lines(self.xliff.lines_as_dicts)
 
 
 class TestCorpusSplit(unittest.TestCase):
@@ -218,32 +210,57 @@ class TestCorpusSplit(unittest.TestCase):
 
     def test_can_align_src_tgt(self) -> None:
 
-        cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(src=self.fin, tgt=self.swe, split="train")
-
-        print("\n" + 70 * "=")
-        print("Here are a few lines:\n")
-
-        with open("/dev/null", "w") as dev_null:
-            for ix, line in enumerate(cs.lines):
-                print(line, file=(sys.stdout if ix < 5 else dev_null))
-        print("\n" + 70 * "=")
+        cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
+            src=self.fin, tgt=self.swe, split="train"
+        )
+        print_a_few_lines(line_iter=cs.lines)
 
     def test_src_tgt_side_mismatch_raises_error(self):
         """An error is raised if src and tgt don't have correct sides."""
 
         with self.assertRaises(AssertionError):
-            _ = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(src=self.swe, tgt=self.fin, split="train")
+            _ = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
+                src=self.swe, tgt=self.fin, split="train"
+            )
 
     def test_stack_text_files(self):
 
         files = [self.fin, self.swe_src]
-        _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(text_files=files, split="train")
+        _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(
+            text_files=files, split="train"
+        )
 
     def test_stack_text_files_side_mismatch_raises_error(self):
 
         files = [self.fin, self.swe]
         with self.assertRaises(AssertionError):
-            _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(text_files=files, split="train")
+            _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(
+                text_files=files, split="train"
+            )
+
+
+class TestPreprocessingOps(unittest.TestCase):
+    def setUp(self) -> None:
+        self.fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=FIN_DEV, side="src", language="fi", load_to_memory=False
+        )
+        self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train")
+
+    def test_convert_to_chars(self):
+        self.fin_chars = ops.convert_to_chars(corpus=self.fin_corpus, side=self.fin.side)
+        print_a_few_lines(self.fin_chars.lines)
+
+
+def print_a_few_lines(
+    line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"
+) -> None:
+    print("\n" + 70 * "=")
+    print(f"{msg}\n")
+
+    with open("/dev/null", "w") as dev_null:
+        for ix, line in enumerate(line_iter):
+            print(line, file=(sys.stdout if ix < n_lines else dev_null))
+    print("\n" + 70 * "=")
 
 
 if __name__ == "__main__":
