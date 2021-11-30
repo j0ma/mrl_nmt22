@@ -4,10 +4,18 @@ import sys
 
 import mrl_nmt.preprocessing as pp
 
+# if we're not in test/ append it to the paths
+prefix = Path("") if str(Path.cwd()).endswith("/test") else Path("test")
+
 # Paths to Flores 101 dev data
-SWE_DEV = Path("data/flores101_swe.dev")
-ENG_FIN_DEV = Path("data/flores101_eng_fin_dev.tsv")
-ENG_FIN_DEV_WITHHEADER = Path("data/flores101_eng_fin_dev_withheader.tsv")
+SWE_DEV = prefix / Path("data/flores101_swe.dev")
+FIN_DEV = prefix / Path("data/flores101_fin.dev")
+ENG_FIN_DEV = prefix / Path("data/flores101_eng_fin_dev.tsv")
+ENG_FIN_DEV_WITHHEADER = prefix / Path("data/flores101_eng_fin_dev_withheader.tsv")
+
+# Paths to XLF data
+CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
+
 
 # Constants
 N_LINES = 997
@@ -174,3 +182,69 @@ class TestLoadedTSVFileIndexing(unittest.TestCase):
             fieldnames=["eng", "fin"],
             side="both",
         )
+
+
+class TestXLIFFFile(unittest.TestCase):
+    def setUp(self) -> None:
+        self.xliff = pp.LoadedXLIFFFile(
+            path=str(CS_EN_XLF_STUB_PATH),
+            src_language="cs",
+            tgt_language="en",
+        )
+
+    def test_can_print_lines(self) -> None:
+
+        print("\n" + 70 * "=")
+        print("Here are a few lines:\n")
+
+        with open("/dev/null", "w") as dev_null:
+            for ix, line in enumerate(self.xliff.lines_as_dicts):
+                print(line, file=(sys.stdout if ix < 5 else dev_null))
+        print("\n" + 70 * "=")
+
+
+class TestCorpusSplit(unittest.TestCase):
+    def setUp(self) -> None:
+        self.fin = pp.LoadedTextFile(
+            path=FIN_DEV, side="src", language="fi", load_to_memory=False
+        )
+        self.swe = pp.LoadedTextFile(
+            path=SWE_DEV, side="tgt", language="sv", load_to_memory=False
+        )
+        self.swe_src = pp.LoadedTextFile(
+            path=SWE_DEV, side="src", language="sv", load_to_memory=False
+        )
+
+    def test_can_align_src_tgt(self) -> None:
+
+        cs = pp.CorpusSplit.from_src_tgt(src=self.fin, tgt=self.swe, split="train")
+
+        print("\n" + 70 * "=")
+        print("Here are a few lines:\n")
+
+        with open("/dev/null", "w") as dev_null:
+            for ix, line in enumerate(cs.lines):
+                print(line, file=(sys.stdout if ix < 5 else dev_null))
+        print("\n" + 70 * "=")
+
+    def test_src_tgt_side_mismatch_raises_error(self):
+        """An error is raised if src and tgt don't have correct sides."""
+
+        with self.assertRaises(AssertionError):
+            cs = pp.CorpusSplit.from_src_tgt(src=self.swe, tgt=self.fin, split="train")
+
+    def test_from_several_files(self):
+
+        files = [self.fin, self.swe_src]
+        cs = pp.CorpusSplit.from_several_files(text_files=files, split="train")
+        print(cs)
+
+    def test_from_several_files_side_mismatch_raises_error(self):
+
+        files = [self.fin, self.swe]
+        with self.assertRaises(AssertionError):
+            cs = pp.CorpusSplit.from_several_files(text_files=files, split="train")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=1234)
