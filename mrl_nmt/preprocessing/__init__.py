@@ -318,6 +318,9 @@ class CorpusSplit:
         cls, src: LoadedFile, tgt: LoadedFile, split: str, verbose: bool = True
     ) -> "CorpusSplit":
 
+        assert src.side == "src", f"The side of {src} must be 'src'."
+        assert tgt.side == "tgt", f"The side of {tgt} must be 'tgt'."
+
         joined_lines = (
             {"src": s["src"], "tgt": t["tgt"]}
 
@@ -349,7 +352,9 @@ class CorpusSplit:
         )
 
     @classmethod
-    def from_xliff(cls, xliff: LoadedXLIFFFile, split: str, verbose: bool = True):
+    def from_xliff(
+        cls, xliff: LoadedXLIFFFile, split: str, verbose: bool = True
+    ) -> "CorpusSplit":
         assert (
             xliff.both_sides
         ), "Only XLF files with both source and target text are supported."
@@ -360,6 +365,35 @@ class CorpusSplit:
             split=split,
             verbose=verbose,
             lines=xliff.lines_as_dicts,
+        )
+
+    @classmethod
+    def from_several_files(
+        cls, text_files: Sequence[LoadedTextFile], split: str, verbose: bool = True
+    ) -> "CorpusSplit":
+        """Create a single CorpusSplit by concatenating lines of multiple files together.
+
+        Note: files must all be the same side (i.e. src or tgt)
+        """
+
+        all_languages = set(tf.language for tf in text_files)
+        all_sides = set(tf.side for tf in text_files)
+
+        assert len(all_sides) == 1, "All text files must have the same side"
+
+        side = text_files[0].side
+
+        if len(all_languages) > 1:
+            language = "multi"
+        else:
+            language = text_files[0].language
+
+        concatenated_lines = (line for tf in text_files for line in tf.lines_as_dicts)
+
+        lang_kwargs = {("src_lang" if side == "src" else "tgt_lang"): language}
+
+        return cls(
+            **lang_kwargs, split=split, verbose=verbose, lines=concatenated_lines
         )
 
 
