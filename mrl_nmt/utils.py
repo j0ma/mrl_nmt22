@@ -54,10 +54,13 @@ def read_tsv_list(
                 yield line
 
 
-def write_lines(path: Union[str, Path], lines=Iterable[str]) -> None:
+def write_lines(
+    path: Union[str, Path], lines=Iterable[str], check_empty: bool = True
+) -> None:
     with open(path, mode="w", encoding="utf-8") as fout:
         for line in lines:
-            fout.write(f"{line}\n")
+            if not check_empty or line.strip():
+                fout.write(f"{line}\n")
 
 
 @attr.s(auto_attribs=True)
