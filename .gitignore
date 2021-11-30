@@ -3,6 +3,8 @@ checkpoints/
 experiments/
 data-bin/
 
+*.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -141,5 +143,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
 test/data/RAPID_2019.cs-en.xlf
