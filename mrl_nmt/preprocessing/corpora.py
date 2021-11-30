@@ -1,5 +1,16 @@
 from pathlib import Path
-from typing import Union, Set, Optional, Callable, Any, Iterable, Dict, Tuple, Sequence, Mapping
+from typing import (
+    Union,
+    Set,
+    Optional,
+    Callable,
+    Any,
+    Iterable,
+    Dict,
+    Tuple,
+    Sequence,
+    Mapping,
+)
 
 import attr
 from lxml import etree as etree
@@ -273,7 +284,6 @@ class CorpusSplit:
 
         joined_lines = (
             {"src": s["src"], "tgt": t["tgt"]}
-
             for s, t in zip(src.lines_as_dicts, tgt.lines_as_dicts)
         )
 
@@ -316,6 +326,16 @@ class CorpusSplit:
             verbose=verbose,
             lines=xliff.lines_as_dicts,
         )
+
+    @classmethod
+    def from_text_file(
+        cls,
+        text_file: LoadedTextFile,
+        split: str,
+    ) -> "CorpusSplit":
+        other_side = {"src": "tgt", "tgt": "src"}[text_file.side]
+        lang_kwarg = {f"{text_file.side}_lang": text_file.language}
+        return cls(lines=text_file.lines_as_dicts, split=split, **lang_kwarg)
 
     @classmethod
     def stack_text_files(

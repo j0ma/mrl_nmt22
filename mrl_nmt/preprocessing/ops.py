@@ -1,10 +1,37 @@
-from typing import Union, Iterable
+from typing import Union, Iterable, Optional, Dict
 from pathlib import Path
 import io
 
 import attr
 from mrl_nmt.utils import read_lines
+import mrl_nmt.preprocessing.corpora as crp
 import sentencepiece as spm
+
+SPACE_SYMBOL = "﹏"
+
+
+def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
+    """Converts one side of corpus to characters."""
+    # other_side = {"src": "tgt", "tgt": "src"}[side]
+
+    def to_char_level(s: str, space_symbol: str = SPACE_SYMBOL) -> str:
+        return " ".join(space_symbol if c == " " else c for c in s)
+
+    def lines_as_chars(
+        line_dict: Dict[str, Optional[Dict[str, str]]], side: str
+    ) -> Dict[str, Optional[Dict[str, str]]]:
+        """Modifies lines in-place and returns"""
+        line_dict[side]["text"] = to_char_level(line_dict[side]["text"])
+        return line_dict
+
+    return crp.CorpusSplit(
+        lines=(lines_as_chars(ld, side=side) for ld in corpus.lines),
+        split=corpus.split,
+        src_lang=corpus.src_lang,
+        tgt_lang=corpus.tgt_lang,
+        verbose=corpus.verbose,
+    )
+
 
 def process_with_sentencepiece(
     lines: Iterable[str],
