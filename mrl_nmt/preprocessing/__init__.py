@@ -307,12 +307,11 @@ class CorpusSplit:
         """
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
 
-        for side, lines in self.lines.items():
-            if lines:
-                lang = {"src": self.src_lang, "tgt": self.tgt_lang}[side]
-                output_file = folder / f"{prefix}.{lang}"
-                lines = (d[side]["text"] for d in lines)
-                u.write_lines(path=output_file, lines=self.lines[side])
+        for side, lang in zip(("src", "tgt"), (self.src_lang, self.tgt_lang)):
+            if lang:
+                output_path = folder / f"{prefix}.{lang}"
+                lines = (line[side] for line in self.lines)
+                u.write_lines(path=output_path, lines=lines)
 
     @classmethod
     def from_src_tgt(
@@ -320,9 +319,9 @@ class CorpusSplit:
     ) -> "CorpusSplit":
 
         joined_lines = (
-            {"src": src_line["src"], "tgt": tgt_line["tgt"]}
+            {"src": s["src"], "tgt": t["tgt"]}
 
-            for src_line, tgt_line in zip(src.lines_as_dicts, tgt.lines_as_dicts)
+            for s, t in zip(src.lines_as_dicts, tgt.lines_as_dicts)
         )
 
         return cls(
@@ -337,12 +336,30 @@ class CorpusSplit:
     def from_tsv(
         cls, tsv: LoadedTSVFile, split: str, verbose: bool = True
     ) -> "CorpusSplit":
+        assert (
+            tsv.both_sides
+        ), "Only TSVs with both source and target text are supported."
+
         return cls(
             src_lang=tsv.src_language,
             tgt_lang=tsv.tgt_language,
             split=split,
             verbose=verbose,
             lines=tsv.lines_as_dicts,
+        )
+
+    @classmethod
+    def from_xliff(cls, xliff: LoadedXLIFFFile, split: str, verbose: bool = True):
+        assert (
+            xliff.both_sides
+        ), "Only XLF files with both source and target text are supported."
+
+        return cls(
+            src_lang=xliff.src_language,
+            tgt_lang=xliff.tgt_language,
+            split=split,
+            verbose=verbose,
+            lines=xliff.lines_as_dicts,
         )
 
 
