@@ -1,6 +1,7 @@
 from pathlib import Path
 import unittest
 import sys
+import os
 from typing import Iterable, Any
 from itertools import zip_longest
 
@@ -26,7 +27,9 @@ CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 
 # Set this to a path that points to folders containing full data
-FULL_DATA_PATH = Path("~/datasets/mrl_nmt22/").expanduser()
+FULL_DATA_PATH = Path(
+    os.environ.get("MRL_FULL_DATA_PATH") or "~/datasets/mrl_nmt22/"
+).expanduser()
 
 # Constants
 N_LINES = 997
@@ -204,18 +207,6 @@ class TestXLIFFFile(unittest.TestCase):
         print_a_few_lines(self.xliff.lines_as_dicts)
 
 
-class TestXLIFFFile(unittest.TestCase):
-    def setUp(self) -> None:
-        self.xliff = mrl_nmt.preprocessing.corpora.LoadedXLIFFFile(
-            path=str(CS_EN_XLF_STUB_PATH),
-            src_language="cs",
-            tgt_language="en",
-        )
-
-    def test_can_print_lines(self) -> None:
-        print_a_few_lines(self.xliff.lines_as_dicts)
-
-
 class TestTMXFile(unittest.TestCase):
     def test_can_print_lines_stream(self) -> None:
         self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
@@ -351,8 +342,12 @@ class TestPreprocessingOps(unittest.TestCase):
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
 
+    @unittest.skipIf(
+        condition=not (FULL_DATA_PATH / "cs" / "en-cs").exists(),
+        reason=f"{FULL_DATA_PATH}/cs/en-cs not found!",
+    )
     def test_stack_corpus_splits_num_lines(self):
-        input_base_folder = FULL_DATA_PATH / "cs-en"
+        input_base_folder = FULL_DATA_PATH / "cs" / "en-cs"
         split = "train"
         commoncrawl_train = pp.ops.load_commoncrawl(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
@@ -377,7 +372,7 @@ class TestPreprocessingOps(unittest.TestCase):
             news_commentary_train,
             rapid_train,
         ]
-        line_count_individual = sum(1 for sp in splits for line in sp)
+        line_count_individual = sum(1 for sp in splits for line in sp.lines)
         train = pp.corpora.CorpusSplit.stack_corpus_splits(
             corpus_splits=splits,
             split="train",
