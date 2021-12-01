@@ -214,17 +214,27 @@ class TestXLIFFFile(unittest.TestCase):
 
 
 class TestTMXFile(unittest.TestCase):
-    def setUp(self) -> None:
+    def test_can_print_lines_stream(self) -> None:
         self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
             path=str(EN_FI_TMX_STUB_PATH),
             src_language="en",
             tgt_language="fi",
             load_to_memory=False,
         )
-
-    def test_can_print_lines(self) -> None:
         lines = self.tmx_file.lines_as_dicts
         print_a_few_lines(lines)
+
+    def test_can_print_lines_ram(self) -> None:
+        self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
+            path=str(EN_FI_TMX_STUB_PATH),
+            src_language="en",
+            tgt_language="fi",
+            load_to_memory=True,
+        )
+        lines = self.tmx_file.lines_as_dicts
+        print_a_few_lines(lines)
+
+    # TODO: more tests
 
 
 class TestCorpusSplit(unittest.TestCase):

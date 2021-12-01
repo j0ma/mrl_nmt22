@@ -257,6 +257,10 @@ class LoadedTMXFile(LoadedTSVFile):
         self.tgt_column = self.tgt_language
         self.fieldnames = [self.src_column, self.tgt_column]
 
+    def _line_to_dict_lazy(self, line_iterator):
+        for line in line_iterator:
+            yield self.line_to_dict(line)
+
     @property
     def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
 
@@ -270,8 +274,7 @@ class LoadedTMXFile(LoadedTSVFile):
         if self.load_to_memory:
             return [self.line_to_dict(line) for line in line_iterator]
         else:
-            for line in line_iterator:
-                yield self.line_to_dict(line)
+            return self._line_to_dict_lazy(line_iterator)
 
 
 @attr.s(auto_attribs=True)
@@ -422,4 +425,33 @@ class CorpusSplit:
 
         return cls(
             **lang_kwargs, split=split, verbose=verbose, lines=concatenated_lines
+        )
+
+    @classmethod
+    def stack_corpus_splits(
+        cls, corpus_splits: Sequence["CorpusSplit"], split: str, verbose: bool = True
+    ) -> "CorpusSplit":
+        """Create a single CorpusSplit by concatenating lines of multiple CorpusSplits together."""
+
+        all_sides = set(cs.side for cs in corpus_splits)
+        assert len(all_sides) == 1, "All corpus splits must have the same side"
+
+        all_src = list(set(cs.src_lang for cs in corpus_splits))
+        assert len(all_src) == 1, "All corpus splits must have the same source language"
+
+        all_tgt = list(set(cs.tgt_lang for cs in corpus_splits))
+        assert len(all_tgt) == 1, "All corpus splits must have the same target language"
+
+        src_lang, tgt_lang = all_src[0], all_tgt[0]
+
+        concatenated_lines = (
+            line for cs in corpus_splits for line in cs.lines_as_dicts
+        )
+
+        return cls(
+            src_lang=src_lang,
+            tgt_lang=tgt_lang,
+            split=split,
+            verbose=verbose,
+            lines=concatenated_lines,
         )

@@ -149,18 +149,6 @@ class ExperimentPreprocessingPipeline:
                 lines[split][kind] = preprocessor(input_obj=input_file_path, ops=steps)
                 # TODO: handle files like CSVs where kind = "combined"
 
-        # Then create CorpusSplit objects out of the lines
-        corpus_splits = {
-            split: CorpusSplit(
-                src_lang=src,
-                tgt_lang=tgt,
-                lines=lines[split],
-                split=split,
-                verbose=self.verbose,
-            )
-            for split in splits
-        }
-
         # Finally write all the data out
 
         for split, corpus_split in corpus_splits.items():
