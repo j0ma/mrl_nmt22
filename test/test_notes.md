@@ -13,3 +13,6 @@
         - from_src_tgt
     - [x] Unify multiple rows in a single split [stack vertically]
         - stack_text_files
+
+To enable all tests, make sure to tweak `FULL_DATA` variable in `test/test.py`.
+Alternatively, it is possible to set it using the `MRL_FULL_DATA_PATH` environment variable.

@@ -184,7 +184,7 @@ class LoadedXLIFFFile(LoadedTSVFile):
     src_language: Optional[str] = None
     tgt_language: Optional[str] = None
 
-    load_to_memory: bool = True
+    load_to_memory: bool = False
 
     def __attrs_post_init__(self):
         self.both_sides = self.side == "both"

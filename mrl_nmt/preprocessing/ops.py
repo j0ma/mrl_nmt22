@@ -71,6 +71,7 @@ def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):
         src_language=foreign_language,
         tgt_language="en",
         fieldnames=["en", foreign_language],
+        load_to_memory=False,
     )
 
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
@@ -93,6 +94,7 @@ def load_europarl_v10(
         src_column=src_language,
         tgt_column=tgt_language,
         fieldnames=[src_language, tgt_language],
+        load_to_memory=False,
     )
 
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
@@ -111,6 +113,7 @@ def load_news_commentary(
         src_column=src_language,
         tgt_column=tgt_language,
         fieldnames=[src_language, tgt_language],
+        load_to_memory=False,
     )
 
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
@@ -126,6 +129,7 @@ def load_rapid_2019_xlf(
         side="both",
         src_language=src_language,
         tgt_language=tgt_language,
+        load_to_memory=False,
     )
 
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)

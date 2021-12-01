@@ -27,9 +27,10 @@ CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 
 # Set this to a path that points to folders containing full data
-FULL_DATA_PATH = Path(
-    os.environ.get("MRL_FULL_DATA_PATH") or "~/datasets/mrl_nmt22/"
-).expanduser()
+# FULL_DATA_PATH = Path(
+#     os.environ.get("MRL_FULL_DATA_PATH") or "~/datasets/mrl_nmt22/"
+# ).expanduser()
+FULL_DATA_PATH = Path("/data/datasets/mrl-nmt").expanduser()
 
 # Constants
 N_LINES = 997
@@ -346,40 +347,32 @@ class TestPreprocessingOps(unittest.TestCase):
         condition=not (FULL_DATA_PATH / "cs" / "en-cs").exists(),
         reason=f"{FULL_DATA_PATH}/cs/en-cs not found!",
     )
-    def test_stack_corpus_splits_num_lines(self):
+    def test_stack_corpus_splits_num_lines_simple(self):
         input_base_folder = FULL_DATA_PATH / "cs" / "en-cs"
         split = "train"
-        commoncrawl_train = pp.ops.load_commoncrawl(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
-        paracrawl_train = pp.ops.load_paracrawl(
-            folder=input_base_folder, foreign_language="cs", split=split
-        )
-        europarl_train = pp.ops.load_europarl_v10(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
         news_commentary_train = pp.ops.load_news_commentary(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
-
         rapid_train = pp.ops.load_rapid_2019_xlf(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
-        splits = [
-            commoncrawl_train,
-            paracrawl_train,
-            europarl_train,
-            news_commentary_train,
-            rapid_train,
-        ]
-        line_count_individual = sum(1 for sp in splits for line in sp.lines)
+        line_count_news = sum(1 for _ in news_commentary_train.lines)
+        line_count_rapid = sum(1 for _ in rapid_train.lines)
+        self.assertGreater(line_count_news, 0)
+        self.assertGreater(line_count_rapid, 0)
+
+        news_commentary_train = pp.ops.load_news_commentary(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+        rapid_train = pp.ops.load_rapid_2019_xlf(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
         train = pp.corpora.CorpusSplit.stack_corpus_splits(
-            corpus_splits=splits,
+            corpus_splits=[news_commentary_train, rapid_train],
             split="train",
         )
-        line_count_train = sum(1 for line in train.lines)
-
-        self.assertEqual(line_count_individual, line_count_train)
+        line_count_combined = sum(1 for _ in train.lines)
+        self.assertEqual(line_count_combined, line_count_news + line_count_rapid)
 
 
 def print_a_few_lines(
