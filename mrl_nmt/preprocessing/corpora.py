@@ -314,7 +314,6 @@ class CorpusSplit:
                 src_out.write(f"{src_line}\n")
                 tgt_out.write(f"{tgt_line}\n")
 
-
     @classmethod
     def from_src_tgt(
         cls,

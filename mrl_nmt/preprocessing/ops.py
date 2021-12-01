@@ -76,7 +76,7 @@ def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
 
 
-def load_europarl(
+def load_europarl_v10(
     folder: Path, src_language: str, tgt_language: str, split: str = "train"
 ):
 
@@ -140,7 +140,7 @@ def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
         paracrawl_train = load_paracrawl(
             folder=input_base_folder, foreign_language="cs", split=split
         )
-        europarl_train = load_europarl(
+        europarl_train = load_europarl_v10(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
         news_commentary_train = load_news_commentary(

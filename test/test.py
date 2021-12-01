@@ -25,6 +25,9 @@ CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 # Paths to TMX data
 EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 
+# Set this to a path that points to folders containing full data
+FULL_DATA_PATH = Path("~/datasets/mrl_nmt22/").expanduser()
+
 # Constants
 N_LINES = 997
 
@@ -347,6 +350,41 @@ class TestPreprocessingOps(unittest.TestCase):
         mrl_nmt.preprocessing.ops.load_commoncrawl(
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
+
+    def test_stack_corpus_splits_num_lines(self):
+        input_base_folder = FULL_DATA_PATH / "cs-en"
+        split = "train"
+        commoncrawl_train = pp.ops.load_commoncrawl(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+        paracrawl_train = pp.ops.load_paracrawl(
+            folder=input_base_folder, foreign_language="cs", split=split
+        )
+        europarl_train = pp.ops.load_europarl_v10(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+        news_commentary_train = pp.ops.load_news_commentary(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+
+        rapid_train = pp.ops.load_rapid_2019_xlf(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+        splits = [
+            commoncrawl_train,
+            paracrawl_train,
+            europarl_train,
+            news_commentary_train,
+            rapid_train,
+        ]
+        line_count_individual = sum(1 for sp in splits for line in sp)
+        train = pp.corpora.CorpusSplit.stack_corpus_splits(
+            corpus_splits=splits,
+            split="train",
+        )
+        line_count_train = sum(1 for line in train.lines)
+
+        self.assertEqual(line_count_individual, line_count_train)
 
 
 def print_a_few_lines(
