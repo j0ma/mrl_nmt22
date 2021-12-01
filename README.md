@@ -12,6 +12,7 @@
 - sentencepiece
 - fairseq
 - click
+- lxml
 
 ## Notes on languages
 - Czech

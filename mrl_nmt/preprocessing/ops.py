@@ -9,6 +9,19 @@ import sentencepiece as spm
 
 SPACE_SYMBOL = "﹏"
 
+#### Language pair specific ops 
+def process_cs_en():
+    pass
+def process_de_en():
+    pass
+def process_fi_en():
+    pass
+def process_iu_en():
+    pass
+def process_ru_en():
+    pass
+
+####
 
 def duplicate_lines(
     corpus: crp.CorpusSplit, n: int = 1, round_robin: bool = True
