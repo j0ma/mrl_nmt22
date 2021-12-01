@@ -1,4 +1,4 @@
-from typing import Union, Iterable, Optional, Dict
+from typing import Union, Iterable, Optional, Dict, Any
 from pathlib import Path
 import io
 
@@ -8,6 +8,42 @@ import mrl_nmt.preprocessing.corpora as crp
 import sentencepiece as spm
 
 SPACE_SYMBOL = "﹏"
+
+
+def duplicate_lines(
+    corpus: crp.CorpusSplit, n: int = 1, round_robin: bool = True
+) -> crp.CorpusSplit:
+    """Produces a new corpus with each line repeated n times.
+    With round_robin=False, each line is repeated n_times.
+    With round_robin=True, lines are concatenated n times (requires loading to RAM).
+    """
+    if round_robin:
+
+        def duplicated(lines: Iterable[Any], n: int) -> Iterable[Any]:
+            try:
+                length = len(lines)
+                line_iter = lines
+            except:
+                # if not a sequence, convert to list
+                line_iter = list(lines)
+            for _ in range(n):
+                for line in line_iter:
+                    yield line
+
+    else:
+
+        def duplicated(lines: Iterable[Any], n: int) -> Iterable[Any]:
+            for line in lines:
+                for _ in range(n):
+                    yield line
+
+    return crp.CorpusSplit(
+        lines=duplicated(corpus.lines, n),
+        split=corpus.split,
+        src_lang=corpus.src_lang,
+        tgt_lang=corpus.tgt_lang,
+        verbose=corpus.verbose,
+    )
 
 
 def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:

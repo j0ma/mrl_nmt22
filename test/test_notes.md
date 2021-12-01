@@ -9,7 +9,7 @@
     - [ ] ram: stream/load
     - [ ] stream multiple times
 - CorpusSplit
-    - [ ] Unify source and target [stack horizontally]
+    - [x] Unify source and target [stack horizontally]
         - from_src_tgt
-    - [ ] Unify multiple rows in a single split [stack vertically]
-        - from_files
+    - [x] Unify multiple rows in a single split [stack vertically]
+        - stack_text_files

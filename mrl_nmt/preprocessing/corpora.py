@@ -276,6 +276,38 @@ class CorpusSplit:
 
     @classmethod
     def from_src_tgt(
+        cls,
+        src: Union[LoadedFile, "CorpusSplit"],
+        tgt: Union[LoadedFile, "CorpusSplit"],
+        split: str,
+        verbose: bool = True,
+    ) -> "CorpusSplit":
+        try:
+            return cls._from_src_tgt_file(src, tgt, split=split, verbose=verbose)
+        except:
+            return cls._from_src_tgt_corpus_split(
+                src, tgt, split=split, verbose=verbose
+            )
+
+    @classmethod
+    def _from_src_tgt_corpus_split(
+        cls, src: "CorpusSplit", tgt: "CorpusSplit", split: str, verbose: bool = True
+    ) -> "CorpusSplit":
+
+        joined_lines = (
+            {"src": s["src"], "tgt": t["tgt"]} for s, t in zip(src.lines, tgt.lines)
+        )
+
+        return cls(
+            src_lang=src.src_lang,
+            tgt_lang=tgt.tgt_lang,
+            split=split,
+            verbose=verbose,
+            lines=joined_lines,
+        )
+
+    @classmethod
+    def _from_src_tgt_file(
         cls, src: LoadedFile, tgt: LoadedFile, split: str, verbose: bool = True
     ) -> "CorpusSplit":
 

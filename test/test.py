@@ -2,6 +2,7 @@ from pathlib import Path
 import unittest
 import sys
 from typing import Iterable, Any
+from itertools import zip_longest
 
 import mrl_nmt.preprocessing as pp
 
@@ -14,6 +15,7 @@ prefix = Path("") if str(Path.cwd()).endswith("/test") else Path("test")
 # Paths to Flores 101 dev data
 SWE_DEV = prefix / Path("data/flores101_swe.dev")
 FIN_DEV = prefix / Path("data/flores101_fin.dev")
+ENG_DEV = prefix / Path("data/flores101_eng.dev")
 ENG_FIN_DEV = prefix / Path("data/flores101_eng_fin_dev.tsv")
 ENG_FIN_DEV_WITHHEADER = prefix / Path("data/flores101_eng_fin_dev_withheader.tsv")
 
@@ -244,12 +246,37 @@ class TestPreprocessingOps(unittest.TestCase):
         self.fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=FIN_DEV, side="src", language="fi", load_to_memory=False
         )
+        self.swe = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=SWE_DEV, side="src", language="sv", load_to_memory=False
+        )
+        self.eng = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=ENG_DEV, side="tgt", language="en", load_to_memory=False
+        )
         self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train")
 
     def test_convert_to_chars(self):
         self.fin_chars = ops.convert_to_chars(corpus=self.fin_corpus, side=self.fin.side)
         print_a_few_lines(self.fin_chars.lines)
 
+    def test_duplicate_lines(self):
+        self.fin_5x_round_robin = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train"), n=5)
+        self.fin_5x_repeat_each = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train"), n=5, round_robin=False)
+
+        n_lines_round_robin = 0
+        n_lines_repeat_each = 0
+
+        for rr_line, re_line in zip_longest(self.fin_5x_round_robin.lines, self.fin_5x_repeat_each.lines):
+            n_lines_round_robin += int(bool(rr_line))
+            n_lines_repeat_each += int(bool(re_line))
+
+        self.assertEqual(n_lines_round_robin, n_lines_repeat_each)
+
+    def test_create_multilingual_corpus(self):
+
+        en_corpus = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.eng, split="train"), 2)
+        multi_corpus = mrl_nmt.preprocessing.CorpusSplit.stack_text_files(text_files=[self.fin, self.swe], split="train")
+
+        combined_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(src=multi_corpus, tgt=en_corpus, split="train")
 
 def print_a_few_lines(
     line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"
