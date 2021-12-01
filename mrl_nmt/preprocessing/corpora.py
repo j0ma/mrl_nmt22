@@ -187,6 +187,7 @@ class LoadedXLIFFFile(LoadedTSVFile):
     load_to_memory: bool = True
 
     def __attrs_post_init__(self):
+        self.both_sides = self.side == "both"
         parsed_xml = self.parse_xml()
         self.src_lines = parsed_xml["src"]["lines"]
         self.tgt_lines = parsed_xml["tgt"]["lines"]
@@ -194,7 +195,8 @@ class LoadedXLIFFFile(LoadedTSVFile):
     def parse_xml(self) -> Dict[str, Dict[str, Union[str, Iterable[str]]]]:
 
         # load xml into memory
-        tree = etree.parse(self.path).getroot()
+        str_path = str(self.path)
+        tree = etree.parse(str_path).getroot()
 
         src_lang = tree.attrib["srcLang"]
         tgt_lang = tree.attrib["trgLang"]
