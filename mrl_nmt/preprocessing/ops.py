@@ -50,7 +50,7 @@ def load_commoncrawl(
     )
 
     # Create corpus split
-    return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_src, split=split)
+    return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_tgt, split=split)
 
 
 def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):

@@ -343,6 +343,11 @@ class TestPreprocessingOps(unittest.TestCase):
             src=multi_corpus, tgt=en_corpus, split="train"
         )
 
+    def test_load_commoncrawl(self):
+        mrl_nmt.preprocessing.ops.load_commoncrawl(
+            folder=prefix / "data", src_language="cs", tgt_language="en"
+        )
+
 
 def print_a_few_lines(
     line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"
