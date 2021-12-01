@@ -16,6 +16,7 @@ import attr
 from lxml import etree as etree
 
 from mrl_nmt import utils as u
+from mrl_nmt.preprocessing.tmx import TMXHandler
 
 
 @attr.s(auto_attribs=True)
@@ -46,14 +47,6 @@ class LoadedFile:
         assert self.side in self.sides, f"'kind' must be one of {self.sides}"
         self.both_sides = self.side == "both"
         self.path = Path(self.path).expanduser()
-
-    @property
-    def stream_lines(self) -> Iterable[str]:
-        raise NotImplementedError
-
-    @property
-    def lines(self) -> Iterable[str]:
-        raise NotImplementedError
 
     @property
     def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
@@ -240,6 +233,39 @@ class LoadedTSVFile(LoadedFile):
                 delimiter=self.delimiter,
                 load_to_memory=self.load_intermediate,
             )
+
+        if self.load_to_memory:
+            return [self.line_to_dict(line) for line in line_iterator]
+        else:
+            for line in line_iterator:
+                yield self.line_to_dict(line)
+
+
+@attr.s(auto_attribs=True)
+class LoadedTMXFile(LoadedTSVFile):
+
+    language: str = "multi"
+    src_language: Optional[str] = None
+    tgt_language: Optional[str] = None
+    delimiter: str = "\t"
+
+    # TMX files always have both sides
+    side: str = "both"
+
+    def __attrs_post_init__(self):
+        self.src_column = self.src_language
+        self.tgt_column = self.tgt_language
+        self.fieldnames = [self.src_column, self.tgt_column]
+
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
+
+        line_iterator = TMXHandler(
+            input_file=self.path,
+            src_language=self.src_language,
+            tgt_language=self.tgt_language,
+            legacy_mode=False,
+        ).process()
 
         if self.load_to_memory:
             return [self.line_to_dict(line) for line in line_iterator]

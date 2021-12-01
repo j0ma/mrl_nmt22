@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tmx version="1.4">
+  <header creationtool="Moses-to-TMX-converer" creationtoolversion="1.0" o-tmf="Moses plain text files" datatype="plaintext" segtype="sentence" adminlang="EN-US" srclang="en" creationdate="20170426T081855Z">
+  </header>
+  <body>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>&quot; &quot; Japan : 34,9%</seg>
+      </tuv>
+      <tuv xml:lang="fi">
+        <seg>&quot; Japanista: 34,9</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>&quot; &quot; Korea : 25,1%</seg>
+      </tuv>
+      <tuv xml:lang="fi">
+        <seg>&quot; Koreasta: 25,1</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>&quot; &quot; Malaysia : 89,8%</seg>
+      </tuv>
+      <tuv xml:lang="fi">
+        <seg>&quot; Malesiasta: 89,8</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>&quot; &quot; Singapore : 39,5%</seg>
+      </tuv>
+      <tuv xml:lang="fi">
+        <seg>&quot; Singaporesta: 39,5</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>&quot; &quot; Taiwan : 36,6%</seg>
+      </tuv>
+      <tuv xml:lang="fi">
+        <seg>&quot; Taiwanista: 36,6</seg>
+      </tuv>
+    </tu>
+</body>
+</tmx>

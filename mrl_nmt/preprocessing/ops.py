@@ -1,4 +1,4 @@
-from typing import Union, Iterable, Optional, Dict, Any
+from typing import Union, Iterable, Optional, Dict, Any, Sequence
 from pathlib import Path
 import io
 
@@ -9,19 +9,37 @@ import sentencepiece as spm
 
 SPACE_SYMBOL = "﹏"
 
-#### Language pair specific ops 
-def process_cs_en():
+#### Language pair specific ops
+def process_cs_en(files: Sequence[str]) -> None:
     pass
+
+
 def process_de_en():
     pass
+
+
 def process_fi_en():
     pass
+
+
 def process_iu_en():
     pass
+
+
 def process_ru_en():
     pass
 
+
+def process_tr_en() -> None:
+    en = crp.LoadedTextFile()
+
+
+def process_uz_en():
+    pass
+
+
 ####
+
 
 def duplicate_lines(
     corpus: crp.CorpusSplit, n: int = 1, round_robin: bool = True
@@ -83,7 +101,8 @@ def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
 
 
 def process_with_sentencepiece(
-    lines: Iterable[str],
+    corpus: crp.CorpusSplit,
+    side: str,
     vocab_size: int,
     use_pretrained_model: bool = False,
     model_file: Union[str, Path] = "",
@@ -92,7 +111,8 @@ def process_with_sentencepiece(
     shuffle_input_sentence: bool = False,
 ) -> Iterable[str]:
 
-    # TODO: handle case where lines aren't in RAM and can't iterate twice
+    # load lines to RAM (sad)
+    lines = [ld[side]["text"] for ld in corpus.lines]
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 

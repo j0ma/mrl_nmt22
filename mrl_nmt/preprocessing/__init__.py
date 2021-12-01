@@ -49,6 +49,7 @@ class FairseqPreprocessor:
             text=True,
         )
 
+
 @attr.s
 class Preprocessor:
     verbose: bool = attr.ib(default=False)
@@ -157,7 +158,6 @@ class ExperimentPreprocessingPipeline:
                 split=split,
                 verbose=self.verbose,
             )
-
             for split in splits
         }
 

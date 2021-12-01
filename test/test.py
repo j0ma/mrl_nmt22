@@ -22,6 +22,9 @@ ENG_FIN_DEV_WITHHEADER = prefix / Path("data/flores101_eng_fin_dev_withheader.ts
 # Paths to XLF data
 CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 
+# Paths to TMX data
+EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
+
 # Constants
 N_LINES = 997
 
@@ -198,6 +201,32 @@ class TestXLIFFFile(unittest.TestCase):
         print_a_few_lines(self.xliff.lines_as_dicts)
 
 
+class TestXLIFFFile(unittest.TestCase):
+    def setUp(self) -> None:
+        self.xliff = mrl_nmt.preprocessing.corpora.LoadedXLIFFFile(
+            path=str(CS_EN_XLF_STUB_PATH),
+            src_language="cs",
+            tgt_language="en",
+        )
+
+    def test_can_print_lines(self) -> None:
+        print_a_few_lines(self.xliff.lines_as_dicts)
+
+
+class TestTMXFile(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
+            path=str(EN_FI_TMX_STUB_PATH),
+            src_language="en",
+            tgt_language="fi",
+            load_to_memory=False,
+        )
+
+    def test_can_print_lines(self) -> None:
+        lines = self.tmx_file.lines_as_dicts
+        print_a_few_lines(lines)
+
+
 class TestCorpusSplit(unittest.TestCase):
     def setUp(self) -> None:
         self.fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
@@ -252,20 +281,37 @@ class TestPreprocessingOps(unittest.TestCase):
         self.eng = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=ENG_DEV, side="tgt", language="en", load_to_memory=False
         )
-        self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train")
+        self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(
+            text_file=self.fin, split="train"
+        )
 
     def test_convert_to_chars(self):
-        self.fin_chars = ops.convert_to_chars(corpus=self.fin_corpus, side=self.fin.side)
+        self.fin_chars = ops.convert_to_chars(
+            corpus=self.fin_corpus, side=self.fin.side
+        )
         print_a_few_lines(self.fin_chars.lines)
 
     def test_duplicate_lines(self):
-        self.fin_5x_round_robin = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train"), n=5)
-        self.fin_5x_repeat_each = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.fin, split="train"), n=5, round_robin=False)
+        self.fin_5x_round_robin = ops.duplicate_lines(
+            mrl_nmt.preprocessing.CorpusSplit.from_text_file(
+                text_file=self.fin, split="train"
+            ),
+            n=5,
+        )
+        self.fin_5x_repeat_each = ops.duplicate_lines(
+            mrl_nmt.preprocessing.CorpusSplit.from_text_file(
+                text_file=self.fin, split="train"
+            ),
+            n=5,
+            round_robin=False,
+        )
 
         n_lines_round_robin = 0
         n_lines_repeat_each = 0
 
-        for rr_line, re_line in zip_longest(self.fin_5x_round_robin.lines, self.fin_5x_repeat_each.lines):
+        for rr_line, re_line in zip_longest(
+            self.fin_5x_round_robin.lines, self.fin_5x_repeat_each.lines
+        ):
             n_lines_round_robin += int(bool(rr_line))
             n_lines_repeat_each += int(bool(re_line))
 
@@ -273,10 +319,20 @@ class TestPreprocessingOps(unittest.TestCase):
 
     def test_create_multilingual_corpus(self):
 
-        en_corpus = ops.duplicate_lines(mrl_nmt.preprocessing.CorpusSplit.from_text_file(text_file=self.eng, split="train"), 2)
-        multi_corpus = mrl_nmt.preprocessing.CorpusSplit.stack_text_files(text_files=[self.fin, self.swe], split="train")
+        en_corpus = ops.duplicate_lines(
+            mrl_nmt.preprocessing.CorpusSplit.from_text_file(
+                text_file=self.eng, split="train"
+            ),
+            2,
+        )
+        multi_corpus = mrl_nmt.preprocessing.CorpusSplit.stack_text_files(
+            text_files=[self.fin, self.swe], split="train"
+        )
 
-        combined_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(src=multi_corpus, tgt=en_corpus, split="train")
+        combined_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
+            src=multi_corpus, tgt=en_corpus, split="train"
+        )
+
 
 def print_a_few_lines(
     line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"

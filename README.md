@@ -13,6 +13,7 @@
 - fairseq
 - click
 - lxml
+- mtdata
 
 ## Notes on languages
 - Czech
