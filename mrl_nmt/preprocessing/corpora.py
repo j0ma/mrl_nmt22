@@ -311,9 +311,9 @@ class CorpusSplit:
         split: str,
         verbose: bool = True,
     ) -> "CorpusSplit":
-        try:
+        if all(isinstance(f, LoadedFile) for f in (src, tgt)):
             return cls._from_src_tgt_file(src, tgt, split=split, verbose=verbose)
-        except:
+        else:
             return cls._from_src_tgt_corpus_split(
                 src, tgt, split=split, verbose=verbose
             )
