@@ -116,6 +116,21 @@ def load_news_commentary(
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
 
 
+def load_rapid_2019_xlf(
+    folder: Path, src_language: str, tgt_language: str, split: str = "train"
+) -> crp.CorpusSplit:
+    pair = f"{src_language}-{tgt_language}"
+    rapid_2019_path = (folder / f"RAPID_2019.{pair}.xlf").expanduser()
+    tsv = crp.LoadedXLIFFFile(
+        path=rapid_2019_path,
+        side="both",
+        src_language=src_language,
+        tgt_language=tgt_language,
+    )
+
+    return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
+
+
 def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
     # get train
     if split == "train":
@@ -132,12 +147,17 @@ def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
 
+        rapid_train = load_rapid_2019_xlf(
+            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+        )
+
         train = crp.CorpusSplit.stack_corpus_splits(
             corpus_splits=[
                 commoncrawl_train,
                 paracrawl_train,
                 europarl_train,
                 news_commentary_train,
+                rapid_train,
             ],
             split="train",
         )

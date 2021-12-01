@@ -96,73 +96,6 @@ class LoadedTextFile(LoadedFile):
 
 
 @attr.s(auto_attribs=True)
-class LoadedXLIFFFile(LoadedFile):
-
-    language: str = "multi"
-    side: str = "both"
-
-    src_language: Optional[str] = None
-    tgt_language: Optional[str] = None
-
-    load_to_memory: bool = True
-
-    def __attrs_post_init__(self):
-        parsed_xml = self.parse_xml()
-        self.src_lines = parsed_xml["src"]["lines"]
-        self.tgt_lines = parsed_xml["tgt"]["lines"]
-
-    def parse_xml(self) -> Dict[str, Dict[str, Union[str, Iterable[str]]]]:
-
-        # load xml into memory
-        tree = etree.parse(self.path).getroot()
-
-        src_lang = tree.attrib["srcLang"]
-        tgt_lang = tree.attrib["trgLang"]
-
-        # find all source and targetlines
-        src_lines = [
-            element.text for element in tree.xpath("//*[local-name() = 'source']")
-        ]
-        tgt_lines = [
-            element.text for element in tree.xpath("//*[local-name() = 'target']")
-        ]
-
-        return {
-            "src": {"language": src_lang, "lines": src_lines},
-            "tgt": {"language": tgt_lang, "lines": tgt_lines},
-        }
-
-    def line_to_dict(
-        self, line: Tuple[str, str]
-    ) -> Dict[str, Optional[Dict[str, Optional[str]]]]:
-        """Parses a raw line to dictionary form depending on side"""
-
-        out: Dict[str, Optional[Dict[str, Optional[str]]]] = {}
-        src_line, tgt_line = line
-
-        out["src"] = {
-            "text": src_line,
-            "language": self.src_language or self.parse_language(src_line),
-        }
-
-        out["tgt"] = {
-            "text": tgt_line,
-            "language": self.tgt_language or self.parse_language(tgt_line),
-        }
-
-        return out
-
-    @property
-    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
-
-        line_iterator = zip(self.src_lines, self.tgt_lines)
-
-        lines = (self.line_to_dict(line) for line in line_iterator)
-
-        return list(lines) if self.load_to_memory else lines
-
-
-@attr.s(auto_attribs=True)
 class LoadedTSVFile(LoadedFile):
 
     language: str = "multi"
@@ -240,6 +173,73 @@ class LoadedTSVFile(LoadedFile):
         else:
             for line in line_iterator:
                 yield self.line_to_dict(line)
+
+
+@attr.s(auto_attribs=True)
+class LoadedXLIFFFile(LoadedTSVFile):
+
+    language: str = "multi"
+    side: str = "both"
+
+    src_language: Optional[str] = None
+    tgt_language: Optional[str] = None
+
+    load_to_memory: bool = True
+
+    def __attrs_post_init__(self):
+        parsed_xml = self.parse_xml()
+        self.src_lines = parsed_xml["src"]["lines"]
+        self.tgt_lines = parsed_xml["tgt"]["lines"]
+
+    def parse_xml(self) -> Dict[str, Dict[str, Union[str, Iterable[str]]]]:
+
+        # load xml into memory
+        tree = etree.parse(self.path).getroot()
+
+        src_lang = tree.attrib["srcLang"]
+        tgt_lang = tree.attrib["trgLang"]
+
+        # find all source and targetlines
+        src_lines = [
+            element.text for element in tree.xpath("//*[local-name() = 'source']")
+        ]
+        tgt_lines = [
+            element.text for element in tree.xpath("//*[local-name() = 'target']")
+        ]
+
+        return {
+            "src": {"language": src_lang, "lines": src_lines},
+            "tgt": {"language": tgt_lang, "lines": tgt_lines},
+        }
+
+    def line_to_dict(
+        self, line: Tuple[str, str]
+    ) -> Dict[str, Optional[Dict[str, Optional[str]]]]:
+        """Parses a raw line to dictionary form depending on side"""
+
+        out: Dict[str, Optional[Dict[str, Optional[str]]]] = {}
+        src_line, tgt_line = line
+
+        out["src"] = {
+            "text": src_line,
+            "language": self.src_language or self.parse_language(src_line),
+        }
+
+        out["tgt"] = {
+            "text": tgt_line,
+            "language": self.tgt_language or self.parse_language(tgt_line),
+        }
+
+        return out
+
+    @property
+    def lines_as_dicts(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
+
+        line_iterator = zip(self.src_lines, self.tgt_lines)
+
+        lines = (self.line_to_dict(line) for line in line_iterator)
+
+        return list(lines) if self.load_to_memory else lines
 
 
 @attr.s(auto_attribs=True)
