@@ -300,11 +300,20 @@ class CorpusSplit:
         """
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
 
-        for side, lang in zip(("src", "tgt"), (self.src_lang, self.tgt_lang)):
-            if lang:
-                output_path = folder / f"{prefix}.{lang}"
-                lines = (line[side] for line in self.lines)
-                u.write_lines(path=output_path, lines=lines)
+        src_out_path = folder / f"{prefix}.{self.src_lang}"
+        tgt_out_path = folder / f"{prefix}.{self.tgt_lang}"
+
+        def get_line(d):
+            return (d["src"]["text"], d["tgt"]["text"])
+
+        with open(src_out_path, "w", encoding="utf-8") as src_out, open(
+            tgt_out_path, "w", encoding="utf-8"
+        ) as tgt_out:
+            for line in self.lines:
+                src_line, tgt_line = get_line(line)
+                src_out.write(f"{src_line}\n")
+                tgt_out.write(f"{tgt_line}\n")
+
 
     @classmethod
     def from_src_tgt(
