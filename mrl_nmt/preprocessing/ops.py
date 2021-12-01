@@ -15,10 +15,17 @@ SPACE_SYMBOL = "﹏"
 def load_flores101_pair(
     folder: Path, src_language: str, tgt_language: str, split: str = "train"
 ):
+
+    lang_code_map = {
+        "en": "eng",
+        "cs": "ces",
+        "de": "deu",
+        "fi": "fin",
+        "ru": "rus",
+    }
     # Handle paths
-    pair = f"{src_language}-{tgt_language}"
-    src_path = (folder / f"{split}.{src_language}").expanduser()
-    tgt_path = (folder / f"{split}.{tgt_language}").expanduser()
+    src_path = (folder / f"{lang_code_map[src_language]}.{split}").expanduser()
+    tgt_path = (folder / f"{lang_code_map[tgt_language]}.{split}").expanduser()
 
     # Load files
     f_src = crp.LoadedTextFile(
@@ -29,7 +36,7 @@ def load_flores101_pair(
     )
 
     # Create corpus split
-    return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_src, split=split)
+    return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_tgt, split=split)
 
 
 def load_commoncrawl(
@@ -55,7 +62,7 @@ def load_commoncrawl(
 
 def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):
     """Load ParaCrawl data into X-EN format where X = foreign language"""
-    paracrawl_path = (folder / f"en-{foreign_language}".txt).expanduser()
+    paracrawl_path = (folder / f"en-{foreign_language}.txt").expanduser()
     tsv = crp.LoadedTSVFile(
         path=paracrawl_path,
         side="both",
@@ -74,7 +81,6 @@ def load_europarl(
 ):
 
     # Handle paths
-    pair = f"{src_language}-{tgt_language}"
     europarl_path = (
         folder / f"europarl-v10.{src_language}-{tgt_language}.tsv"
     ).expanduser()
@@ -84,6 +90,8 @@ def load_europarl(
         side="both",
         src_language=src_language,
         tgt_language=tgt_language,
+        src_column=src_language,
+        tgt_column=tgt_language,
         fieldnames=[src_language, tgt_language],
     )
 
@@ -100,6 +108,8 @@ def load_news_commentary(
         side="both",
         src_language=src_language,
         tgt_language=tgt_language,
+        src_column=src_language,
+        tgt_column=tgt_language,
         fieldnames=[src_language, tgt_language],
     )
 
@@ -134,12 +144,16 @@ def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
 
         # TODO: bpe / char processing
 
+        return train
     elif split == "dev":
         flores_dev = load_flores101_pair(
-            folder=input_base_folder, src_language="cs", tgt_language="en"
+            folder=input_base_folder, src_language="cs", tgt_language="en", split="dev"
         )
 
         # TODO: bpe / char processing
+
+        return flores_dev
+
     else:
         raise ValueError("Only train and dev sets supported!")
 

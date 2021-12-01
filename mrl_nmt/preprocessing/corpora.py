@@ -174,6 +174,7 @@ class LoadedTSVFile(LoadedFile):
     delimiter: str = "\t"
 
     def __attrs_post_init__(self):
+        self.both_sides = self.side == "both"
         self.use_dict_reader = bool(self.fieldnames)
         self.validate_columns()
 
@@ -433,9 +434,6 @@ class CorpusSplit:
     ) -> "CorpusSplit":
         """Create a single CorpusSplit by concatenating lines of multiple CorpusSplits together."""
 
-        all_sides = set(cs.side for cs in corpus_splits)
-        assert len(all_sides) == 1, "All corpus splits must have the same side"
-
         all_src = list(set(cs.src_lang for cs in corpus_splits))
         assert len(all_src) == 1, "All corpus splits must have the same source language"
 
@@ -444,9 +442,7 @@ class CorpusSplit:
 
         src_lang, tgt_lang = all_src[0], all_tgt[0]
 
-        concatenated_lines = (
-            line for cs in corpus_splits for line in cs.lines_as_dicts
-        )
+        concatenated_lines = (line for cs in corpus_splits for line in cs.lines)
 
         return cls(
             src_lang=src_lang,
