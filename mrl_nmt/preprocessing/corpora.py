@@ -293,7 +293,11 @@ class CorpusSplit:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
 
     def write_to_disk(
-        self, folder: Path, prefix: str = "", skip_upon_fail: bool = True, debug: bool = False
+        self,
+        folder: Path,
+        prefix: str = "",
+        skip_upon_fail: bool = True,
+        debug: bool = False,
     ) -> None:
         """Writes self.lines to the folder specified by folder,
         inside which two files will be created, one for src and tgt.
@@ -325,9 +329,7 @@ class CorpusSplit:
                     if skip_upon_fail:
                         continue
                     else:
-                        raise ValueError(
-                            f"Failing since skip_upon_fail=False."
-                        )
+                        raise ValueError(f"Failing since skip_upon_fail=False.")
                 src_out.write(f"{src_line}\n")
                 tgt_out.write(f"{tgt_line}\n")
 
@@ -472,7 +474,9 @@ class CorpusSplit:
         concatenated_lines = (line for cs in corpus_splits for line in cs.lines)
 
         return cls(
+            lines=concatenated_lines,
             src_lang=src_lang,
             tgt_lang=tgt_lang,
             split=split,
             verbose=verbose,
+        )
