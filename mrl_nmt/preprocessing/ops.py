@@ -136,11 +136,32 @@ def load_rapid_2019_xlf(
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
 
 
+def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
+    required_params = [
+        "vocab_size",
+        "use_pretrained_model",
+        "model_file",
+        "model_base_path",
+        "input_sentence_size",
+        "shuffle_input_sentence",
+    ]
+    print(f"Got config: {config}")
+    for param_name in required_params:
+        assert (
+            param_name in config
+        ), f"Could not find '{param_name}' in config dictionary!"
+
+
 def process_cs_en(
-    input_base_folder, split="train", cs_output_level="word", en_output_level="word"
+    input_base_folder,
+    split="train",
+    cs_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
 ) -> crp.CorpusSplit:
-    assert cs_output_level in ["word", "subword", "char"]
-    assert en_output_level in ["word", "subword", "char"]
+    assert cs_output_level in ["word", "sentencepiece", "morph", "char"]
+    assert en_output_level in ["word", "sentencepiece", "morph", "char"]
+
     if split == "train":
         commoncrawl_train = load_commoncrawl(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
@@ -179,10 +200,16 @@ def process_cs_en(
         raise ValueError("Only train and dev sets supported!")
 
     for side, output_level in zip(("src", "tgt"), (cs_output_level, en_output_level)):
-        if output_level == "subword":
-            raise NotImplementedError("TODO: implement subword processing")
+        if output_level == "sentencepiece":
+            if not sentencepiece_config or side not in sentencepiece_config:
+                raise ValueError("SentencePiece requires a config dictionary.")
+            sp_conf = sentencepiece_config[side]
+            validate_sentencepiece_config(sp_conf)
+            out = process_with_sentencepiece(corpus=out, side=side, **sp_conf)
         elif output_level == "char":
             out = convert_to_chars(out, side=side)
+        elif output_level == "morph":
+            raise NotImplementedError("Morphological preprocessing not yet supported.")
 
     return out
 
