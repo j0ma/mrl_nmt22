@@ -369,21 +369,22 @@ def process_with_sentencepiece(
         # apply the model to text
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
-    segmented_lines = [
-        " ".join(tokens) for tokens in sp.encode(lines_str, out_type=str)
-    ]
+    def final_lines(sp, lines, other_side_lines):
+        for side_line_dict, other_line_dict in zip(lines, other_side_lines):
 
-    new_line_dicts = [
-        {
-            side: {"text": segm_line, "language": side_ld["language"]},
-            other_side: other_ld,
-        }
-        for segm_line, side_ld, other_ld in zip(
-            segmented_lines, lines, other_side_lines
-        )
-    ]
+            new_line = sp.encode(side_line_dict["text"], out_type=str)
+            side_line_dict["text"] = new_line
+
+            yield {side: side_line_dict, other_side: other_line_dict}
+
+    output = list(final_lines(sp, lines, other_side_lines))
+
+    assert len(output) == len(
+        lines
+    ), "Line length mismatch: {len(lines)} (before) != {len(output)} (after)"
+
     return crp.CorpusSplit(
-        lines=new_line_dicts,
+        lines=output,
         src_lang=corpus.src_lang,
         tgt_lang=corpus.tgt_lang,
         split=corpus.split,
