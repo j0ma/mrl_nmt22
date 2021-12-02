@@ -4,6 +4,7 @@ import io
 
 import attr
 from mrl_nmt.utils import read_lines
+from tqdm import tqdm
 import mrl_nmt.preprocessing.corpora as crp
 import sentencepiece as spm
 
@@ -329,11 +330,13 @@ def process_with_sentencepiece(
     lines = []
     lines_str = []
     other_side_lines = []
+    line_count = 0
     for ld in corpus.lines:
         side_ld = ld[side]
         lines.append(side_ld)
         lines_str.append(side_ld["text"])
         other_side_lines.append(ld[other_side])
+        line_count += 1
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
@@ -369,15 +372,17 @@ def process_with_sentencepiece(
         # apply the model to text
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
-    def final_lines(sp, lines, other_side_lines):
-        for side_line_dict, other_line_dict in zip(lines, other_side_lines):
+    def final_lines(sp, lines, other_side_lines, line_count):
+        for side_line_dict, other_line_dict in tqdm(
+            zip(lines, other_side_lines), total=line_count
+        ):
 
             new_line = sp.encode(side_line_dict["text"], out_type=str)
             side_line_dict["text"] = new_line
 
             yield {side: side_line_dict, other_side: other_line_dict}
 
-    output = list(final_lines(sp, lines, other_side_lines))
+    output = list(final_lines(sp, lines, other_side_lines, line_count))
 
     assert len(output) == len(
         lines

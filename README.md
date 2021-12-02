@@ -14,6 +14,7 @@
 - click
 - lxml
 - mtdata
+- tqdm
 
 ## Notes on languages
 - Czech
