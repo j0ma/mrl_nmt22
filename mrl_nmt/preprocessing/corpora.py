@@ -315,23 +315,35 @@ class CorpusSplit:
         def get_line(d):
             return (d["src"]["text"], d["tgt"]["text"])
 
+        src_lines_written = 0
+        tgt_lines_written = 0
         with open(src_out_path, "w", encoding="utf-8") as src_out, open(
             tgt_out_path, "w", encoding="utf-8"
         ) as tgt_out:
-            for line in tqdm(self.lines):
+            for ix, line in tqdm(enumerate(self.lines, start=1)):
                 src_line, tgt_line = get_line(line)
-                if debug:
-                    print(src_line, tgt_line)
                 try:
-                    assert src_line, f"Null source line! Got: {src_line}, line={line}"
-                    assert tgt_line, f"Null target line! Got: {tgt_line}, line={line}"
+                    assert (
+                        len(src_line) > 0 and len(tgt_line) > 0
+                    ), f"Null source and/or target line! Got: src={src_line}, tgt={tgt_line}"
+
+                    src_out.write(f"{src_line}\n")
+                    src_lines_written += 1
+                    tgt_out.write(f"{tgt_line}\n")
+                    tgt_lines_written += 1
+
                 except:
                     if skip_upon_fail:
+                        print(
+                            f"WARNING: Skipping since both sides not complete. Line: {line}"
+                        )
                         continue
                     else:
-                        raise ValueError(f"Failing since skip_upon_fail=False.")
-                src_out.write(f"{src_line}\n")
-                tgt_out.write(f"{tgt_line}\n")
+                        raise ValueError("Failing since skip_upon_fail=False.")
+
+        assert (
+            src_lines_written == tgt_lines_written
+        ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
 
     @classmethod
     def from_src_tgt(
