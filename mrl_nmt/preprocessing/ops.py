@@ -165,23 +165,29 @@ def process_cs_en(
     assert en_output_level in ["word", "sentencepiece", "morph", "char"]
 
     if split == "train":
+        print("Loading CommonCrawl...")
         commoncrawl_train = load_commoncrawl(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
+        print("Loading ParaCrawl...")
         paracrawl_train = load_paracrawl(
             folder=input_base_folder, foreign_language="cs", split=split
         )
+        print("Loading Europarl v10...")
         europarl_train = load_europarl_v10(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
+        print("Loading NewsCommentary...")
         news_commentary_train = load_news_commentary(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
 
+        print("Loading TILDE RAPID corpus...")
         rapid_train = load_rapid_2019_xlf(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
 
+        print("Stacking everything together...")
         out = crp.CorpusSplit.stack_corpus_splits(
             corpus_splits=[
                 commoncrawl_train,
@@ -194,6 +200,7 @@ def process_cs_en(
         )
 
     elif split == "dev":
+        print("Loading dev data from FLORES")
         out = load_flores101_pair(
             folder=input_base_folder, src_language="cs", tgt_language="en", split="dev"
         )
@@ -341,7 +348,7 @@ def process_with_sentencepiece(
 
     assert len(lines) == len(
         other_side_lines
-    ), f"Line length mismatch: {len(lines)} ({side}) != {len(outher_side_lines)} ({other_side})"
+    ), f"Line length mismatch: {len(lines)} ({side}) != {len(other_side_lines)} ({other_side})"
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
