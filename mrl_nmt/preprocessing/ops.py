@@ -1,5 +1,6 @@
 from typing import Union, Iterable, Optional, Dict, Any, Sequence
 from pathlib import Path
+import itertools as it
 import io
 
 import attr
@@ -338,6 +339,10 @@ def process_with_sentencepiece(
         other_side_lines.append(ld[other_side])
         line_count += 1
 
+    assert len(lines) == len(
+        other_side_lines
+    ), f"Line length mismatch: {len(lines)} ({side}) != {len(outher_side_lines)} ({other_side})"
+
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
     if not model_file.parent.exists():
@@ -384,8 +389,8 @@ def process_with_sentencepiece(
 
     output = list(final_lines(sp, lines, other_side_lines, line_count))
 
-    assert len(output) == len(
-        lines
+    assert (
+        len(output) == len(lines) == line_count
     ), "Line length mismatch: {len(lines)} (before) != {len(output)} (after)"
 
     return crp.CorpusSplit(
