@@ -288,11 +288,11 @@ def process_with_sentencepiece(
 
     Notes:
     - With use_pretrained_model=False a new model will be trained
-    and optionally depending on whether model_file_is_correct evaluates to True
+    and optionally saved if model_file argument was passed in
     - With use_pretrained_model=True, a pre-trained model will be loaded
     from model_path
     """
-    model_file_is_correct = bool(str(model_file)) and Path(model_file).is_file()
+    model_file_is_correct = bool(str(model_file))
 
     # load lines to RAM (sad)
     other_side = "src" if side == "tgt" else "tgt"
@@ -311,8 +311,9 @@ def process_with_sentencepiece(
         model_file.parent.mkdir(parents=True)
 
     if use_pretrained_model:
-        assert model_file_is_correct, "Must specify a valid model file."
+        assert model_file.exists(), "Must specify a valid model file."
         model_file = str(model_file)
+        print(f"Applying SP model from {model_file}...")
         sp = spm.SentencePieceProcessor(model_file=model_file)
 
     else:
@@ -331,6 +332,7 @@ def process_with_sentencepiece(
 
         if model_file_is_correct:
             # optionally write model to disk
+            print(f"Writing model binary to disk under {model_file}")
             with open(model_file, "wb") as f:
                 f.write(model.getvalue())
 

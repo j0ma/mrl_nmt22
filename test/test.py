@@ -413,23 +413,56 @@ class TestPreprocessingOps(unittest.TestCase):
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
 
-    def test_preprocess_with_sentencepiece(self):
+    def test_sentencepiece_fi_sv(self):
         """SentencePiece Processing works on dev set for FI-SV"""
         sp_vocab_size = 777
+        fi_model = Path("/tmp/fi_model.bin", is_file=True)
+        sv_model = Path("/tmp/sv_model.bin", is_file=True)
+
+        # align two loaded text files into source and target
         corpus = pp.CorpusSplit.from_src_tgt(
             src=self.fin, tgt=self.swe_tgt, split="dev", verbose=True
         )
+
+        # train src side model, process text and save
         corpus = pp.ops.process_with_sentencepiece(
             corpus=corpus,
             side="src",
             vocab_size=sp_vocab_size,
             use_pretrained_model=False,
+            model_file=fi_model,
         )
+
+        # train tgt side model, process text and save
         corpus = pp.ops.process_with_sentencepiece(
+            use_pretrained_model=False,
             corpus=corpus,
             side="tgt",
             vocab_size=sp_vocab_size,
-            use_pretrained_model=False,
+            model_file=sv_model,
+        )
+        print("Model trained and saved.")
+
+        # load again and process using pretrained model
+        # (this is redundant in practice, ofc)
+        new_corpus = pp.CorpusSplit.from_src_tgt(
+            src=self.fin, tgt=self.swe_tgt, split="dev", verbose=True
+        )
+        print(f"Re-applying src side processing with {fi_model}.")
+        new_corpus = pp.ops.process_with_sentencepiece(
+            corpus=new_corpus,
+            side="src",
+            vocab_size=sp_vocab_size,
+            use_pretrained_model=True,
+            model_file=fi_model,
+        )
+        print(f"Re-applying tgt side processing with {sv_model}.")
+        new_corpus = pp.ops.process_with_sentencepiece(
+            corpus=new_corpus,
+            side="tgt",
+            vocab_size=sp_vocab_size,
+            use_pretrained_model=True,
+            model_file=sv_model,
         )
 
         print_a_few_lines(
@@ -454,31 +487,35 @@ class TestPreprocessingOps(unittest.TestCase):
         self.assertEqual(N_LINES_PARACRAWL, line_count)
 
     @unittest.skipIf(
-        condition=not (FULL_DATA_PATH / "cs" / "en-cs").exists(),
-        reason=f"{FULL_DATA_PATH}/cs/en-cs not found!",
+        condition=not FULL_EN_CS_PATH.exists(),
+        reason=f"{FULL_EN_CS_PATH} not found!",
     )
     def test_stack_corpus_splits_num_lines_simple(self):
+        def load(input_base_folder):
+            news_commentary_train = pp.ops.load_news_commentary(
+                folder=input_base_folder,
+                src_language="cs",
+                tgt_language="en",
+                split=split,
+            )
+            rapid_train = pp.ops.load_rapid_2019_xlf(
+                folder=input_base_folder,
+                src_language="cs",
+                tgt_language="en",
+                split=split,
+            )
+            return news_commentary_train, rapid_train
+
         input_base_folder = FULL_DATA_PATH / "cs" / "en-cs"
         split = "train"
-        news_commentary_train = pp.ops.load_news_commentary(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
-        rapid_train = pp.ops.load_rapid_2019_xlf(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
+        news_commentary_train, rapid_train = load(input_base_folder)
         line_count_news = sum(1 for _ in news_commentary_train.lines)
         line_count_rapid = sum(1 for _ in rapid_train.lines)
         self.assertGreater(line_count_news, 0)
         self.assertGreater(line_count_rapid, 0)
 
-        news_commentary_train = pp.ops.load_news_commentary(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
-        rapid_train = pp.ops.load_rapid_2019_xlf(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
-        )
         train = pp.corpora.CorpusSplit.stack_corpus_splits(
-            corpus_splits=[news_commentary_train, rapid_train],
+            corpus_splits=[c for c in load(input_base_folder)],
             split="train",
         )
         line_count_combined = sum(1 for _ in train.lines)
