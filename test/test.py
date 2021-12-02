@@ -332,11 +332,17 @@ class TestPreprocessingOps(unittest.TestCase):
         self.swe = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=SWE_DEV, side="src", language="sv", load_to_memory=False
         )
+        self.swe_tgt = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=SWE_DEV, side="tgt", language="sv", load_to_memory=False
+        )
         self.eng = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=ENG_DEV, side="tgt", language="en", load_to_memory=False
         )
         self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(
-            text_file=self.fin, split="train"
+            text_file=self.fin, split="dev"
+        )
+        self.swe_tgt_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(
+            text_file=self.swe_tgt, split="dev"
         )
 
     def test_convert_to_chars(self):
@@ -392,6 +398,30 @@ class TestPreprocessingOps(unittest.TestCase):
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
 
+    def test_preprocess_with_sentencepiece(self):
+        """SentencePiece Processing works on dev set for FI-SV"""
+        sp_vocab_size = 777
+        corpus = pp.CorpusSplit.from_src_tgt(
+            src=self.fin, tgt=self.swe_tgt, split="dev", verbose=True
+        )
+        corpus = pp.ops.process_with_sentencepiece(
+            corpus=corpus,
+            side="src",
+            vocab_size=sp_vocab_size,
+            use_pretrained_model=False,
+        )
+        corpus = pp.ops.process_with_sentencepiece(
+            corpus=corpus,
+            side="tgt",
+            vocab_size=sp_vocab_size,
+            use_pretrained_model=False,
+        )
+
+        print_a_few_lines(
+            "Source: {}\nTarget: {}".format(d["tgt"]["text"], d["src"]["text"])
+            for d in corpus.lines
+        )
+
     @unittest.skipIf(
         condition=not FULL_EN_CS_PATH.exists(),
         reason=f"{FULL_EN_CS_PATH} not found!",
@@ -402,6 +432,8 @@ class TestPreprocessingOps(unittest.TestCase):
         )
         line_count = 0
         for line in pc.lines:
+            if line_count < 5:
+                print(line)
             line_count += 1
 
         self.assertEqual(14083311, line_count)

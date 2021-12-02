@@ -283,7 +283,7 @@ def process_with_sentencepiece(
     model_base_path: Union[str, Path] = "",
     input_sentence_size: int = 0,
     shuffle_input_sentence: bool = False,
-) -> Iterable[str]:
+) -> crp.CorpusSplit:
     """Process one side of a CorpusSplit with SentencePiece
 
     Notes:
@@ -297,10 +297,13 @@ def process_with_sentencepiece(
     # load lines to RAM (sad)
     other_side = "src" if side == "tgt" else "tgt"
     lines = []
+    lines_str = []
     other_side_lines = []
     for ld in corpus.lines:
-        lines.append(ld[side]["text"])
-        lines.append(ld[other_side]["text"])
+        side_ld = ld[side]
+        lines.append(side_ld)
+        lines_str.append(side_ld["text"])
+        other_side_lines.append(ld[other_side])
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
@@ -319,7 +322,7 @@ def process_with_sentencepiece(
 
         # train the model
         spm.SentencePieceTrainer.train(
-            sentence_iterator=iter(lines),
+            sentence_iterator=iter(lines_str),
             model_writer=model,
             vocab_size=vocab_size,
             input_sentence_size=input_sentence_size,
@@ -334,9 +337,23 @@ def process_with_sentencepiece(
         # apply the model to text
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
-    segmented_lines = [" ".join(tokens) for tokens in sp.encode(lines, out_type=str)]
+    segmented_lines = [
+        " ".join(tokens) for tokens in sp.encode(lines_str, out_type=str)
+    ]
 
-    # recombine lines
-    new_lines = {}
-
-    return segmented_lines
+    new_line_dicts = [
+        {
+            side: {"text": segm_line, "language": side_ld["language"]},
+            other_side: other_ld,
+        }
+        for segm_line, side_ld, other_ld in zip(
+            segmented_lines, lines, other_side_lines
+        )
+    ]
+    return crp.CorpusSplit(
+        lines=new_line_dicts,
+        src_lang=corpus.src_lang,
+        tgt_lang=corpus.tgt_lang,
+        split=corpus.split,
+        verbose=corpus.verbose,
+    )
