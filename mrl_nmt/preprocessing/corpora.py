@@ -293,7 +293,7 @@ class CorpusSplit:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
 
     def write_to_disk(
-        self, folder: Path, prefix: str = "", skip_upon_fail: bool = True
+        self, folder: Path, prefix: str = "", skip_upon_fail: bool = True, debug: bool = False
     ) -> None:
         """Writes self.lines to the folder specified by folder,
         inside which two files will be created, one for src and tgt.
@@ -316,15 +316,17 @@ class CorpusSplit:
         ) as tgt_out:
             for line in tqdm(self.lines):
                 src_line, tgt_line = get_line(line)
+                if debug:
+                    print(src_line, tgt_line)
                 try:
                     assert src_line, f"Null source line! Got: {src_line}, line={line}"
-                    assert tgt_line, f"Null source line! Got: {tgt_line}, line={line}"
-                except AssertionError as err:
+                    assert tgt_line, f"Null target line! Got: {tgt_line}, line={line}"
+                except:
                     if skip_upon_fail:
                         continue
                     else:
                         raise ValueError(
-                            f"Failing since skip_upon_fail=False. Original error: {err}"
+                            f"Failing since skip_upon_fail=False."
                         )
                 src_out.write(f"{src_line}\n")
                 tgt_out.write(f"{tgt_line}\n")
@@ -474,5 +476,3 @@ class CorpusSplit:
             tgt_lang=tgt_lang,
             split=split,
             verbose=verbose,
-            lines=concatenated_lines,
-        )
