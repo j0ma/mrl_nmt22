@@ -382,7 +382,7 @@ def process_with_sentencepiece(
             zip(lines, other_side_lines), total=line_count
         ):
 
-            new_line = sp.encode(side_line_dict["text"], out_type=str)
+            new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
             side_line_dict["text"] = new_line
 
             yield {side: side_line_dict, other_side: other_line_dict}

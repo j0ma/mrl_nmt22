@@ -14,6 +14,7 @@ from typing import (
 
 import attr
 from lxml import etree as etree
+from tqdm import tqdm
 
 from mrl_nmt import utils as u
 from mrl_nmt.preprocessing.tmx import TMXHandler
@@ -309,8 +310,10 @@ class CorpusSplit:
         with open(src_out_path, "w", encoding="utf-8") as src_out, open(
             tgt_out_path, "w", encoding="utf-8"
         ) as tgt_out:
-            for line in self.lines:
+            for line in tqdm(self.lines):
                 src_line, tgt_line = get_line(line)
+                assert src_line, f"Null source line! Got: {src_line}, line={line}"
+                assert tgt_line, f"Null source line! Got: {tgt_line}, line={line}"
                 src_out.write(f"{src_line}\n")
                 tgt_out.write(f"{tgt_line}\n")
 
