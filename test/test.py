@@ -1,17 +1,21 @@
 from pathlib import Path
 import unittest
 import sys
-import os
 from typing import Iterable, Any
 from itertools import zip_longest
 
+import mrl_nmt.utils as u
 import mrl_nmt.preprocessing as pp
-
-# if we're not in test/ append it to the paths
 import mrl_nmt.preprocessing.corpora
 from mrl_nmt.preprocessing import ops
 
+# if we're not in test/ append it to the paths
 prefix = Path("") if str(Path.cwd()).endswith("/test") else Path("test")
+
+# Paths to sample sentences
+SAMPLE_SENTENCES_TXT = prefix / Path("data/sample_sentences.txt")
+SAMPLE_TSV = prefix / Path("data/sample.tsv")
+SAMPLE_NOHEADER_TSV = prefix / Path("data/sample_noheader.tsv")
 
 # Paths to Flores 101 dev data
 SWE_DEV = prefix / Path("data/flores101_swe.dev")
@@ -31,9 +35,54 @@ EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 #     os.environ.get("MRL_FULL_DATA_PATH") or "~/datasets/mrl_nmt22/"
 # ).expanduser()
 FULL_DATA_PATH = Path("/data/datasets/mrl-nmt").expanduser()
+FULL_EN_CS_PATH = FULL_DATA_PATH / "cs" / "en-cs"
 
 # Constants
 N_LINES = 997
+
+
+class TextUtils(unittest.TestCase):
+    def test_can_read_txt_into_memory(self):
+        sample_sents = u.read_lines(path=SAMPLE_SENTENCES_TXT)
+        self.assertEqual(3, len(sample_sents))
+        print_a_few_lines(sample_sents)
+
+    def test_can_stream_txt(self):
+        sample_sents = u.stream_lines(path=SAMPLE_SENTENCES_TXT)
+
+        # generators/streams have no length
+        with self.assertRaises(TypeError):
+            assert 3 == len(sample_sents)
+
+        print_a_few_lines(sample_sents)
+
+    def test_can_read_tsv_into_memory(self):
+        sample_tsv = u.read_tsv_dict(
+            path=SAMPLE_TSV,
+            field_names=["language", "sentence"],
+            load_to_memory=True,
+            skip_header=True,
+        )
+        self.assertEqual(list, type(sample_tsv))
+        self.assertEqual(3, len(sample_tsv))
+
+    def test_can_stream_tsv(self):
+        sample_tsv = u.read_tsv_dict(
+            path=SAMPLE_TSV,
+            field_names=["language", "sentence"],
+            load_to_memory=False,
+            skip_header=True,
+        )
+
+        # the stream should consist of 3 lines
+        line_count = 0
+        for _ in sample_tsv:
+            line_count += 1
+        self.assertEqual(3, line_count)
+
+        # the stream should also not have a len() attribute
+        with self.assertRaises(TypeError):
+            assert 3 == len(sample_tsv)
 
 
 class TestLoadedTextFileRAM(unittest.TestCase):
@@ -342,6 +391,20 @@ class TestPreprocessingOps(unittest.TestCase):
         mrl_nmt.preprocessing.ops.load_commoncrawl(
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
+
+    @unittest.skipIf(
+        condition=not FULL_EN_CS_PATH.exists(),
+        reason=f"{FULL_EN_CS_PATH} not found!",
+    )
+    def test_load_paracrawl(self):
+        pc = mrl_nmt.preprocessing.ops.load_paracrawl(
+            folder=FULL_EN_CS_PATH, foreign_language="cs"
+        )
+        line_count = 0
+        for line in pc.lines:
+            line_count += 1
+
+        self.assertEqual(14083311, line_count)
 
     @unittest.skipIf(
         condition=not (FULL_DATA_PATH / "cs" / "en-cs").exists(),

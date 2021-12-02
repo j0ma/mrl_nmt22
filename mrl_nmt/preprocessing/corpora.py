@@ -105,6 +105,7 @@ class LoadedTSVFile(LoadedFile):
     tgt_column: Optional[Union[str, int]] = None
     fieldnames: Optional[Sequence[str]] = []
     delimiter: str = "\t"
+    use_custom_reader: bool = False
 
     def __attrs_post_init__(self):
         self.both_sides = self.side == "both"
@@ -160,6 +161,7 @@ class LoadedTSVFile(LoadedFile):
                 field_names=self.fieldnames,
                 delimiter=self.delimiter,
                 load_to_memory=self.load_intermediate,
+                use_custom_reader=self.use_custom_reader,
             )
         else:
             line_iterator = u.read_tsv_list(

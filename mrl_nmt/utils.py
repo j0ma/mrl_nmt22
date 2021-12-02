@@ -1,9 +1,39 @@
+import itertools
+from io import StringIO
 from typing import Union, Iterable, Dict, Any, Sequence, Generator
 from pathlib import Path
 import csv
 
 import attr
 import toml
+
+
+@attr.s(auto_attribs=True)
+class CustomDictReader:
+    """Reader for iterating over files that contain
+    lines separated by delimiter (default=tab).
+    """
+
+    f: StringIO
+    field_names: Sequence[str]
+    delimiter: str = "\t"
+
+    def process_line(self, line: str, it=None) -> Dict[str, str]:
+        out = {}
+        for fn, item in itertools.zip_longest(
+            self.field_names, line.split(self.delimiter)
+        ):
+            out[fn] = item
+
+        return out
+
+    def __iter__(self):
+        return self.lines
+
+    @property
+    def lines(self) -> Dict[str, str]:
+        for line in self.f:
+            yield self.process_line(line.strip())
 
 
 def read_txt(path: Union[str, Path]) -> str:
@@ -28,30 +58,102 @@ def read_tsv_dict(
     field_names: Sequence[str],
     delimiter: str = "\t",
     load_to_memory: bool = False,
+    skip_header: bool = False,
+    use_custom_reader: bool = False,
+) -> Iterable[Dict[str, str]]:
+    if load_to_memory:
+        return read_tsv_dict_ram(
+            path=path,
+            field_names=field_names,
+            delimiter=delimiter,
+            skip_header=skip_header,
+            use_custom_reader=use_custom_reader,
+        )
+    else:
+        return read_tsv_dict_stream(
+            path=path,
+            field_names=field_names,
+            delimiter=delimiter,
+            skip_header=skip_header,
+            use_custom_reader=use_custom_reader,
+        )
+
+
+def read_tsv_dict_ram(
+    path: Union[str, Path],
+    field_names: Sequence[str],
+    delimiter: str = "\t",
+    skip_header: bool = False,
+    use_custom_reader: bool = False,
 ) -> Iterable[Dict[str, str]]:
     with open(path, encoding="utf-8") as fin:
-        dr = csv.DictReader(f=fin, fieldnames=field_names, delimiter=delimiter)
-
-        if load_to_memory:
-            return [ld for ld in dr]
+        if use_custom_reader:
+            reader = CustomDictReader(
+                f=fin, field_names=field_names, delimiter=delimiter
+            )
         else:
-            for line in dr:
-                yield line
+            reader = csv.DictReader(f=fin, fieldnames=field_names, delimiter=delimiter)
+        lines = [ld for ld in reader]
+        return lines[1:] if skip_header else lines
+
+
+def read_tsv_dict_stream(
+    path: Union[str, Path],
+    field_names: Sequence[str],
+    delimiter: str = "\t",
+    skip_header: bool = False,
+    use_custom_reader: bool = False,
+) -> Iterable[Dict[str, str]]:
+    with open(path, encoding="utf-8") as fin:
+        if use_custom_reader:
+            reader = CustomDictReader(
+                f=fin, field_names=field_names, delimiter=delimiter
+            )
+        else:
+            reader = csv.DictReader(f=fin, fieldnames=field_names, delimiter=delimiter)
+
+        if skip_header:
+            next(reader, None)
+        for line in reader:
+            yield line
 
 
 def read_tsv_list(
     path: Union[str, Path],
     delimiter: str = "\t",
     load_to_memory: bool = False,
+    skip_header: bool = False,
+) -> Iterable[Sequence[str]]:
+    if load_to_memory:
+        return read_tsv_list_ram(
+            path=path, delimiter=delimiter, skip_header=skip_header
+        )
+    else:
+        return read_tsv_list_stream(
+            path=path, delimiter=delimiter, skip_header=skip_header
+        )
+
+
+def read_tsv_list_ram(
+    path: Union[str, Path],
+    delimiter: str = "\t",
+    skip_header: bool = False,
 ) -> Iterable[Sequence[str]]:
     with open(path, encoding="utf-8") as fin:
         r = csv.reader(fin, delimiter=delimiter)
+        lines = [ld for ld in r]
+        return lines[1:] if skip_header else lines
 
-        if load_to_memory:
-            return [ld for ld in r]
-        else:
-            for line in r:
-                yield line
+
+def read_tsv_list_stream(
+    path: Union[str, Path],
+    delimiter: str = "\t",
+    skip_header: bool = False,
+) -> Iterable[Sequence[str]]:
+    with open(path, encoding="utf-8") as fin:
+        r = csv.reader(fin, delimiter=delimiter)
+        for line in r:
+            yield line
 
 
 def write_lines(

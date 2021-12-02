@@ -72,6 +72,7 @@ def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):
         tgt_language="en",
         fieldnames=["en", foreign_language],
         load_to_memory=False,
+        use_custom_reader=True,
     )
 
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
@@ -228,7 +229,7 @@ def duplicate_lines(
                 length = len(lines)
                 line_iter = lines
             except:
-                # if not a sequence, convert to list
+                # if not a sequence, convert to list :(
                 line_iter = list(lines)
             for _ in range(n):
                 for line in line_iter:
@@ -283,9 +284,23 @@ def process_with_sentencepiece(
     input_sentence_size: int = 0,
     shuffle_input_sentence: bool = False,
 ) -> Iterable[str]:
+    """Process one side of a CorpusSplit with SentencePiece
+
+    Notes:
+    - With use_pretrained_model=False a new model will be trained
+    and optionally depending on whether model_file_is_correct evaluates to True
+    - With use_pretrained_model=True, a pre-trained model will be loaded
+    from model_path
+    """
+    model_file_is_correct = bool(str(model_file)) and Path(model_file).is_file()
 
     # load lines to RAM (sad)
-    lines = [ld[side]["text"] for ld in corpus.lines]
+    other_side = "src" if side == "tgt" else "tgt"
+    lines = []
+    other_side_lines = []
+    for ld in corpus.lines:
+        lines.append(ld[side]["text"])
+        lines.append(ld[other_side]["text"])
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
@@ -293,6 +308,7 @@ def process_with_sentencepiece(
         model_file.parent.mkdir(parents=True)
 
     if use_pretrained_model:
+        assert model_file_is_correct, "Must specify a valid model file."
         model_file = str(model_file)
         sp = spm.SentencePieceProcessor(model_file=model_file)
 
@@ -310,9 +326,8 @@ def process_with_sentencepiece(
             shuffle_input_sentence=shuffle_input_sentence,
         )
 
-        # write model to disk
-
-        if model_file:
+        if model_file_is_correct:
+            # optionally write model to disk
             with open(model_file, "wb") as f:
                 f.write(model.getvalue())
 
@@ -320,5 +335,8 @@ def process_with_sentencepiece(
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
     segmented_lines = [" ".join(tokens) for tokens in sp.encode(lines, out_type=str)]
+
+    # recombine lines
+    new_lines = {}
 
     return segmented_lines
