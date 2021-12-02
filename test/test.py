@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import unittest
 import sys
@@ -30,15 +31,29 @@ CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 # Paths to TMX data
 EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 
-# Set this to a path that points to folders containing full data
-# FULL_DATA_PATH = Path(
-#     os.environ.get("MRL_FULL_DATA_PATH") or "~/datasets/mrl_nmt22/"
-# ).expanduser()
+# Case: local development
 FULL_DATA_PATH = Path("/data/datasets/mrl-nmt").expanduser()
+
+# Case: server development
+if not FULL_DATA_PATH.exists():
+    FULL_DATA_PATH = Path("~/datasets/mrl_nmt22/").expanduser()
+
+# Fallback: try to pick from environment
+if not FULL_DATA_PATH.exists():
+    try:
+        FULL_DATA_PATH = Path(os.environ.get("MRL_FULL_DATA_PATH")).expanduser()
+    except:
+        print(
+            "WARNING: MRL_FULL_DATA_PATH environment variable not found. "
+            "Ignoring tests that use it."
+        )
+        FULL_DATA_PATH = Path("/dev/null")
+
 FULL_EN_CS_PATH = FULL_DATA_PATH / "cs" / "en-cs"
 
 # Constants
 N_LINES = 997
+N_LINES_PARACRAWL = 14083311
 
 
 class TextUtils(unittest.TestCase):
@@ -436,7 +451,7 @@ class TestPreprocessingOps(unittest.TestCase):
                 print(line)
             line_count += 1
 
-        self.assertEqual(14083311, line_count)
+        self.assertEqual(N_LINES_PARACRAWL, line_count)
 
     @unittest.skipIf(
         condition=not (FULL_DATA_PATH / "cs" / "en-cs").exists(),
