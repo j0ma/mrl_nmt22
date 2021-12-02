@@ -292,12 +292,16 @@ class CorpusSplit:
     def __attrs_post_init__(self) -> None:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
 
-    def write_to_disk(self, folder: Path, prefix: str = "") -> None:
+    def write_to_disk(
+        self, folder: Path, prefix: str = "", skip_upon_fail: bool = True
+    ) -> None:
         """Writes self.lines to the folder specified by folder,
         inside which two files will be created, one for src and tgt.
 
         The file prefix can optionally be specified and if not, the
         default value of <src>-<tgt>.<split> will be used
+
+        By default, skip_upon_fail=True which causes lines where either side is empty to be skipped.
         """
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
 
@@ -312,8 +316,16 @@ class CorpusSplit:
         ) as tgt_out:
             for line in tqdm(self.lines):
                 src_line, tgt_line = get_line(line)
-                assert src_line, f"Null source line! Got: {src_line}, line={line}"
-                assert tgt_line, f"Null source line! Got: {tgt_line}, line={line}"
+                try:
+                    assert src_line, f"Null source line! Got: {src_line}, line={line}"
+                    assert tgt_line, f"Null source line! Got: {tgt_line}, line={line}"
+                except AssertionError as err:
+                    if skip_upon_fail:
+                        continue
+                    else:
+                        raise ValueError(
+                            f"Failing since skip_upon_fail=False. Original error: {err}"
+                        )
                 src_out.write(f"{src_line}\n")
                 tgt_out.write(f"{tgt_line}\n")
 

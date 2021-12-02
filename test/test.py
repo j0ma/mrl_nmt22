@@ -465,6 +465,9 @@ class TestPreprocessingOps(unittest.TestCase):
             model_file=sv_model,
         )
 
+        # write to disk
+        new_corpus.write_to_disk(folder=Path("/tmp/"), prefix="", skip_upon_fail=True)
+
         print_a_few_lines(
             "Source: {}\nTarget: {}".format(d["tgt"]["text"], d["src"]["text"])
             for d in corpus.lines
