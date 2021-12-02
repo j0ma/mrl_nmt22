@@ -136,8 +136,11 @@ def load_rapid_2019_xlf(
     return crp.CorpusSplit.from_tsv(tsv=tsv, split=split)
 
 
-def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
-    # get train
+def process_cs_en(
+    input_base_folder, split="train", cs_output_level="word", en_output_level="word"
+) -> crp.CorpusSplit:
+    assert cs_output_level in ["word", "subword", "char"]
+    assert en_output_level in ["word", "subword", "char"]
     if split == "train":
         commoncrawl_train = load_commoncrawl(
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
@@ -156,7 +159,7 @@ def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
             folder=input_base_folder, src_language="cs", tgt_language="en", split=split
         )
 
-        train = crp.CorpusSplit.stack_corpus_splits(
+        out = crp.CorpusSplit.stack_corpus_splits(
             corpus_splits=[
                 commoncrawl_train,
                 paracrawl_train,
@@ -167,20 +170,21 @@ def process_cs_en(input_base_folder, split="train") -> crp.CorpusSplit:
             split="train",
         )
 
-        # TODO: bpe / char processing
-
-        return train
     elif split == "dev":
-        flores_dev = load_flores101_pair(
+        out = load_flores101_pair(
             folder=input_base_folder, src_language="cs", tgt_language="en", split="dev"
         )
 
-        # TODO: bpe / char processing
-
-        return flores_dev
-
     else:
         raise ValueError("Only train and dev sets supported!")
+
+    for side, output_level in zip(("src", "tgt"), (cs_output_level, en_output_level)):
+        if output_level == "subword":
+            raise NotImplementedError("TODO: implement subword processing")
+        elif output_level == "char":
+            out = convert_to_chars(out, side=side)
+
+    return out
 
 
 def process_de_en():
@@ -253,7 +257,6 @@ def duplicate_lines(
 
 def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
     """Converts one side of corpus to characters."""
-    # other_side = {"src": "tgt", "tgt": "src"}[side]
 
     def to_char_level(s: str, space_symbol: str = SPACE_SYMBOL) -> str:
         return " ".join(space_symbol if c == " " else c for c in s)

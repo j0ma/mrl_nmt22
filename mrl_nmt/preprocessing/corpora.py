@@ -109,6 +109,7 @@ class LoadedTSVFile(LoadedFile):
 
     def __attrs_post_init__(self):
         self.both_sides = self.side == "both"
+        self.other_side_map = {"src": "tgt", "tgt": "src"}
         self.use_dict_reader = bool(self.fieldnames)
         self.validate_columns()
 
@@ -170,11 +171,8 @@ class LoadedTSVFile(LoadedFile):
                 load_to_memory=self.load_intermediate,
             )
 
-        if self.load_to_memory:
-            return [self.line_to_dict(line) for line in line_iterator]
-        else:
-            for line in line_iterator:
-                yield self.line_to_dict(line)
+        for line in line_iterator:
+            yield self.line_to_dict(line)
 
 
 @attr.s(auto_attribs=True)
