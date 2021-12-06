@@ -154,7 +154,7 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
         ), f"Could not find '{param_name}' in config dictionary!"
 
 
-def process_cs_en(
+def process_cs(
     input_base_folder,
     split="train",
     cs_output_level="word",
@@ -223,23 +223,23 @@ def process_cs_en(
     return out
 
 
-def process_de_en():
+def process_de():
     pass
 
 
-def process_fi_en():
+def process_fi():
     pass
 
 
-def process_iu_en():
+def process_iu():
     pass
 
 
-def process_ru_en():
+def process_ru():
     pass
 
 
-def process_tr_en(*args, **kwargs) -> None:
+def process_tr(*args, **kwargs) -> None:
 
     # get train
     train_en = crp.LoadedTextFile()
@@ -248,7 +248,7 @@ def process_tr_en(*args, **kwargs) -> None:
     # get dev
 
 
-def process_uz_en():
+def process_uz():
     pass
 
 
