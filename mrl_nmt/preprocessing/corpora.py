@@ -353,11 +353,18 @@ class CorpusSplit:
         split: str,
         verbose: bool = True,
     ) -> "CorpusSplit":
-        if all(isinstance(f, LoadedFile) for f in (src, tgt)):
+        assert (
+            len({type(src), type(tgt)}) == 1
+        ), f"Both src and tgt must have the same type! Got: {type(src)} (src) {type(tgt)} (tgt)"
+        if isinstance(src, LoadedFile):
             return cls._from_src_tgt_file(src, tgt, split=split, verbose=verbose)
-        else:
+        elif isinstance(src, CorpusSplit):
             return cls._from_src_tgt_corpus_split(
                 src, tgt, split=split, verbose=verbose
+            )
+        else:
+            raise ValueError(
+                f"Only CorpusSplit and LoadedFile objects supported. Got: {type(src)}"
             )
 
     @classmethod
