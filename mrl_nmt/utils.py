@@ -1,4 +1,5 @@
 import itertools
+import subprocess
 from io import StringIO
 from typing import Union, Iterable, Dict, Any, Sequence, Generator
 from pathlib import Path
@@ -6,6 +7,49 @@ import csv
 
 import attr
 import toml
+
+
+@attr.s(auto_attribs=True)
+class CutSyscallReader:
+    """Reader that uses the 'cut' syscall to grab several fields from each row"""
+
+    path: Union[str, Path]
+    field_indices: Sequence[int]
+    delimiter: str = "\t"
+
+    def _run_pid(self) -> subprocess.CompletedProcess:
+        str_path = str(Path(self.path).expanduser())
+
+        popen_args = [
+            "cut",
+            f"-f{','.join(str(i) for i in self.field_indices)}",
+            f"-d{self.delimiter}",
+            str_path,
+        ]
+        return subprocess.run(
+            popen_args,
+            capture_output=True,
+            encoding="utf-8",
+            text=True,
+        )
+
+    def __iter__(self):
+        return self.lines
+
+    def process_line(self, line: str) -> Sequence[str]:
+        out = line.split(self.delimiter)
+        lo, lfi = len(out), len(self.field_indices)
+        assert (
+            lo == lfi
+        ), f"ERROR: output has {lo} fields, expected {lfi} (line: {line})"
+        return out
+
+    @property
+    def lines(self) -> Dict[str, str]:
+        lines = self._run_pid().stdout
+        assert lines, f"ERROR: no output, got {lines}"
+        for line in lines:
+            yield self.process_line(line.strip())
 
 
 @attr.s(auto_attribs=True)
@@ -23,7 +67,8 @@ class CustomDictReader:
         for fn, item in itertools.zip_longest(
             self.field_names, line.split(self.delimiter)
         ):
-            out[fn] = item
+            if fn:
+                out[fn] = item
 
         return out
 

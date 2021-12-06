@@ -34,7 +34,7 @@ class LoadedFile:
     # use this to toggle loading of intermediate lines to RAM
     load_intermediate: bool = False
 
-    sides: Set[str] = set(["src", "tgt", "both"])
+    sides: Set[str] = {"src", "tgt", "both"}
 
     parse_language_func: Optional[Callable[[Any], str]] = None
 
@@ -482,10 +482,10 @@ class CorpusSplit:
     ) -> "CorpusSplit":
         """Create a single CorpusSplit by concatenating lines of multiple CorpusSplits together."""
 
-        all_src = list(set(cs.src_lang for cs in corpus_splits))
+        all_src = set(cs.src_lang for cs in corpus_splits)
         assert len(all_src) == 1, "All corpus splits must have the same source language"
 
-        all_tgt = list(set(cs.tgt_lang for cs in corpus_splits))
+        all_tgt = set(cs.tgt_lang for cs in corpus_splits)
         assert len(all_tgt) == 1, "All corpus splits must have the same target language"
 
         src_lang, tgt_lang = all_src[0], all_tgt[0]

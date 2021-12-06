@@ -24,6 +24,8 @@ def load_flores101_pair(
         "de": "deu",
         "fi": "fin",
         "ru": "rus",
+        "tr": "tur",
+        "uz": "uzb",
     }
     # Handle paths
     src_path = (folder / f"{lang_code_map[src_language]}.{split}").expanduser()
@@ -68,10 +70,10 @@ def load_paracrawl(folder: Path, foreign_language: str, split: str = "train"):
     tsv = crp.LoadedTSVFile(
         path=paracrawl_path,
         side="both",
-        src_column=foreign_language,
-        tgt_column="en",
-        src_language=foreign_language,
-        tgt_language="en",
+        src_column="en",
+        src_language="en",
+        tgt_column=foreign_language,
+        tgt_language=foreign_language,
         fieldnames=["en", foreign_language],
         load_to_memory=False,
         use_custom_reader=True,
@@ -154,6 +156,28 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
         ), f"Could not find '{param_name}' in config dictionary!"
 
 
+def process_subwords(
+    out: crp.CorpusSplit,
+    src_output_lvl: str,
+    tgt_output_lvl: str,
+    sentencepiece_config: Optional[Dict[str, str]],
+) -> crp.CorpusSplit:
+
+    for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
+        if output_level == "sentencepiece":
+            if not sentencepiece_config or side not in sentencepiece_config:
+                raise ValueError("SentencePiece requires a config dictionary.")
+            sp_conf = sentencepiece_config[side]
+            validate_sentencepiece_config(sp_conf)
+            out = process_with_sentencepiece(corpus=out, side=side, **sp_conf)
+        elif output_level == "char":
+            out = convert_to_chars(out, side=side)
+        elif output_level == "morph":
+            raise NotImplementedError("Morphological preprocessing not yet supported.")
+
+    return out
+
+
 def process_cs(
     input_base_folder,
     split="train",
@@ -167,7 +191,7 @@ def process_cs(
     if split == "train":
         print("Loading CommonCrawl...")
         commoncrawl_train = load_commoncrawl(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
         )
         print("Loading ParaCrawl...")
         paracrawl_train = load_paracrawl(
@@ -175,16 +199,16 @@ def process_cs(
         )
         print("Loading Europarl v10...")
         europarl_train = load_europarl_v10(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
         )
         print("Loading NewsCommentary...")
         news_commentary_train = load_news_commentary(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
         )
 
         print("Loading TILDE RAPID corpus...")
         rapid_train = load_rapid_2019_xlf(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split=split
+            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
         )
 
         print("Stacking everything together...")
@@ -202,23 +226,18 @@ def process_cs(
     elif split == "dev":
         print("Loading dev data from FLORES")
         out = load_flores101_pair(
-            folder=input_base_folder, src_language="cs", tgt_language="en", split="dev"
+            folder=input_base_folder, src_language="en", tgt_language="cs", split="dev"
         )
 
     else:
         raise ValueError("Only train and dev sets supported!")
 
-    for side, output_level in zip(("src", "tgt"), (cs_output_level, en_output_level)):
-        if output_level == "sentencepiece":
-            if not sentencepiece_config or side not in sentencepiece_config:
-                raise ValueError("SentencePiece requires a config dictionary.")
-            sp_conf = sentencepiece_config[side]
-            validate_sentencepiece_config(sp_conf)
-            out = process_with_sentencepiece(corpus=out, side=side, **sp_conf)
-        elif output_level == "char":
-            out = convert_to_chars(out, side=side)
-        elif output_level == "morph":
-            raise NotImplementedError("Morphological preprocessing not yet supported.")
+    out = process_subwords(
+        out=out,
+        src_output_lvl=en_output_level,
+        tgt_output_lvl=cs_output_level,
+        sentencepiece_config=sentencepiece_config,
+    )
 
     return out
 
@@ -239,17 +258,81 @@ def process_ru():
     pass
 
 
-def process_tr(*args, **kwargs) -> None:
+def process_tr(
+    input_base_folder,
+    split="train",
+    tr_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+) -> crp.CorpusSplit:
 
     # get train
-    train_en = crp.LoadedTextFile()
-    train_tr = crp.LoadedTextFile()
+    if split == "train":
+        train_path = Path(f"{input_base_folder}/")
+        train_en = crp.LoadedTextFile(
+            train_path / "en-tr.en", side="src", language="en"
+        )
+        train_tr = crp.LoadedTextFile(
+            train_path / "en-tr.tr", side="tgt", language="tr"
+        )
+        out = crp.CorpusSplit.from_src_tgt(
+            src=train_en, tgt=train_tr, split=split, verbose=True
+        )
 
-    # get dev
+        # get dev
+    elif split == "dev":
+        out = load_flores101_pair(
+            folder=input_base_folder, src_language="en", tgt_language="tr", split="dev"
+        )
+
+    else:
+        raise ValueError("Only train and dev sets supported!")
+
+    out = process_subwords(
+        out,
+        src_output_lvl=en_output_level,
+        tgt_output_lvl=tr_output_level,
+        sentencepiece_config=sentencepiece_config,
+    )
+    return out
 
 
-def process_uz():
-    pass
+def process_uz(
+    input_base_folder,
+    split="train",
+    uz_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+) -> crp.CorpusSplit:
+
+    if split == "train":
+        train_path = Path(f"{input_base_folder}/")
+        train_en = crp.LoadedTextFile(
+            train_path / "en-uz.en", side="src", language="en"
+        )
+        train_uz = crp.LoadedTextFile(
+            train_path / "en-uz.uz", side="tgt", language="uz"
+        )
+        out = crp.CorpusSplit.from_src_tgt(
+            src=train_en, tgt=train_uz, split=split, verbose=True
+        )
+
+        # get dev
+    elif split == "dev":
+        out = load_flores101_pair(
+            folder=input_base_folder, src_language="en", tgt_language="uz", split="dev"
+        )
+
+    else:
+        raise ValueError("Only train and dev sets supported!")
+
+    out = process_subwords(
+        out,
+        src_output_lvl=en_output_level,
+        tgt_output_lvl=uz_output_level,
+        sentencepiece_config=sentencepiece_config,
+    )
+    return out
 
 
 ####
