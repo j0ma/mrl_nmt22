@@ -1,9 +1,7 @@
 import os
 from pathlib import Path
 import unittest
-import sys
-from typing import Iterable, Any
-from itertools import zip_longest
+import itertools as it
 
 import mrl_nmt.utils as u
 import mrl_nmt.preprocessing as pp
@@ -22,6 +20,7 @@ SAMPLE_NOHEADER_TSV = prefix / Path("data/sample_noheader.tsv")
 SWE_DEV = prefix / Path("data/flores101_swe.dev")
 FIN_DEV = prefix / Path("data/flores101_fin.dev")
 ENG_DEV = prefix / Path("data/flores101_eng.dev")
+TUR_DEV = prefix / Path("data/flores101_tur.dev")
 ENG_FIN_DEV = prefix / Path("data/flores101_eng_fin_dev.tsv")
 ENG_FIN_DEV_WITHHEADER = prefix / Path("data/flores101_eng_fin_dev_withheader.tsv")
 
@@ -32,27 +31,33 @@ CS_EN_XLF_STUB_PATH = prefix / Path("data/rapid_2019_cs_en_stub.xlf")
 EN_FI_TMX_STUB_PATH = prefix / Path("data/rapid2016.en-fi_stub.tmx")
 
 # Case: local development
-FULL_DATA_PATH = Path("/data/datasets/mrl-nmt").expanduser()
+local_development_path = "/data/datasets/mrl-nmt"
+FULL_DATA_PATH = Path(local_development_path).expanduser()
 
 # Case: server development
+server_development_path = "~/datasets/mrl_nmt22/"
 if not FULL_DATA_PATH.exists():
-    FULL_DATA_PATH = Path("~/datasets/mrl_nmt22/").expanduser()
+    print(f"FULL_DATA_PATH not found under {local_development_path}")
+    FULL_DATA_PATH = Path(server_development_path).expanduser()
 
 # Fallback: try to pick from environment
 if not FULL_DATA_PATH.exists():
+    print(f"FULL_DATA_PATH not found under {server_development_path}")
     try:
         FULL_DATA_PATH = Path(os.environ.get("MRL_FULL_DATA_PATH")).expanduser()
     except:
         print(
-            "WARNING: MRL_FULL_DATA_PATH environment variable not found. "
+            "WARNING: Could not resolve $MRL_FULL_DATA_PATH. "
             "Ignoring tests that use it."
         )
         FULL_DATA_PATH = Path("/dev/null")
 
 FULL_EN_CS_PATH = FULL_DATA_PATH / "cs" / "en-cs"
+FULL_EN_TR_PATH = FULL_DATA_PATH / "tr" / "en-tr"
+FULL_EN_UZ_PATH = FULL_DATA_PATH / "uz" / "en-uz"
 
 # Constants
-N_LINES = 997
+N_LINES_FLORES101_DEV = 997
 N_LINES_PARACRAWL = 14083311
 
 
@@ -60,7 +65,7 @@ class TextUtils(unittest.TestCase):
     def test_can_read_txt_into_memory(self):
         sample_sents = u.read_lines(path=SAMPLE_SENTENCES_TXT)
         self.assertEqual(3, len(sample_sents))
-        print_a_few_lines(sample_sents)
+        u.print_a_few_lines(sample_sents)
 
     def test_can_stream_txt(self):
         sample_sents = u.stream_lines(path=SAMPLE_SENTENCES_TXT)
@@ -69,7 +74,7 @@ class TextUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             assert 3 == len(sample_sents)
 
-        print_a_few_lines(sample_sents)
+        u.print_a_few_lines(sample_sents)
 
     def test_can_read_tsv_into_memory(self):
         sample_tsv = u.read_tsv_dict(
@@ -112,10 +117,10 @@ class TestLoadedTextFileRAM(unittest.TestCase):
         )
 
     def test_right_number_of_lines(self):
-        self.assertEqual(N_LINES, len(self.swe_in_ram_src.lines))
+        self.assertEqual(N_LINES_FLORES101_DEV, len(self.swe_in_ram_src.lines))
 
     def test_right_number_of_dicts(self):
-        self.assertEqual(N_LINES, len(self.swe_in_ram_src.lines_as_dicts))
+        self.assertEqual(N_LINES_FLORES101_DEV, len(self.swe_in_ram_src.lines_as_dicts))
 
     def test_can_load_lines_twice(self):
         """The lines can be iterated over several times, e.g. for getting bigrams."""
@@ -123,7 +128,7 @@ class TestLoadedTextFileRAM(unittest.TestCase):
         print("\n" + 70 * "=")
         print("Here are a few line bigrams:\n")
 
-        print_a_few_lines(
+        u.print_a_few_lines(
             msg="Here area few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
@@ -161,7 +166,7 @@ class TestLoadedTextFileStream(unittest.TestCase):
         for line in self.swe_streaming_src.stream_lines:
             line_count += 1
 
-        self.assertEqual(N_LINES, line_count)
+        self.assertEqual(N_LINES_FLORES101_DEV, line_count)
 
     def test_right_number_of_dicts(self):
 
@@ -170,7 +175,7 @@ class TestLoadedTextFileStream(unittest.TestCase):
         for line in self.swe_streaming_src.lines_as_dicts:
             line_count += 1
 
-        self.assertEqual(N_LINES, line_count)
+        self.assertEqual(N_LINES_FLORES101_DEV, line_count)
 
     def test_no_len_stream_lines(self):
         """Streams do not support len() calls."""
@@ -191,7 +196,7 @@ class TestLoadedTextFileStream(unittest.TestCase):
         # throw away first value
         next(second_iter)
 
-        print_a_few_lines(
+        u.print_a_few_lines(
             msg="Here are a few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
@@ -269,7 +274,7 @@ class TestXLIFFFile(unittest.TestCase):
         )
 
     def test_can_print_lines(self) -> None:
-        print_a_few_lines(self.xliff.lines_as_dicts)
+        u.print_a_few_lines(self.xliff.lines_as_dicts)
 
 
 class TestTMXFile(unittest.TestCase):
@@ -281,7 +286,7 @@ class TestTMXFile(unittest.TestCase):
             load_to_memory=False,
         )
         lines = self.tmx_file.lines_as_dicts
-        print_a_few_lines(lines)
+        u.print_a_few_lines(lines)
 
     def test_can_print_lines_ram(self) -> None:
         self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
@@ -291,7 +296,7 @@ class TestTMXFile(unittest.TestCase):
             load_to_memory=True,
         )
         lines = self.tmx_file.lines_as_dicts
-        print_a_few_lines(lines)
+        u.print_a_few_lines(lines)
 
     # TODO: more tests
 
@@ -313,7 +318,7 @@ class TestCorpusSplit(unittest.TestCase):
         cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
             src=self.fin, tgt=self.swe, split="train"
         )
-        print_a_few_lines(line_iter=cs.lines)
+        u.print_a_few_lines(line_iter=cs.lines)
 
     def test_src_tgt_side_mismatch_raises_error(self):
         """An error is raised if src and tgt don't have correct sides."""
@@ -364,7 +369,7 @@ class TestPreprocessingOps(unittest.TestCase):
         self.fin_chars = ops.convert_to_chars(
             corpus=self.fin_corpus, side=self.fin.side
         )
-        print_a_few_lines(self.fin_chars.lines)
+        u.print_a_few_lines(self.fin_chars.lines)
 
     def test_duplicate_lines(self):
         self.fin_5x_round_robin = ops.duplicate_lines(
@@ -384,7 +389,7 @@ class TestPreprocessingOps(unittest.TestCase):
         n_lines_round_robin = 0
         n_lines_repeat_each = 0
 
-        for rr_line, re_line in zip_longest(
+        for rr_line, re_line in it.zip_longest(
             self.fin_5x_round_robin.lines, self.fin_5x_repeat_each.lines
         ):
             n_lines_round_robin += int(bool(rr_line))
@@ -465,10 +470,9 @@ class TestPreprocessingOps(unittest.TestCase):
             model_file=sv_model,
         )
 
-        # write to disk
         new_corpus.write_to_disk(folder=Path("/tmp/"), prefix="", skip_upon_fail=True)
 
-        print_a_few_lines(
+        u.print_a_few_lines(
             "Source: {}\nTarget: {}".format(d["tgt"]["text"], d["src"]["text"])
             for d in corpus.lines
         )
@@ -525,16 +529,54 @@ class TestPreprocessingOps(unittest.TestCase):
         self.assertEqual(line_count_combined, line_count_news + line_count_rapid)
 
 
-def print_a_few_lines(
-    line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"
-) -> None:
-    print("\n" + 70 * "=")
-    print(f"{msg}\n")
+class TestParallelCorpusStats(unittest.TestCase):
+    @unittest.skipIf(
+        condition=(not TUR_DEV.exists()),
+        reason="EN-TR dev data not found.",
+    )
+    def test_en_tr_dev_size(self):
+        """EN-TR dev data contains the correct number of lines, regardless of preprocessing"""
 
-    with open("/dev/null", "w") as dev_null:
-        for ix, line in enumerate(line_iter):
-            print(line, file=(sys.stdout if ix < n_lines else dev_null))
-    print("\n" + 70 * "=")
+        levels = ("word", "char", "sentencepiece", "morph")
+        sp_conf = {
+            "src": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "entr.en.bin",
+            },
+            "tgt": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "entr.tr.bin",
+            },
+        }
+
+        for src_lvl, tgt_lvl in it.product(levels, levels):
+            if src_lvl != "morph" and tgt_lvl != "morph":
+                en_tr_corpus = ops.process_tr(
+                    input_base_folder=prefix / "data",
+                    split="dev",
+                    en_output_level=src_lvl,
+                    tr_output_level=tgt_lvl,
+                    prefix="flores101_",
+                    sentencepiece_config=sp_conf,
+                )
+                line_count = 0
+                for _ in en_tr_corpus.lines:
+                    line_count += 1
+
+                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+            else:
+                # NOTE: this will fail once morph processing implemented
+                with self.assertRaises(NotImplementedError):
+                    en_tr_corpus = ops.process_tr(
+                        input_base_folder=prefix / "data",
+                        split="dev",
+                        en_output_level=src_lvl,
+                        tr_output_level=tgt_lvl,
+                        prefix="flores101_",
+                        sentencepiece_config=sp_conf,
+                    )
 
 
 if __name__ == "__main__":
