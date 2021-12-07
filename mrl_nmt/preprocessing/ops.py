@@ -476,7 +476,9 @@ def process_with_sentencepiece(
 
         if model_file_is_correct:
             # optionally write model to disk
-            print(f"Writing model binary to disk under {model_file}")
+            print(
+                f"[process_with_sentencepiece] Writing model binary to disk under {model_file}"
+            )
             with open(model_file, "wb") as f:
                 f.write(model.getvalue())
 
@@ -484,6 +486,7 @@ def process_with_sentencepiece(
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
     def final_lines(sp, lines, other_side_lines, line_count):
+        print(f"[process_with_sentencepiece] Outputting final lines...")
         for side_line_dict, other_line_dict in tqdm(
             zip(lines, other_side_lines), total=line_count
         ):
