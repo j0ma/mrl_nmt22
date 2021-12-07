@@ -168,7 +168,7 @@ def process_subwords(
 
     for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
         print(
-            f"[process_subwords] Processing {side} side into {output_level} output level"
+            f'[process_subwords] Processing {side} side into output level "{output_level}"'
         )
         if output_level == "sentencepiece":
             if not sentencepiece_config or side not in sentencepiece_config:
@@ -279,10 +279,10 @@ def process_tr(
     if split == "train":
         train_path = Path(f"{input_base_folder}/")
         train_en = crp.LoadedTextFile(
-            train_path / "en-tr.en", side="src", language="en"
+            train_path / "en-tr.en", side="src", language="en", load_to_memory=False
         )
         train_tr = crp.LoadedTextFile(
-            train_path / "en-tr.tr", side="tgt", language="tr"
+            train_path / "en-tr.tr", side="tgt", language="tr", load_to_memory=False
         )
 
         print(f"[process_tr] Creating CorpusSplit...")
@@ -325,10 +325,10 @@ def process_uz(
     if split == "train":
         train_path = Path(f"{input_base_folder}/")
         train_en = crp.LoadedTextFile(
-            train_path / "en-uz.en", side="src", language="en"
+            train_path / "en-uz.en", side="src", language="en", load_to_memory=False
         )
         train_uz = crp.LoadedTextFile(
-            train_path / "en-uz.uz", side="tgt", language="uz"
+            train_path / "en-uz.uz", side="tgt", language="uz", load_to_memory=False
         )
         out = crp.CorpusSplit.from_src_tgt(
             src=train_en, tgt=train_uz, split=split, verbose=True
