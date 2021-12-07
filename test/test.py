@@ -631,6 +631,97 @@ class TestParallelCorpusStats(unittest.TestCase):
                         sentencepiece_config=sp_conf,
                     )
 
+    def test_en_uz_dev_size(self):
+        """EN-UZ dev data contains the correct number of lines, regardless of preprocessing"""
+
+        levels = ("word", "char", "sentencepiece", "morph")
+        sp_conf = {
+            "src": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "enuz.en.bin",
+            },
+            "tgt": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "enuz.uz.bin",
+            },
+        }
+
+        for src_lvl, tgt_lvl in zip(levels, levels):
+            if src_lvl != "morph" and tgt_lvl != "morph":
+                en_uz_corpus = ops.process_uz(
+                    input_base_folder=prefix / "data",
+                    split="dev",
+                    en_output_level=src_lvl,
+                    uz_output_level=tgt_lvl,
+                    prefix="flores101_",
+                    sentencepiece_config=sp_conf,
+                )
+                line_count = 0
+                for _ in tqdm(en_uz_corpus.lines):
+                    line_count += 1
+
+                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+            else:
+                # NOTE: this will fail once morph processing implemented
+                with self.assertRaises(NotImplementedError):
+                    en_uz_corpus = ops.process_uz(
+                        input_base_folder=prefix / "data",
+                        split="dev",
+                        en_output_level=src_lvl,
+                        uz_output_level=tgt_lvl,
+                        prefix="flores101_",
+                        sentencepiece_config=sp_conf,
+                    )
+
+    @unittest.skipIf(condition=SKIP_LARGE_TESTS, reason="SKIP_LARGE_TESTS=True")
+    def test_en_uz_train_size(self):
+        """EN-UZ train data contains the correct number of lines, regardless of preprocessing"""
+
+        levels = ("word", "char", "sentencepiece", "morph")
+        sp_conf = {
+            "src": {
+                "vocab_size": 2000,
+                "use_pretrained_model": False,
+                "model_file": "enuz.en.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+            "tgt": {
+                "vocab_size": 2000,
+                "use_pretrained_model": False,
+                "model_file": "enuz.uz.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+        }
+
+        for src_lvl, tgt_lvl in zip(levels, levels):
+            if src_lvl != "morph" and tgt_lvl != "morph":
+                en_uz_corpus = ops.process_uz(
+                    input_base_folder=FULL_EN_TR_PATH,
+                    split="train",
+                    en_output_level=src_lvl,
+                    uz_output_level=tgt_lvl,
+                    sentencepiece_config=sp_conf,
+                )
+                line_count = 0
+                for _ in tqdm(en_uz_corpus.lines):
+                    line_count += 1
+
+                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+            else:
+                # NOTE: this will fail once morph processing implemented
+                with self.assertRaises(NotImplementedError):
+                    en_uz_corpus = ops.process_uz(
+                        input_base_folder=FULL_EN_TR_PATH,
+                        split="train",
+                        en_output_level=src_lvl,
+                        uz_output_level=tgt_lvl,
+                        sentencepiece_config=sp_conf,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=1234)
