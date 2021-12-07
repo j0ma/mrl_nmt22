@@ -1,21 +1,20 @@
-from typing import Union, Iterable, Optional, Dict, Any, Sequence
-from pathlib import Path
-import itertools as it
 import io
+from pathlib import Path
+from typing import Union, Iterable, Optional, Dict, Any
 
-import attr
-from mrl_nmt.utils import read_lines
-from tqdm import tqdm
-import mrl_nmt.preprocessing.corpora as crp
 import sentencepiece as spm
+from tqdm import tqdm
+
+import mrl_nmt.preprocessing.corpora as crp
 
 SPACE_SYMBOL = "﹏"
+OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char"}
 
 #### Language pair/dataset specific ops
 
 
 def load_flores101_pair(
-    folder: Path, src_language: str, tgt_language: str, split: str = "train"
+    folder: Path, src_language: str, tgt_language: str, split: str = "train", prefix=""
 ):
 
     lang_code_map = {
@@ -28,8 +27,8 @@ def load_flores101_pair(
         "uz": "uzb",
     }
     # Handle paths
-    src_path = (folder / f"{lang_code_map[src_language]}.{split}").expanduser()
-    tgt_path = (folder / f"{lang_code_map[tgt_language]}.{split}").expanduser()
+    src_path = (folder / f"{prefix}{lang_code_map[src_language]}.{split}").expanduser()
+    tgt_path = (folder / f"{prefix}{lang_code_map[tgt_language]}.{split}").expanduser()
 
     # Load files
     f_src = crp.LoadedTextFile(
@@ -145,9 +144,6 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
         "vocab_size",
         "use_pretrained_model",
         "model_file",
-        "model_base_path",
-        "input_sentence_size",
-        "shuffle_input_sentence",
     ]
     print(f"Got config: {config}")
     for param_name in required_params:
@@ -163,10 +159,20 @@ def process_subwords(
     sentencepiece_config: Optional[Dict[str, str]],
 ) -> crp.CorpusSplit:
 
+    assert (
+        src_output_lvl in OUTPUT_LEVELS
+    ), f"src output level must be one of {OUTPUT_LEVELS}. Got: {src_output_lvl}"
+    assert (
+        tgt_output_lvl in OUTPUT_LEVELS
+    ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
+
     for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
         if output_level == "sentencepiece":
             if not sentencepiece_config or side not in sentencepiece_config:
-                raise ValueError("SentencePiece requires a config dictionary.")
+                raise ValueError(
+                    "SentencePiece requires a config dictionary with src and tgt as the top level keys. "
+                    f"Got: {sentencepiece_config}"
+                )
             sp_conf = sentencepiece_config[side]
             validate_sentencepiece_config(sp_conf)
             out = process_with_sentencepiece(corpus=out, side=side, **sp_conf)
@@ -185,8 +191,6 @@ def process_cs(
     en_output_level="word",
     sentencepiece_config=None,
 ) -> crp.CorpusSplit:
-    assert cs_output_level in ["word", "sentencepiece", "morph", "char"]
-    assert en_output_level in ["word", "sentencepiece", "morph", "char"]
 
     if split == "train":
         print("Loading CommonCrawl...")
@@ -264,6 +268,7 @@ def process_tr(
     tr_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
 ) -> crp.CorpusSplit:
 
     # get train
@@ -282,7 +287,11 @@ def process_tr(
         # get dev
     elif split == "dev":
         out = load_flores101_pair(
-            folder=input_base_folder, src_language="en", tgt_language="tr", split="dev"
+            folder=input_base_folder,
+            src_language="en",
+            tgt_language="tr",
+            split="dev",
+            prefix=prefix,
         )
 
     else:
@@ -402,7 +411,7 @@ def process_with_sentencepiece(
     vocab_size: int,
     use_pretrained_model: bool = False,
     model_file: Union[str, Path] = "",
-    model_base_path: Union[str, Path] = "",
+    model_base_path: Union[str, Path] = "/tmp",
     input_sentence_size: int = 0,
     shuffle_input_sentence: bool = False,
 ) -> crp.CorpusSplit:
