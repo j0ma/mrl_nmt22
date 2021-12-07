@@ -33,7 +33,6 @@ def main():
             "dictionary": lang_code in supported[DICT],
             "constraint_grammar": lang_code in supported[CG],
         }
-
         for lang_code in all_lang_codes
     ]
 
