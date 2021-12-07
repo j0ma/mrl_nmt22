@@ -59,9 +59,13 @@ FULL_EN_UZ_PATH = FULL_DATA_PATH / "uz" / "en-uz"
 # Constants
 N_LINES_FLORES101_DEV = 997
 N_LINES_PARACRAWL = 14083311
+N_LINES_EN_TR_TRAIN = 35879592
+
+# Toggle this to enable testing with large files
+SKIP_LARGE_TESTS = True
 
 
-class TextUtils(unittest.TestCase):
+class TestTextUtils(unittest.TestCase):
     def test_can_read_txt_into_memory(self):
         sample_sents = u.read_lines(path=SAMPLE_SENTENCES_TXT)
         self.assertEqual(3, len(sample_sents))
@@ -551,7 +555,7 @@ class TestParallelCorpusStats(unittest.TestCase):
             },
         }
 
-        for src_lvl, tgt_lvl in it.product(levels, levels):
+        for src_lvl, tgt_lvl in zip(levels, levels):
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_tr_corpus = ops.process_tr(
                     input_base_folder=prefix / "data",
@@ -575,6 +579,53 @@ class TestParallelCorpusStats(unittest.TestCase):
                         en_output_level=src_lvl,
                         tr_output_level=tgt_lvl,
                         prefix="flores101_",
+                        sentencepiece_config=sp_conf,
+                    )
+
+    @unittest.skipIf(condition=SKIP_LARGE_TESTS, reason="SKIP_LARGE_TESTS=True")
+    def test_en_tr_train_size(self):
+        """EN-TR train data contains the correct number of lines, regardless of preprocessing"""
+
+        levels = ("word", "char", "sentencepiece", "morph")
+        sp_conf = {
+            "src": {
+                "vocab_size": 2000,
+                "use_pretrained_model": False,
+                "model_file": "entr.en.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+            "tgt": {
+                "vocab_size": 2000,
+                "use_pretrained_model": False,
+                "model_file": "entr.tr.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+        }
+
+        for src_lvl, tgt_lvl in zip(levels, levels):
+            if src_lvl != "morph" and tgt_lvl != "morph":
+                en_tr_corpus = ops.process_tr(
+                    input_base_folder=FULL_EN_TR_PATH,
+                    split="train",
+                    en_output_level=src_lvl,
+                    tr_output_level=tgt_lvl,
+                    sentencepiece_config=sp_conf,
+                )
+                line_count = 0
+                for _ in en_tr_corpus.lines:
+                    line_count += 1
+
+                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+            else:
+                # NOTE: this will fail once morph processing implemented
+                with self.assertRaises(NotImplementedError):
+                    en_tr_corpus = ops.process_tr(
+                        input_base_folder=FULL_EN_TR_PATH,
+                        split="train",
+                        en_output_level=src_lvl,
+                        tr_output_level=tgt_lvl,
                         sentencepiece_config=sp_conf,
                     )
 
