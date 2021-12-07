@@ -62,9 +62,10 @@ FULL_EN_UZ_PATH = FULL_DATA_PATH / "uz" / "en-uz"
 N_LINES_FLORES101_DEV = 997
 N_LINES_PARACRAWL = 14083311
 N_LINES_EN_TR_TRAIN = 35879592
+N_LINES_EN_UZ_TRAIN = 529574
 
 # Toggle this to enable testing with large files
-SKIP_LARGE_TESTS = True
+SKIP_LARGE_TESTS = False
 
 
 class TestTextUtils(unittest.TestCase):
@@ -607,6 +608,8 @@ class TestParallelCorpusStats(unittest.TestCase):
         }
 
         for src_lvl, tgt_lvl in zip(levels, levels):
+            print(f"\n[src_output_level]: {src_lvl}")
+            print(f"[tgt_output_level]: {tgt_lvl}")
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_tr_corpus = ops.process_tr(
                     input_base_folder=FULL_EN_TR_PATH,
@@ -619,7 +622,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                 for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
-                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+                self.assertEqual(N_LINES_EN_TR_TRAIN, line_count)
             else:
                 # NOTE: this will fail once morph processing implemented
                 with self.assertRaises(NotImplementedError):
@@ -700,7 +703,7 @@ class TestParallelCorpusStats(unittest.TestCase):
         for src_lvl, tgt_lvl in zip(levels, levels):
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_uz_corpus = ops.process_uz(
-                    input_base_folder=FULL_EN_TR_PATH,
+                    input_base_folder=FULL_EN_UZ_PATH,
                     split="train",
                     en_output_level=src_lvl,
                     uz_output_level=tgt_lvl,
@@ -710,12 +713,12 @@ class TestParallelCorpusStats(unittest.TestCase):
                 for _ in tqdm(en_uz_corpus.lines):
                     line_count += 1
 
-                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+                self.assertEqual(N_LINES_EN_UZ_TRAIN, line_count)
             else:
                 # NOTE: this will fail once morph processing implemented
                 with self.assertRaises(NotImplementedError):
                     en_uz_corpus = ops.process_uz(
-                        input_base_folder=FULL_EN_TR_PATH,
+                        input_base_folder=FULL_EN_UZ_PATH,
                         split="train",
                         en_output_level=src_lvl,
                         uz_output_level=tgt_lvl,
