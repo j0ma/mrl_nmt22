@@ -3,6 +3,8 @@ from pathlib import Path
 import unittest
 import itertools as it
 
+from tqdm import tqdm
+
 import mrl_nmt.utils as u
 import mrl_nmt.preprocessing as pp
 import mrl_nmt.preprocessing.corpora
@@ -566,7 +568,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     sentencepiece_config=sp_conf,
                 )
                 line_count = 0
-                for _ in en_tr_corpus.lines:
+                for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
                 self.assertEqual(N_LINES_FLORES101_DEV, line_count)
@@ -614,7 +616,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     sentencepiece_config=sp_conf,
                 )
                 line_count = 0
-                for _ in en_tr_corpus.lines:
+                for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
                 self.assertEqual(N_LINES_FLORES101_DEV, line_count)
