@@ -167,6 +167,9 @@ def process_subwords(
     ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
 
     for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
+        print(
+            f"[process_subwords] Processing {side} side into {output_level} output level"
+        )
         if output_level == "sentencepiece":
             if not sentencepiece_config or side not in sentencepiece_config:
                 raise ValueError(
@@ -272,6 +275,7 @@ def process_tr(
 ) -> crp.CorpusSplit:
 
     # get train
+    print(f"[process_tr] Loading {split} corpus...")
     if split == "train":
         train_path = Path(f"{input_base_folder}/")
         train_en = crp.LoadedTextFile(
@@ -280,6 +284,8 @@ def process_tr(
         train_tr = crp.LoadedTextFile(
             train_path / "en-tr.tr", side="tgt", language="tr"
         )
+
+        print(f"[process_tr] Creating CorpusSplit...")
         out = crp.CorpusSplit.from_src_tgt(
             src=train_en, tgt=train_tr, split=split, verbose=True
         )
@@ -297,6 +303,7 @@ def process_tr(
     else:
         raise ValueError("Only train and dev sets supported!")
 
+    print(f"[process_tr] Processing corpus into subword representations")
     out = process_subwords(
         out,
         src_output_lvl=en_output_level,
