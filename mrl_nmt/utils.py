@@ -1,5 +1,6 @@
 import itertools
 import subprocess
+import sys
 from io import StringIO
 from typing import Union, Iterable, Dict, Any, Sequence, Generator
 from pathlib import Path
@@ -86,8 +87,8 @@ def read_txt(path: Union[str, Path]) -> str:
         return f.read()
 
 
-def read_lines(path: Union[str, Path]) -> Iterable[str]:
-    """Reads lines from a file, outputting an iterable."""
+def read_lines(path: Union[str, Path]) -> Sequence[str]:
+    """Reads lines from a file, outputting a sequence."""
     with open(path, encoding="utf-8") as f:
         return [line.strip() for line in f]
 
@@ -223,3 +224,15 @@ class TOMLConfigReader:
     # TODO: maybe implement this?
     def validate_schema(self, d: dict) -> bool:
         return True
+
+
+def print_a_few_lines(
+    line_iter: Iterable[Any], n_lines: int = 5, msg: str = "Here are a few lines:"
+) -> None:
+    print("\n" + 70 * "=")
+    print(f"{msg}\n")
+
+    with open("/dev/null", "w") as dev_null:
+        for ix, line in enumerate(line_iter):
+            print(line, file=(sys.stdout if ix < n_lines else dev_null))
+    print("\n" + 70 * "=")
