@@ -1,0 +1,44 @@
+name = "en_sp32k_uz_sp4k"
+lang_pairs = [ "en-uz",]
+
+[en-uz]
+src = "en"
+tgt = "uz"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_sp4k"
+data_bin_folder = "./data-bin/en-uz/en_char_uz_sp4k"
+splits = [ "train", "dev",]
+
+[en-uz.train]
+input_base_path = "~/datasets/mrl_nmt22/uz/en-uz"
+
+[[en-uz.train.preprocessing_steps]]
+name = "process_uz"
+
+    [en-uz.train.preprocessing_steps.options]
+    split = "train"
+    en_output_level = "char"
+    uz_output_level = "sentencepiece"
+
+        [en-uz.train.preprocessing_steps.options.sentencepiece_config.tgt]
+        vocab_size = 4000
+        use_pretrained_model = false
+        model_file = "uz_sp4k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_sp4k"
+        #input_sentence_size = 5000000
+        #shuffle_input_sentence = true
+
+[en-uz.dev]
+input_base_path = "~/datasets/flores-101/dev"
+
+[[en-uz.dev.preprocessing_steps]]
+name = "process_uz"
+
+    [en-uz.dev.preprocessing_steps.options]
+    split = "dev"
+    en_output_level = "char"
+    uz_output_level = "sentencepiece"
+
+        [en-uz.dev.preprocessing_steps.options.sentencepiece_config.tgt]
+        use_pretrained_model = true
+        model_file = "uz_sp4k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_sp4k"

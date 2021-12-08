@@ -4,13 +4,13 @@ lang_pairs = [ "en-tr",]
 [en-tr]
 src = "en"
 tgt = "tr"
-output_base_path = "~/datasets/mrl-nmt/processed/en-tr/char"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-tr/char"
 data_bin_folder = "./data-bin/en-tr/char"
-#splits = [ "train", "dev",]
-splits = [ "dev", ]
+splits = [ "train", "dev",]
+# splits = [ "dev", ]
 
 [en-tr.train]
-input_base_path = "~/datasets/mrl-nmt/tr/en-tr"
+input_base_path = "~/datasets/mrl_nmt22/tr/en-tr"
 
 [[en-tr.train.preprocessing_steps]]
 name = "process_tr"

@@ -1,0 +1,31 @@
+name = "en_char_uz_char"
+lang_pairs = [ "en-uz",]
+
+[en-uz]
+src = "en"
+tgt = "uz"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-uz/char"
+data_bin_folder = "./data-bin/en-uz/char"
+splits = [ "train", "dev",]
+
+[en-uz.train]
+input_base_path = "~/datasets/mrl_nmt22/uz/en-uz"
+
+[[en-uz.train.preprocessing_steps]]
+name = "process_uz"
+
+    [en-uz.train.preprocessing_steps.options]
+    split = "train"
+    en_output_level = "char"
+    uz_output_level = "char"
+
+[en-uz.dev]
+input_base_path = "~/datasets/flores-101/dev"
+
+[[en-uz.dev.preprocessing_steps]]
+name = "process_uz"
+
+    [en-uz.dev.preprocessing_steps.options]
+    split = "dev"
+    en_output_level = "char"
+    uz_output_level = "char"
