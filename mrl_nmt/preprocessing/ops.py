@@ -1,6 +1,7 @@
 import io
 from pathlib import Path
 from typing import Union, Iterable, Optional, Dict, Any
+import math
 
 import sentencepiece as spm
 from tqdm import tqdm
@@ -294,7 +295,6 @@ def process_tr(
             src=train_en, tgt=train_tr, split=split, verbose=True
         )
 
-        # get dev
     elif split == "dev":
         out = load_flores101_pair(
             folder=input_base_folder,
@@ -307,7 +307,7 @@ def process_tr(
     else:
         raise ValueError("Only train and dev sets supported!")
 
-    print(f"[process_tr] Processing corpus into subword representations")
+    print("[process_tr] Processing corpus into subword representations")
     out = process_subwords(
         out,
         src_output_lvl=en_output_level,
@@ -424,7 +424,7 @@ def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
 def process_with_sentencepiece(
     corpus: crp.CorpusSplit,
     side: str,
-    vocab_size: int,
+    vocab_size: int = math.inf,
     use_pretrained_model: bool = False,
     model_file: Union[str, Path] = "",
     model_base_path: Union[str, Path] = "/tmp",
