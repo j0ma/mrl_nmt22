@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import unittest
 import itertools as it
+import psutil as psu
 
 from tqdm import tqdm
 
@@ -64,8 +65,16 @@ N_LINES_PARACRAWL = 14083311
 N_LINES_EN_TR_TRAIN = 35879592
 N_LINES_EN_UZ_TRAIN = 529574
 
-# Toggle this to enable testing with large files
-SKIP_LARGE_TESTS = False
+# Set SKIP_LARGE_TESTS=True to always enable large tests
+RAM_GB_THRESHOLD = 30
+giga_ram = psu.virtual_memory().total // 10 ** 9
+if giga_ram <= RAM_GB_THRESHOLD:
+    SKIP_LARGE_TESTS = True
+    print(
+        f"Skipping large tests due to insufficient RAM: {round(giga_ram)} GB <= {RAM_GB_THRESHOLD} GB"
+    )
+else:
+    SKIP_LARGE_TESTS = False
 
 
 class TestTextUtils(unittest.TestCase):

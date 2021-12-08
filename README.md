@@ -15,6 +15,7 @@
 - lxml
 - mtdata
 - tqdm
+- psutil
 
 ## Notes on languages
 - Czech
