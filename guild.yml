@@ -70,7 +70,10 @@
       default: 0.2
     max_update:
       type: int
-      default: 90000
+      default: 0
+    max_epoch:
+      type: int
+      default: 5
     validate_interval:
       type: int
       default: 1
@@ -83,23 +86,24 @@
 
 - operations:
     prep_experiment:
-      description: "Prepares an experiment folder for a Trabina experiment"
-      exec: "bash prep_experiment.sh ${experiment_name} ${normalization_type} ${corpus_name}"
+      description: "Prepares an experiment folder for an MT experiment"
+      exec: "bash prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder}"
       flags:
         $include: basic-flags
-        corpus_name:
+        raw_data_folder:
+          type: string
+          required: true
+        bin_data_folder:
           type: string
           required: true
       requires:
-        - file: data
         - file: data-bin
-        - file: models
         - file: checkpoints
         - file: experiments
         - file: prep_experiment.sh
     train_transformer:
       description: "Train transformer model"
-      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang}"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch}"
       flags:
         $include:
           - basic-flags
@@ -123,7 +127,7 @@
           - basic-flags
         mode:
           type: string
-          default: "test"
+          default: "dev"
         beam_size:
           type: int
           default: 5
@@ -152,12 +156,6 @@
         $include:
           - basic-flags
           - transformer-flags
-        corpus_name:
-          type: string
-          required: true
-        normalization_type:
-          type: string
-          required: true
         mode:
           type: string
           default: "dev"
@@ -170,7 +168,6 @@
         - run: prep_experiment
           flags:
             experiment_name: '${experiment_name}-lr${lr}-eed${encoder_embedding_dim}-ehs${encoder_hidden_size}-ded${decoder_embedding_dim}-dhs${decoder_hidden_size}-bs${batch_size}-dropout${p_dropout}-clip_norm${clip_norm}-gpu${gpu_device}'
-            normalization_type: '${normalization_type}'
         - run: train_loresmt_transformer
           flags:
             experiment_name: '${experiment_name}-lr${lr}-eed${encoder_embedding_dim}-ehs${encoder_hidden_size}-ded${decoder_embedding_dim}-dhs${decoder_hidden_size}-bs${batch_size}-dropout${p_dropout}-clip_norm${clip_norm}-gpu${gpu_device}'
@@ -204,7 +201,6 @@
             mode: '${mode}'
             beam_size: '${beam_size}'
             gpu_device: '${gpu_device}'
-            corpus_name: '${corpus_name}'
       requires:
         - file: data
         - file: data-bin
@@ -218,8 +214,3 @@
         - mean_f1
         - word_acc
         - bleu
-
-# learning rate decay linear scheduling
-# [] --decay_steps 10000 \                                  -> learning rate decay happens every this many steps
-# [x] --warmup_steps 10000 \                                 -> number of warmup steps for custom decay [what was the one used here?]
-# [] --max_relative_positions 2 \                           -> max distance between inputs in relative positions representations

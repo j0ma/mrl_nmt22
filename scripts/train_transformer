@@ -15,7 +15,6 @@ readonly WARMUP_UPDATES=$8
 
 WARMUP_UPDATES_FLAG="--warmup-updates=${WARMUP_UPDATES}"
 
-#echo "warmup updates flag: ${WARMUP_UPDATES_FLAG}"
 if [[ "${LR_SCHEDULER}" == "inverse_sqrt" ]]; then
     WARMUP_INIT_LR_FLAG="--warmup-init-lr=${WARMUP_INIT_LR}"
 else
@@ -60,6 +59,19 @@ readonly VALIDATE_INTERVAL_UPDATES=${26}
 readonly SRC_LANG=${27}
 readonly TGT_LANG=${28}
 
+readonly MAX_EPOCH=${29}
+
+get_max_flag() {
+    if [ "${MAX_UPDATE}" = "0" ]
+    then
+        max_flag="--max-epoch=${MAX_EPOCH}"
+    else
+        max_flag="--max-update=${MAX_UPDATE}"
+    fi
+    echo "${max_flag}"
+}
+MAX_UPDATE_FLAG=$(get_max_flag)
+
 train() {
     local -r CP="$1"
     shift
@@ -92,11 +104,10 @@ train() {
         --lr-scheduler="${LR_SCHEDULER}" \
         --clip-norm="${CLIP_NORM}" \
         --batch-size="${BATCH_SIZE}" \
-        --max-update="${MAX_UPDATE}" \
         --save-interval="${SAVE_INTERVAL}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --fp16 \
-        ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
+        ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
 
 }
 
