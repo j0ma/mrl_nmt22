@@ -141,7 +141,6 @@ def load_rapid_2019_xlf(
 
 def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
     required_params = [
-        "vocab_size",
         "use_pretrained_model",
         "model_file",
     ]
@@ -150,6 +149,11 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
         assert (
             param_name in config
         ), f"Could not find '{param_name}' in config dictionary!"
+
+    if not config["use_pretrained_model"]:
+        assert (
+            "vocab_size" in config
+        ), "vocab_size required when not using pretrained model."
 
 
 def process_subwords(
@@ -296,7 +300,7 @@ def process_tr(
             folder=input_base_folder,
             src_language="en",
             tgt_language="tr",
-            split="dev",
+            split=split,
             prefix=prefix,
         )
 
