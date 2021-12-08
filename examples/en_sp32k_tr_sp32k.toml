@@ -1,0 +1,57 @@
+name = "en_sp32k_tr_sp32k"
+lang_pairs = [ "en-tr",]
+
+[en-tr]
+src = "en"
+tgt = "tr"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-tr/sp32k"
+data_bin_folder = "./data-bin/en-tr/sp32k"
+splits = [ "train", "dev",]
+
+[en-tr.train]
+input_base_path = "/data/datasets/mrl-nmt/tr/en-tr"
+
+[[en-tr.train.preprocessing_steps]]
+name = "preprocess_tr"
+
+    [en-tr.train.preprocessing_steps.options]
+    split = "train"
+    en_output_lvl = "sentencepiece"
+    tr_output_lvl = "sentencepiece"
+
+        [en-tr.train.preprocessing_steps.options.sentencepiece_config.src]
+        vocab_size = 32000
+        use_pretrained_model = false
+        model_file = "en_sp32k.bin"
+        model_base_path = ""~/datasets/mrl_nmt22/processed/en-tr/sp32k"
+        input_sentence_size = 5000000
+        shuffle_input_sentence = true
+
+        [en-tr.train.preprocessing_steps.options.sentencepiece_config.tgt]
+        vocab_size = 32000
+        use_pretrained_model = false
+        model_file = "tr_sp32k.bin"
+        model_base_path = ""~/datasets/mrl_nmt22/processed/en-tr/sp32k"
+        input_sentence_size = 5000000
+        shuffle_input_sentence = true
+
+[en-tr.dev]
+input_base_path = "/data/datasets/mrl-nmt/tr/en-tr"
+
+[[en-tr.dev.preprocessing_steps]]
+name = "preprocess_tr"
+
+    [en-tr.dev.preprocessing_steps.options]
+    split = "dev"
+    en_output_lvl = "sentencepiece"
+    tr_output_lvl = "sentencepiece"
+
+        [en-tr.dev.preprocessing_steps.options.sentencepiece_config.src]
+        use_pretrained_model = true
+        model_file = "en_sp32k.bin"
+        model_base_path = ""~/datasets/mrl_nmt22/processed/en-tr/sp32k"
+
+        [en-tr.dev.preprocessing_steps.options.sentencepiece_config.tgt]
+        use_pretrained_model = true
+        model_file = "tr_sp32k.bin"
+        model_base_path = ""~/datasets/mrl_nmt22/processed/en-tr/sp32k"
