@@ -54,6 +54,17 @@ class FairseqPreprocessor:
 class Preprocessor:
     verbose: bool = attr.ib(default=False)
 
+    # TODO: tweak the type annotations
+    def __call__(self, ops: Iterable[Dict[str, Any]], initial_input: Any = None) -> Any:
+
+        output = initial_input
+
+        for op_dict in ops:
+            output = self.apply_op(
+                output, op_name=op_dict["name"], options=op_dict.get("options", {})
+            )
+        return output
+
     def apply_op(self, input_obj: Any, op_name: str, options: dict) -> Any:
         op_func = getattr(ops, op_name)
 
@@ -61,21 +72,6 @@ class Preprocessor:
             print(f"[Preprocessor.apply_op] op_name={op_name}")
             print(f"[Preprocessor.apply_op] options={options}")
         output = op_func(input_obj, **options)
-
-        return output
-
-    # TODO: tweak the type annotations
-    def __call__(self, input_obj: Any, ops: Iterable[Dict[str, Any]]) -> Any:
-
-        output = input_obj
-
-        for op_dict in ops:
-            op = op_dict["name"]
-            try:
-                options = op_dict["options"]
-            except KeyError:
-                options = {}
-            output = self.apply_op(output, op_name=op, options=options)
 
         return output
 
@@ -130,30 +126,23 @@ class ExperimentPreprocessingPipeline:
         config = self.config[lang_pair]
         splits = config["splits"]
         src, tgt = config["src"], config["tgt"]
-        lines: DefaultDict[Dict[str, Any]] = defaultdict(dict)
+        lines: DefaultDict[Dict[str, CorpusSplit]] = defaultdict(dict)
 
         # Load in all the data and preprocess it
 
+        preprocessor = Preprocessor(verbose=self.verbose)
         for split in splits:
             split_config = config[split]
             input_base_path = Path(split_config["input_base_path"]).expanduser()
-
-            for f in split_config["files"]:
-
-                # Take note of source/target, the preprocessing steps and input
-                kind, steps = f["kind"], f["preprocessing_steps"]
-                input_file_path = input_base_path / f["path"]
-
-                # Use Preprocessor class to execute the steps
-                preprocessor = Preprocessor(verbose=self.verbose)
-                lines[split][kind] = preprocessor(input_obj=input_file_path, ops=steps)
-                # TODO: handle files like CSVs where kind = "combined"
+            lines[split] = preprocessor(
+                initial_input=input_base_path,
+                ops=split_config["preprocessing_steps"],
+            )
 
         # Finally write all the data out
-
-        for split, corpus_split in corpus_splits.items():
-            output_folder = Path(config["output_base_path"]).expanduser()
-            output_folder.mkdir(parents=True, exist_ok=True)
+        output_folder = Path(config["output_base_path"]).expanduser()
+        output_folder.mkdir(parents=True, exist_ok=True)
+        for split, corpus_split in lines.items():
             corpus_split.write_to_disk(folder=output_folder)
 
         # Finally binarize using fairseq if needed
