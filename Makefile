@@ -2,4 +2,4 @@ install:
 	pip install -e .
 
 test:
-	python test/test.py
+	python test/test_preprocessing.py

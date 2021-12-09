@@ -295,7 +295,7 @@ class TestLoadedTSVFile(unittest.TestCase):
             pass
 
 
-class TestXLIFFFile(unittest.TestCase):
+class TestLoadedXLIFFFile(unittest.TestCase):
     def setUp(self) -> None:
         self.xliff = mrl_nmt.preprocessing.corpora.LoadedXLIFFFile(
             path=str(CS_EN_XLF_STUB_PATH),
@@ -307,7 +307,7 @@ class TestXLIFFFile(unittest.TestCase):
         u.print_a_few_lines(self.xliff.lines_as_dicts)
 
 
-class TestTMXFile(unittest.TestCase):
+class TestLoadedTMXFile(unittest.TestCase):
     def test_can_print_lines_stream(self) -> None:
         self.tmx_file = mrl_nmt.preprocessing.corpora.LoadedTMXFile(
             path=str(EN_FI_TMX_STUB_PATH),
@@ -327,8 +327,6 @@ class TestTMXFile(unittest.TestCase):
         )
         lines = self.tmx_file.lines_as_dicts
         u.print_a_few_lines(lines)
-
-    # TODO: more tests
 
 
 class TestCorpusSplit(unittest.TestCase):
