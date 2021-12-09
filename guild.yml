@@ -121,7 +121,7 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash models/transformer/evaluate ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} transformer"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} transformer"
       flags:
         $include:
           - basic-flags
@@ -132,18 +132,13 @@
           type: int
           default: 5
       output-scalars:
-          - word_acc: 'Word Accuracy\t(\value)'
-          - mean_f1: 'Mean F1\t(\value)'
-          - ler: 'LER\t(\value)'
-          - wer: 'WER\t(\value)'
           - bleu: 'BLEU\t(\value)'
+          - bleu: 'CHRF3\t(\value)'
       requires:
-        - file: data
         - file: data-bin
-        - file: models
+        - file: scripts
         - file: checkpoints
         - file: experiments
-        - file: evaluate.py
       compare:
         - ler
         - wer

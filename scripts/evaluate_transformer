@@ -1,0 +1,122 @@
+#!/bin/bash
+# Evaluates data
+
+set -euo pipefail
+
+# Command line arguments & defaults.
+#DATA_BIN_FOLDER=$1
+#CHECKPOINT_FOLDER=$2
+EXPERIMENT_NAME=$1
+MODE=$2
+BEAM=$3
+SEED=$4
+GPU_DEVICE=$5
+MODEL_NAME=$6
+
+if [[ -z "${GPU_DEVICE}" ]]; then
+	echo "Defaulting to GPU 1..."
+	GPU_DEVICE=1
+fi
+
+EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
+DATA_BIN_FOLDER="${EXPERIMENT_FOLDER}/binarized_data"
+CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/checkpoints"
+EVAL_OUTPUT_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}"
+
+mkdir -vp $EVAL_OUTPUT_FOLDER
+
+if [[ -z $BEAM ]]; then
+	readonly BEAM=5
+fi
+
+SEED=$4
+RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
+#RAW_DATA_FOLDER=$6
+
+echo "DATA_BIN_FOLDER=${DATA_BIN_FOLDER}"
+echo "CHECKPOINT_FOLDER=${CHECKPOINT_FOLDER}"
+echo "MODE=${MODE}"
+echo "BEAM=${BEAM}"
+echo "SEED=${SEED}"
+echo "RAW_DATA_FOLDER=${RAW_DATA_FOLDER}"
+
+# Prediction options.
+
+evaluate() {
+	local -r DATA_BIN_FOLDER="$1"
+	shift
+	local -r EXPERIMENT_FOLDER="$1"
+	shift
+	local -r CHECKPOINT_FOLDER="$1"
+	shift
+	local -r MODE="$1"
+	shift
+	local -r BEAM_SIZE="$1"
+	shift
+	local -r SEED="$1"
+	shift
+
+	echo "seed = ${SEED}"
+
+	# Checkpoint file
+	CHECKPOINT_FILE="${CHECKPOINT_FOLDER}/checkpoint_best.pt"
+	if [[ ! -f "${CHECKPOINT_FILE}" ]]; then
+		echo "${CHECKPOINT_FILE} not found. Changing..."
+		CHECKPOINT_FILE="${CHECKPOINT_FILE/checkpoint_best/checkpoint_last}"
+		echo "Changed checkpoint file to: ${CHECKPOINT_FILE}"
+	fi
+
+	# Fairseq insists on calling the dev-set "valid"; hack around this.
+	local -r FAIRSEQ_MODE="${MODE/dev/valid}"
+
+	OUT="${EVAL_OUTPUT_FOLDER}/${MODE}.out"
+	TSV="${EVAL_OUTPUT_FOLDER}/${MODE}.tsv"
+	SOURCE_TSV="${EVAL_OUTPUT_FOLDER}/${MODE}_with_source.tsv"
+	GOLD="${EVAL_OUTPUT_FOLDER}/${MODE}.gold"
+	HYPS="${EVAL_OUTPUT_FOLDER}/${MODE}.hyps"
+	SOURCE="${EVAL_OUTPUT_FOLDER}/${MODE}.source"
+	SCORE="${EVAL_OUTPUT_FOLDER}/${MODE}.eval.score"
+
+	echo "Evaluating into ${OUT}"
+
+	# Make raw predictions
+	CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
+		"${DATA_BIN_FOLDER}" \
+		--source-lang="src" \
+		--target-lang="tgt" \
+		--path="${CHECKPOINT_FILE}" \
+		--seed="${SEED}" \
+		--gen-subset="${FAIRSEQ_MODE}" \
+		--beam="${BEAM_SIZE}" \
+		--no-progress-bar | tee "${OUT}"
+
+	# Extract the predictions into a TSV file.
+	paste \
+		<(cat "${OUT}" | grep '^T-' | cut -f2) \
+		<(cat "${OUT}" | grep '^H-' | cut -f3) \
+		>"${TSV}"
+
+	# Make another similar TSV but with source side included
+	paste \
+		<(cat "${OUT}" | grep '^T-' | cut -f2) \
+		<(cat "${OUT}" | grep '^H-' | cut -f3) \
+		<(cat "${OUT}" | grep '^S-' | cut -f2) \
+		>"${SOURCE_TSV}"
+
+	# Also separate gold/system output/source into separate text files
+	cat "${OUT}" | grep '^T-' | cut -f2 >"${GOLD}"
+	cat "${OUT}" | grep '^H-' | cut -f3 >"${HYPS}"
+	cat "${OUT}" | grep '^S-' | cut -f2 >"${SOURCE}"
+
+	# Compute some evaluation metrics
+	python evaluate.py \
+		--references-path "${GOLD}" \
+		--hypotheses-path "${HYPS}" \
+		--source-path "${RAW_DATA_FOLDER}/${MODE}.src" \
+		--score-output-path "${SCORE}"
+
+	# Finally output the score so Guild.ai grab it
+	cat "${SCORE}"
+}
+
+evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"
