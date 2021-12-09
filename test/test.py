@@ -231,7 +231,7 @@ class TestLoadedTextFileStream(unittest.TestCase):
             self.assertTrue(line_dict["src"] is None)
 
 
-class TestLoadedTSVFileIndexing(unittest.TestCase):
+class TestLoadedTSVFile(unittest.TestCase):
     def test_int_columns_with_fieldnames_error(self):
         with self.assertRaises(AssertionError):
             _ = mrl_nmt.preprocessing.corpora.LoadedTSVFile(
@@ -243,6 +243,8 @@ class TestLoadedTSVFileIndexing(unittest.TestCase):
                 tgt_language="fin",
                 fieldnames=["eng", "fin"],
                 side="both",
+                expected_n_fields=2,
+                validate_lines=True,
             )
 
     def test_str_columns_without_fieldnames_error(self):
@@ -255,10 +257,12 @@ class TestLoadedTSVFileIndexing(unittest.TestCase):
                 src_language="eng",
                 tgt_language="fin",
                 side="both",
+                expected_n_fields=2,
+                validate_lines=True,
             )
 
     def test_int_columns_without_fieldnames_noerror(self):
-        _ = mrl_nmt.preprocessing.corpora.LoadedTSVFile(
+        tsv = mrl_nmt.preprocessing.corpora.LoadedTSVFile(
             path=ENG_FIN_DEV,
             src_column=0,
             tgt_column=1,
@@ -266,10 +270,15 @@ class TestLoadedTSVFileIndexing(unittest.TestCase):
             src_language="eng",
             tgt_language="fin",
             side="both",
+            expected_n_fields=2,
+            validate_lines=True,
         )
 
+        for line in tsv.lines_as_dicts:
+            pass
+
     def test_str_columns_with_fieldnames_noerror(self):
-        _ = mrl_nmt.preprocessing.corpora.LoadedTSVFile(
+        tsv = mrl_nmt.preprocessing.corpora.LoadedTSVFile(
             path=ENG_FIN_DEV,
             src_column="eng",
             tgt_column="fin",
@@ -278,7 +287,12 @@ class TestLoadedTSVFileIndexing(unittest.TestCase):
             tgt_language="fin",
             fieldnames=["eng", "fin"],
             side="both",
+            expected_n_fields=2,
+            validate_lines=True,
         )
+
+        for line in tsv.lines_as_dicts:
+            pass
 
 
 class TestXLIFFFile(unittest.TestCase):
@@ -430,9 +444,13 @@ class TestPreprocessingOps(unittest.TestCase):
         )
 
     def test_load_commoncrawl(self):
-        mrl_nmt.preprocessing.ops.load_commoncrawl(
+        cc = mrl_nmt.preprocessing.ops.load_commoncrawl(
             folder=prefix / "data", src_language="cs", tgt_language="en"
         )
+
+        cnt = 0
+        for line in tqdm(cc.lines):
+            cnt += 1
 
     def test_sentencepiece_fi_sv(self):
         """SentencePiece Processing works on dev set for FI-SV"""

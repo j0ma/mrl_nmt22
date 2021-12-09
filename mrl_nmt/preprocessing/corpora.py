@@ -11,6 +11,7 @@ from typing import (
     Sequence,
     Mapping,
 )
+import sys
 
 import attr
 from lxml import etree as etree
@@ -104,15 +105,22 @@ class LoadedTSVFile(LoadedFile):
     tgt_language: Optional[str] = None
     src_column: Optional[Union[str, int]] = None
     tgt_column: Optional[Union[str, int]] = None
-    fieldnames: Optional[Sequence[str]] = []
+    fieldnames: Optional[Sequence[str]] = None
     delimiter: str = "\t"
     use_custom_reader: bool = False
+    expected_n_fields: int = 0
+    validate_lines: bool = True
+    faulty_lines_path: str = ""
 
     def __attrs_post_init__(self):
+        self.fieldnames = self.fieldnames or []
         self.both_sides = self.side == "both"
         self.other_side_map = {"src": "tgt", "tgt": "src"}
         self.use_dict_reader = bool(self.fieldnames)
         self.validate_columns()
+        if not self.expected_n_fields:
+            # default: two fields (src/tgt) or no. of field names given
+            self.expected_n_fields = max(2, len(self.fieldnames))
 
     def validate_columns(self) -> None:
         """If we are using csv.DictReader, need string keys.
@@ -126,6 +134,27 @@ class LoadedTSVFile(LoadedFile):
         assert isinstance(
             self.tgt_column, ftype
         ), f"tgt_column must be {ftype} when fieldnames={self.fieldnames}"
+
+    def validate_line(
+        self, line: Mapping[Union[str, int], str], line_ix: Optional[int] = None
+    ) -> bool:
+        """Validates a line by performing assertion-based checks.
+
+        If all assertions evaluate to True, the line is deemed valid.
+        Otherwise, False is returned.
+        """
+        try:
+            n = len(line)
+            m = self.expected_n_fields
+            assert n == m, f"Expected {m} fields, got {n}"
+        except AssertionError as err:
+            prefix = f"[LoadedTSVFile] Error @ line {line_ix}: " if line_ix else ""
+
+            if prefix:
+                print(f"{prefix} {err}", file=sys.stderr)
+            return False
+
+        return True
 
     def line_to_dict(
         self, line: Mapping[Union[str, int], str]
@@ -172,8 +201,19 @@ class LoadedTSVFile(LoadedFile):
                 load_to_memory=self.load_intermediate,
             )
 
-        for line in line_iterator:
-            yield self.line_to_dict(line)
+        n_valid_lines, n_lines = 0, 0
+        print(f"[LoadedTSVFile] Loading lines from {self.path}", file=sys.stderr)
+        for ix, line in enumerate(line_iterator):
+            n_lines += 1
+            cond = self.validate_line(line, line_ix=ix) if self.validate_line else True
+            if cond:
+                n_valid_lines += 1
+                yield self.line_to_dict(line)
+
+        print(
+            f"[LoadedTSVFile] Loaded {n_valid_lines} valid lines / {n_lines} total lines",
+            file=sys.stderr,
+        )
 
 
 @attr.s(auto_attribs=True)
@@ -335,7 +375,8 @@ class CorpusSplit:
                 except:
                     if skip_upon_fail:
                         print(
-                            f"WARNING: Skipping since both sides not complete. Line: {line}"
+                            f"WARNING: Skipping since both sides not complete. Line: {line}",
+                            file=sys.stderr,
                         )
                         continue
                     else:

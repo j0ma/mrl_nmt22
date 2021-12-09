@@ -2,6 +2,7 @@
 checkpoints/
 experiments/
 data-bin/
+log/
 
 *.idea/
 
