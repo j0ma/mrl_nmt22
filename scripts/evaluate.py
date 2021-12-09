@@ -6,6 +6,7 @@ import attr
 import csv
 import sys
 
+from nltk.translate.chrf_score import corpus_chrf
 import mrl_nmt.utils as u
 
 """evaluate.py
@@ -61,6 +62,34 @@ class TranslationMetrics:
         return f"CHRF3\t{self.chrf3:.4f}\nBLEU\t{self.bleu:.4f}\n\n"
 
 
+def chrf_score(
+    system_outputs: List[TranslationOutput],
+    min_len: int = 1,
+    max_len: int = 6,
+    beta: int = 3,
+    ignore_whitespace: bool = False,
+) -> float:
+    hypotheses = [o.hypothesis for o in system_outputs]
+    references = [o.reference for o in system_outputs]
+    score = corpus_chrf(
+        references=references,
+        hypotheses=hypotheses,
+        min_len=min_len,
+        max_len=max_len,
+        beta=beta,
+        ignore_whitespace=ignore_whitespace,
+    )
+    return score
+
+
+def bleu_score(system_outputs: List[TranslationOutput]) -> float:
+    hypotheses = [o.hypothesis for o in system_outputs]
+    references = [[o.reference for o in system_outputs]]
+    bleu_obj = sacrebleu.corpus_bleu(hypotheses, references, force=True)
+
+    return bleu_obj.score / 100.0  # divide to normalize
+
+
 @attr.s(kw_only=True)
 class TranslationResults:
     system_outputs: List[TranslationOutput] = attr.ib(factory=list)
@@ -87,24 +116,14 @@ class TranslationResults:
         else:
             src_language = list(unique_src_languages)[0]
 
-        bleu = 100 * self.bleu(self.system_outputs)
-        chrf3 = 100 * self.chrf3(self.system_outputs)
+        bleu = 100 * bleu_score(self.system_outputs)
+        chrf3 = 100 * chrf_score(self.system_outputs)
 
         metrics = TranslationMetrics(
             chrf3=chrf3, bleu=bleu, src_language=src_language, tgt_language=tgt_language
         )
 
         return metrics
-
-    def chrf3(self, system_outputs: List[TranslationOutput]) -> float:
-        return 0.0
-
-    def bleu(self, system_outputs: List[TranslationOutput]) -> float:
-        hypotheses = [o.hypothesis for o in system_outputs]
-        references = [[o.reference for o in system_outputs]]
-        bleu = sacrebleu.corpus_bleu(hypotheses, references, force=True)
-
-        return bleu.score / 100.0  # divide to normalize
 
 
 @attr.s(kw_only=True)
