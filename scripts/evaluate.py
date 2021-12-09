@@ -209,6 +209,7 @@ class ExperimentResults:
         infer_src_language: bool = False,
         tgt_language: str = "",
         infer_tgt_language: bool = False,
+        skip_header: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
 
         if not src_language:
@@ -221,7 +222,7 @@ class ExperimentResults:
             path=combined_tsv_path,
             field_names=columns,
             delimiter="\t",
-            skip_header=False,
+            skip_header=skip_header,
             load_to_memory=True,
         )
 
@@ -292,11 +293,13 @@ class ExperimentResults:
         grouped: bool = True,
         src_language: str = "",
         tgt_language: str = "",
+        skip_header: bool = False,
     ):
         system_outputs, languages = cls.outputs_from_combined_tsv(
             tsv_path,
             src_language=src_language,
             tgt_language=tgt_language,
+            skip_header=skip_header,
         )
 
         return ExperimentResults(
@@ -324,25 +327,7 @@ class ExperimentResults:
         return rows
 
 
-@click.command()
-@click.option("--references-path", "--gold-path", "--ref", "--gold", default="")
-@click.option("--hypotheses-path", "--hyp", default="")
-@click.option("--source-path", "--src", default="")
-@click.option("--combined-tsv-path", "--tsv", default="")
-@click.option("--score-output-path", "--score", default="/dev/stdout")
-@click.option("--output-as-tsv", is_flag=True)
-@click.option("--output-as-json", is_flag=True)
-@click.option(
-    "--src-language",
-    help="Optionally specify a global source language (default: en)",
-    default="en",
-)
-@click.option(
-    "--tgt-language",
-    help="Optionally specify a global target language (default: inferred)",
-    default="",
-)
-def main(
+def evaluate(
     references_path: str,
     hypotheses_path: str,
     source_path: str,
@@ -352,6 +337,7 @@ def main(
     output_as_json: bool,
     src_language: str,
     tgt_language: str,
+    skip_header: bool,
 ):
 
     if combined_tsv_path:
@@ -359,6 +345,7 @@ def main(
             tsv_path=combined_tsv_path,
             src_language=src_language,
             tgt_language=tgt_language,
+            skip_header=skip_header,
         )
     else:
         results = ExperimentResults.from_paths(
@@ -393,6 +380,56 @@ def main(
             # finally write out global
             score_out_file.write("global:\n")
             score_out_file.write(results.metrics_dict.get("global").metrics.format())
+
+
+@click.command()
+@click.option("--references-path", "--gold-path", "--ref", "--gold", default="")
+@click.option("--hypotheses-path", "--hyp", default="")
+@click.option("--source-path", "--src", default="")
+@click.option("--combined-tsv-path", "--tsv", default="")
+@click.option("--score-output-path", "--score", default="/dev/stdout")
+@click.option("--output-as-tsv", is_flag=True)
+@click.option("--output-as-json", is_flag=True)
+@click.option(
+    "--src-language",
+    help="Optionally specify a global source language (default: en)",
+    default="en",
+)
+@click.option(
+    "--tgt-language",
+    help="Optionally specify a global target language (default: inferred)",
+    default="",
+)
+@click.option(
+    "--skip-header-in-tsv",
+    is_flag=True,
+    help="Skip header when parsing input TSV",
+    default=False,
+)
+def main(
+    references_path: str,
+    hypotheses_path: str,
+    source_path: str,
+    combined_tsv_path: str,
+    score_output_path: str,
+    output_as_tsv: bool,
+    output_as_json: bool,
+    src_language: str,
+    tgt_language: str,
+    skip_header_in_tsv: bool,
+):
+    evaluate(
+        references_path,
+        hypotheses_path,
+        source_path,
+        combined_tsv_path,
+        score_output_path,
+        output_as_tsv,
+        output_as_json,
+        src_language,
+        tgt_language,
+        skip_header=skip_header_in_tsv,
+    )
 
 
 if __name__ == "__main__":
