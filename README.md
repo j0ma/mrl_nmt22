@@ -2,6 +2,8 @@
 
 ## Initialization
 - Create folders `checkpoints` and `experiments`
+- Run `git submodule update --init --recursive`
+    - This will clone the Moses SMT toolkit (needed for scripts)
 
 ## Notes on requirements
 - uralicNLP

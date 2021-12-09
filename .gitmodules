@@ -1,3 +1,4 @@
 [submodule "moses"]
 	path = moses
 	url = https://github.com/moses-smt/mosesdecoder.git
+    ignore = dirty
