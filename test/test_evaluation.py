@@ -61,14 +61,12 @@ class TestEvaluateScript(unittest.TestCase):
             fi_results.metrics.bleu == 100
         ), f"Expected Finnish BLEU = 100, got BLEU = {fi_results.metrics.bleu}"
 
-        # These will fail once CHRF3 is implemented
-        with self.assertRaises(AssertionError):
-            assert (
-                global_results.metrics.chrf3 == 100
-            ), f"Expected global CHRF3 = 100, got CHRF3 = {global_results.metrics.chrf3}"
-            assert (
-                fi_results.metrics.chrf3 == 100
-            ), f"Expected Finnish CHRF3 = 100, got CHRF3 = {fi_results.metrics.chrf3}"
+        assert (
+            global_results.metrics.chrf3 == 100
+        ), f"Expected global CHRF3 = 100, got CHRF3 = {global_results.metrics.chrf3}"
+        assert (
+            fi_results.metrics.chrf3 == 100
+        ), f"Expected Finnish CHRF3 = 100, got CHRF3 = {fi_results.metrics.chrf3}"
 
 
 if __name__ == "__main__":
