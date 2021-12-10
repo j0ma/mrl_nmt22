@@ -42,19 +42,21 @@ class Postprocessor:
             self.remove_sentencepiece and self.remove_char
         ), "Can only convert one of {SP, char} to word-level"
         if self.remove_sentencepiece:
-            self.postprocess = self.bpe_to_words()
+            self.postprocess = self.sp_to_words
         elif self.remove_char:
-            self.postprocess = self.chars_to_words()
+            self.postprocess = self.chars_to_words
         else:
             self.postprocess = lambda s: s
 
     def __call__(self, s: str) -> str:
-        return self.postprocess(str)
+        return self.postprocess(s)
 
-    def bpe_to_words(self, s: str) -> str:
+    @staticmethod
+    def sp_to_words(s: str) -> str:
         return s.replace(" ", "").replace(u.SP_BOW_SYMBOL, " ")
 
-    def chars_to_words(self, s: str) -> str:
+    @staticmethod
+    def chars_to_words(s: str) -> str:
         return s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
 
 
@@ -89,34 +91,6 @@ class TranslationMetrics:
         return f"CHRF3\t{self.chrf3:.4f}\nBLEU\t{self.bleu:.4f}\n\n"
 
 
-def chrf_score(
-    system_outputs: List[TranslationOutput],
-    min_len: int = 1,
-    max_len: int = 6,
-    beta: int = 3,
-    ignore_whitespace: bool = False,
-) -> float:
-    hypotheses = [o.hypothesis for o in system_outputs]
-    references = [o.reference for o in system_outputs]
-    score = corpus_chrf(
-        references=references,
-        hypotheses=hypotheses,
-        min_len=min_len,
-        max_len=max_len,
-        beta=beta,
-        ignore_whitespace=ignore_whitespace,
-    )
-    return score
-
-
-def bleu_score(system_outputs: List[TranslationOutput]) -> float:
-    hypotheses = [o.hypothesis for o in system_outputs]
-    references = [[o.reference for o in system_outputs]]
-    bleu_obj = sacrebleu.corpus_bleu(hypotheses, references, force=True)
-
-    return bleu_obj.score / 100.0  # divide to normalize
-
-
 @attr.s(kw_only=True)
 class TranslationResults:
     system_outputs: List[TranslationOutput] = attr.ib(factory=list)
@@ -124,6 +98,34 @@ class TranslationResults:
 
     def __attrs_post_init__(self) -> None:
         self.metrics = self.compute_metrics()
+
+    @staticmethod
+    def chrf_score(
+        system_outputs: List[TranslationOutput],
+        min_len: int = 1,
+        max_len: int = 6,
+        beta: int = 3,
+        ignore_whitespace: bool = False,
+    ) -> float:
+        hypotheses = [o.hypothesis for o in system_outputs]
+        references = [o.reference for o in system_outputs]
+        score = corpus_chrf(
+            references=references,
+            hypotheses=hypotheses,
+            min_len=min_len,
+            max_len=max_len,
+            beta=beta,
+            ignore_whitespace=ignore_whitespace,
+        )
+        return score
+
+    @staticmethod
+    def bleu_score(system_outputs: List[TranslationOutput]) -> float:
+        hypotheses = [o.hypothesis for o in system_outputs]
+        references = [[o.reference for o in system_outputs]]
+        bleu_obj = sacrebleu.corpus_bleu(hypotheses, references, force=True)
+
+        return bleu_obj.score / 100.0  # divide to normalize
 
     def compute_metrics(self) -> TranslationMetrics:
 
@@ -143,8 +145,9 @@ class TranslationResults:
         else:
             src_language = list(unique_src_languages)[0]
 
-        bleu = 100 * bleu_score(self.system_outputs)
-        chrf3 = 100 * chrf_score(self.system_outputs)
+        # TODO: refactor so there can be any number of metrics (callables)
+        bleu = 100 * self.bleu_score(self.system_outputs)
+        chrf3 = 100 * self.chrf_score(self.system_outputs)
 
         metrics = TranslationMetrics(
             chrf3=chrf3, bleu=bleu, src_language=src_language, tgt_language=tgt_language
@@ -191,6 +194,7 @@ class ExperimentResults:
         infer_tgt_language: bool = False,
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
+        ignore_case: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
 
         postprocess = Postprocessor(
@@ -262,7 +266,12 @@ class ExperimentResults:
         skip_header: bool = False,
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
+        ignore_case: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
+
+        postprocess = Postprocessor(
+            remove_sentencepiece=remove_sentencepiece, remove_char=remove_char
+        )
 
         if not src_language:
             infer_src_language = True
@@ -310,8 +319,8 @@ class ExperimentResults:
                 TranslationOutput(
                     src_language=src_lang,
                     tgt_language=tgt_lang,
-                    reference=row["ref"],
-                    hypothesis=row["hyp"],
+                    reference=postprocess(row["ref"]),
+                    hypothesis=postprocess(row["hyp"]),
                     source=row["src"],
                 )
             )
@@ -329,6 +338,7 @@ class ExperimentResults:
         tgt_language: str = "",
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
+        ignore_case: bool = False,
     ):
         system_outputs, languages = cls.outputs_from_paths(
             references_path,
@@ -338,6 +348,7 @@ class ExperimentResults:
             tgt_language=tgt_language,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
+            ignore_case=ignore_case,
         )
 
         return cls(
@@ -356,6 +367,7 @@ class ExperimentResults:
         skip_header: bool = False,
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
+        ignore_case: bool = False,
     ):
         system_outputs, languages = cls.outputs_from_combined_tsv(
             tsv_path,
@@ -364,6 +376,7 @@ class ExperimentResults:
             skip_header=skip_header,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
+            ignore_case=ignore_case,
         )
 
         return cls(
@@ -416,6 +429,7 @@ def evaluate(
             skip_header=skip_header,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
+            ignore_case=ignore_case,
         )
     else:
         results = ExperimentResults.from_paths(
@@ -426,6 +440,7 @@ def evaluate(
             tgt_language=tgt_language,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
+            ignore_case=ignore_case,
         )
 
     with (
@@ -493,6 +508,12 @@ def evaluate(
     help="Convert chars => words before scoring",
     default=False,
 )
+@click.option(
+    "--ignore-case",
+    is_flag=True,
+    help="Ignore case while scoring.",
+    default=False,
+)
 def main(
     references_path: str,
     hypotheses_path: str,
@@ -506,6 +527,7 @@ def main(
     skip_header_in_tsv: bool,
     remove_sentencepiece: bool,
     remove_char: bool,
+    ignore_case: bool,
 ):
     evaluate(
         references_path,
@@ -520,8 +542,9 @@ def main(
         skip_header=skip_header_in_tsv,
         remove_sentencepiece=remove_sentencepiece,
         remove_char=remove_char,
+        ignore_case=ignore_case,
     )
 
 
 if __name__ == "__main__":
-    m
+    main()
