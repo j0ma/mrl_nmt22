@@ -419,6 +419,7 @@ def evaluate(
     skip_header: bool,
     remove_sentencepiece: bool,
     remove_char: bool,
+    ignore_case: bool,
 ):
 
     if combined_tsv_path:
