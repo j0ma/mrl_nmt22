@@ -36,6 +36,7 @@ class Postprocessor:
 
     remove_sentencepiece: bool = False
     remove_char: bool = False
+    verbose: bool = True
 
     def __attrs_post_init__(self):
         assert not (
@@ -53,11 +54,17 @@ class Postprocessor:
 
     @staticmethod
     def sp_to_words(s: str) -> str:
-        return s.replace(" ", "").replace(u.SP_BOW_SYMBOL, " ")
+        print(f"Original: {s}")
+        out = s.replace(" ", "").replace(u.SP_BOW_SYMBOL, " ")
+        print(f"Post-processed: {out}")
+        return out
 
     @staticmethod
     def chars_to_words(s: str) -> str:
-        return s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+        print(f"Original: {s}")
+        out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+        print(f"Post-processed: {out}")
+        return out
 
 
 @attr.s(kw_only=True)  # kw_only ensures we are explicit
@@ -71,6 +78,12 @@ class TranslationOutput:
     reference: str = attr.ib()
     hypothesis: str = attr.ib()
     source: str = attr.ib(default="")
+    verbose: bool = attr.ib(default=False)
+
+    def __attrs_post_init__(self):
+        print(f"[TranslationOutput] Source: {self.source}")
+        print(f"[TranslationOutput] Reference: {self.reference}")
+        print(f"[TranslationOutput] Hypothesis: {self.hypothesis}")
 
 
 @attr.s(kw_only=True)
@@ -95,9 +108,14 @@ class TranslationMetrics:
 class TranslationResults:
     system_outputs: List[TranslationOutput] = attr.ib(factory=list)
     metrics: TranslationMetrics = attr.ib(factory=TranslationMetrics)
+    ignore_case: bool = attr.ib(default=False)
 
     def __attrs_post_init__(self) -> None:
         self.metrics = self.compute_metrics()
+        if self.ignore_case:
+            print(
+                f"[TranslationResults] Ignoring case for BLEU since self.ignore_case={self.ignore_case}"
+            )
 
     @staticmethod
     def chrf_score(
@@ -119,13 +137,15 @@ class TranslationResults:
         )
         return score
 
-    @staticmethod
-    def bleu_score(system_outputs: List[TranslationOutput]) -> float:
+    def bleu_score(self, system_outputs: List[TranslationOutput]) -> float:
         hypotheses = [o.hypothesis for o in system_outputs]
         references = [[o.reference for o in system_outputs]]
-        bleu_obj = sacrebleu.corpus_bleu(hypotheses, references, force=True)
+        bleu = sacrebleu.BLEU(lowercase=self.ignore_case)
 
-        return bleu_obj.score / 100.0  # divide to normalize
+        score = bleu.corpus_score(hypotheses, references).score
+        print(f"SacreBLEU signature: {bleu.get_signature()}")
+
+        return score / 100.0  # divide to normalize
 
     def compute_metrics(self) -> TranslationMetrics:
 
@@ -162,6 +182,7 @@ class ExperimentResults:
     languages: Set[str] = attr.ib(factory=set)
     grouped: bool = attr.ib(default=True)
     metrics_dict: Dict[str, TranslationResults] = attr.ib(factory=dict)
+    ignore_case: bool = attr.ib(default=False)
 
     def __attrs_post_init__(self) -> None:
         self.metrics_dict = self.compute_metrics_dict()
@@ -169,7 +190,11 @@ class ExperimentResults:
     def compute_metrics_dict(self) -> Dict[str, TranslationResults]:
 
         # first compute global metrics
-        metrics = {"global": TranslationResults(system_outputs=self.system_outputs)}
+        metrics = {
+            "global": TranslationResults(
+                system_outputs=self.system_outputs, ignore_case=self.ignore_case
+            )
+        }
 
         # then compute one for each target lang
 
@@ -178,7 +203,9 @@ class ExperimentResults:
                 o for o in self.system_outputs if o.tgt_language == lang
             ]
             if filtered_outputs:
-                metrics[lang] = TranslationResults(system_outputs=filtered_outputs)
+                metrics[lang] = TranslationResults(
+                    system_outputs=filtered_outputs, ignore_case=self.ignore_case
+                )
 
         return metrics
 
@@ -194,7 +221,6 @@ class ExperimentResults:
         infer_tgt_language: bool = False,
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
-        ignore_case: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
 
         postprocess = Postprocessor(
@@ -239,9 +265,8 @@ class ExperimentResults:
                 # record observed languages
                 languages.update((src_language, tgt_language))
 
-                # TODO: source side postprocessing
                 hypothesis = postprocess(hyp_line.strip())
-                reference = postprocess(ref_line.strip())
+                reference = ref_line.strip()
                 source = src_line.strip()
                 system_outputs.append(
                     TranslationOutput(
@@ -266,7 +291,6 @@ class ExperimentResults:
         skip_header: bool = False,
         remove_sentencepiece: bool = False,
         remove_char: bool = False,
-        ignore_case: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
 
         postprocess = Postprocessor(
@@ -278,7 +302,7 @@ class ExperimentResults:
         if not tgt_language:
             infer_tgt_language = True
 
-        columns = ["hyp", "ref", "src"]
+        columns = ["ref", "hyp", "src", "ref_detok"]
         output_rows = u.read_tsv_dict(
             path=combined_tsv_path,
             field_names=columns,
@@ -319,7 +343,7 @@ class ExperimentResults:
                 TranslationOutput(
                     src_language=src_lang,
                     tgt_language=tgt_lang,
-                    reference=postprocess(row["ref"]),
+                    reference=row["ref_detok"],
                     hypothesis=postprocess(row["hyp"]),
                     source=row["src"],
                 )
@@ -348,13 +372,13 @@ class ExperimentResults:
             tgt_language=tgt_language,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
-            ignore_case=ignore_case,
         )
 
         return cls(
             system_outputs=system_outputs,
             grouped=grouped,
             languages=languages,
+            ignore_case=ignore_case,
         )
 
     @classmethod
@@ -376,13 +400,13 @@ class ExperimentResults:
             skip_header=skip_header,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
-            ignore_case=ignore_case,
         )
 
         return cls(
             system_outputs=system_outputs,
             grouped=grouped,
             languages=languages,
+            ignore_case=ignore_case,
         )
 
     def as_dict_rows(self):
