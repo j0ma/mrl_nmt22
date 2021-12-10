@@ -121,7 +121,7 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} transformer"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} transformer ${src_lang} ${tgt_lang}"
       flags:
         $include:
           - basic-flags
@@ -131,6 +131,12 @@
         beam_size:
           type: int
           default: 5
+        src_lang:
+            type: string
+            required: true
+        tgt_lang:
+            type: string
+            required: true
       output-scalars:
           - bleu: 'BLEU\t(\value)'
           - bleu: 'CHRF3\t(\value)'
@@ -159,6 +165,12 @@
           default: 5
         suffix:
           default: ''
+        src_lang:
+            type: string
+            required: true
+        tgt_lang:
+            type: string
+            required: true
       steps:
         - run: prep_experiment
           flags:
