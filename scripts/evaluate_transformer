@@ -29,8 +29,9 @@ if [[ -z $BEAM ]]; then
 	readonly BEAM=5
 fi
 
-SEED=$4
 RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
+RAW_GOLD_DEFAULT="${RAW_DATA_FOLDER}/${SRC_LANG}-${TGT_LANG}.${MODE}.${TGT_LANG}"
+RAW_GOLD=${9:-$RAW_GOLD_DEFAULT}
 
 echo "DATA_BIN_FOLDER=${DATA_BIN_FOLDER}"
 echo "CHECKPOINT_FOLDER=${CHECKPOINT_FOLDER}"
@@ -38,6 +39,7 @@ echo "MODE=${MODE}"
 echo "BEAM=${BEAM}"
 echo "SEED=${SEED}"
 echo "RAW_DATA_FOLDER=${RAW_DATA_FOLDER}"
+echo "RAW_GOLD=${RAW_GOLD}"
 
 # Prediction options.
 
@@ -57,6 +59,8 @@ evaluate() {
 	local -r SRC_LANG="$1"
 	shift
 	local -r TGT_LANG="$1"
+	shift
+	local -r RAW_GOLD_FILE="$1"
 	shift
 
 	echo "seed = ${SEED}"
@@ -99,11 +103,12 @@ evaluate() {
 		<(cat "${OUT}" | grep '^H-' | cut -f3) \
 		>"${TSV}"
 
-	# Make another similar TSV but with source side included
+	# Make another similar TSV but with source and raw gold included
 	paste \
 		<(cat "${OUT}" | grep '^T-' | cut -f2) \
 		<(cat "${OUT}" | grep '^H-' | cut -f3) \
 		<(cat "${OUT}" | grep '^S-' | cut -f2) \
+		<(cat "${RAW_GOLD_FILE}") \
 		>"${SOURCE_TSV}"
 
 	# Also separate gold/system output/source into separate text files
@@ -122,4 +127,4 @@ evaluate() {
 	cat "${SCORE}"
 }
 
-evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}"
+evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}"
