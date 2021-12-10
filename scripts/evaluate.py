@@ -393,8 +393,9 @@ def evaluate(
 
         else:
             for lang in results.languages:
-                score_out_file.write(f"{lang}:\n")
-                score_out_file.write(results.metrics_dict.get(lang).metrics.format())
+                if lang in results.metrics_dict:
+                    score_out_file.write(f"{lang}:\n")
+                    score_out_file.write(results.metrics_dict.get(lang).metrics.format())
 
             # finally write out global
             score_out_file.write("global:\n")
