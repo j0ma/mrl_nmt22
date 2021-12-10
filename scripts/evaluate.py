@@ -31,6 +31,33 @@ def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
 
 
+@attr.s(auto_attribs=True)
+class Postprocessor:
+
+    remove_sentencepiece: bool = False
+    remove_char: bool = False
+
+    def __attrs_post_init__(self):
+        assert not (
+            self.remove_sentencepiece and self.remove_char
+        ), "Can only convert one of {SP, char} to word-level"
+        if self.remove_sentencepiece:
+            self.postprocess = self.bpe_to_words()
+        elif self.remove_char:
+            self.postprocess = self.chars_to_words()
+        else:
+            self.postprocess = lambda s: s
+
+    def __call__(self, s: str) -> str:
+        return self.postprocess(str)
+
+    def bpe_to_words(self, s: str) -> str:
+        return s.replace(" ", "").replace(u.SP_BOW_SYMBOL, " ")
+
+    def chars_to_words(self, s: str) -> str:
+        return s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+
+
 @attr.s(kw_only=True)  # kw_only ensures we are explicit
 class TranslationOutput:
     """Represents a single translation output, consisting of a
@@ -138,10 +165,8 @@ class ExperimentResults:
 
     def compute_metrics_dict(self) -> Dict[str, TranslationResults]:
 
-        metrics = {}
-
         # first compute global metrics
-        metrics["global"] = TranslationResults(system_outputs=self.system_outputs)
+        metrics = {"global": TranslationResults(system_outputs=self.system_outputs)}
 
         # then compute one for each target lang
 
@@ -164,7 +189,13 @@ class ExperimentResults:
         infer_src_language: bool = False,
         tgt_language: str = "",
         infer_tgt_language: bool = False,
+        remove_sentencepiece: bool = False,
+        remove_char: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
+
+        postprocess = Postprocessor(
+            remove_sentencepiece=remove_sentencepiece, remove_char=remove_char
+        )
 
         if not src_language:
             infer_src_language = True
@@ -204,9 +235,9 @@ class ExperimentResults:
                 # record observed languages
                 languages.update((src_language, tgt_language))
 
-                # grab hypothesis lines
-                hypothesis = hyp_line.strip()
-                reference = ref_line.strip()
+                # TODO: source side postprocessing
+                hypothesis = postprocess(hyp_line.strip())
+                reference = postprocess(ref_line.strip())
                 source = src_line.strip()
                 system_outputs.append(
                     TranslationOutput(
@@ -229,6 +260,8 @@ class ExperimentResults:
         tgt_language: str = "",
         infer_tgt_language: bool = False,
         skip_header: bool = False,
+        remove_sentencepiece: bool = False,
+        remove_char: bool = False,
     ) -> Tuple[List[TranslationOutput], Set[str]]:
 
         if not src_language:
@@ -294,6 +327,8 @@ class ExperimentResults:
         grouped: bool = True,
         src_language: str = "",
         tgt_language: str = "",
+        remove_sentencepiece: bool = False,
+        remove_char: bool = False,
     ):
         system_outputs, languages = cls.outputs_from_paths(
             references_path,
@@ -301,9 +336,15 @@ class ExperimentResults:
             source_path,
             src_language=src_language,
             tgt_language=tgt_language,
+            remove_sentencepiece=remove_sentencepiece,
+            remove_char=remove_char,
         )
 
-        return cls(system_outputs=system_outputs, grouped=grouped, languages=languages)
+        return cls(
+            system_outputs=system_outputs,
+            grouped=grouped,
+            languages=languages,
+        )
 
     @classmethod
     def from_tsv(
@@ -313,16 +354,22 @@ class ExperimentResults:
         src_language: str = "",
         tgt_language: str = "",
         skip_header: bool = False,
+        remove_sentencepiece: bool = False,
+        remove_char: bool = False,
     ):
         system_outputs, languages = cls.outputs_from_combined_tsv(
             tsv_path,
             src_language=src_language,
             tgt_language=tgt_language,
             skip_header=skip_header,
+            remove_sentencepiece=remove_sentencepiece,
+            remove_char=remove_char,
         )
 
-        return ExperimentResults(
-            system_outputs=system_outputs, grouped=grouped, languages=languages
+        return cls(
+            system_outputs=system_outputs,
+            grouped=grouped,
+            languages=languages,
         )
 
     def as_dict_rows(self):
@@ -357,6 +404,8 @@ def evaluate(
     src_language: str,
     tgt_language: str,
     skip_header: bool,
+    remove_sentencepiece: bool,
+    remove_char: bool,
 ):
 
     if combined_tsv_path:
@@ -365,6 +414,8 @@ def evaluate(
             src_language=src_language,
             tgt_language=tgt_language,
             skip_header=skip_header,
+            remove_sentencepiece=remove_sentencepiece,
+            remove_char=remove_char,
         )
     else:
         results = ExperimentResults.from_paths(
@@ -373,6 +424,8 @@ def evaluate(
             source_path=source_path,
             src_language=src_language,
             tgt_language=tgt_language,
+            remove_sentencepiece=remove_sentencepiece,
+            remove_char=remove_char,
         )
 
     with (
@@ -395,7 +448,9 @@ def evaluate(
             for lang in results.languages:
                 if lang in results.metrics_dict:
                     score_out_file.write(f"{lang}:\n")
-                    score_out_file.write(results.metrics_dict.get(lang).metrics.format())
+                    score_out_file.write(
+                        results.metrics_dict.get(lang).metrics.format()
+                    )
 
             # finally write out global
             score_out_file.write("global:\n")
@@ -426,6 +481,18 @@ def evaluate(
     help="Skip header when parsing input TSV",
     default=False,
 )
+@click.option(
+    "--remove-sentencepiece",
+    is_flag=True,
+    help="Convert sentencepiece => words before scoring",
+    default=False,
+)
+@click.option(
+    "--remove-char",
+    is_flag=True,
+    help="Convert chars => words before scoring",
+    default=False,
+)
 def main(
     references_path: str,
     hypotheses_path: str,
@@ -437,6 +504,8 @@ def main(
     src_language: str,
     tgt_language: str,
     skip_header_in_tsv: bool,
+    remove_sentencepiece: bool,
+    remove_char: bool,
 ):
     evaluate(
         references_path,
@@ -449,8 +518,10 @@ def main(
         src_language,
         tgt_language,
         skip_header=skip_header_in_tsv,
+        remove_sentencepiece=remove_sentencepiece,
+        remove_char=remove_char,
     )
 
 
 if __name__ == "__main__":
-    main()
+    m

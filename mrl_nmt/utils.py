@@ -9,6 +9,9 @@ import csv
 import attr
 import toml
 
+SPACE_SYMBOL = "﹏"
+SP_BOW_SYMBOL = "▁"
+
 
 @attr.s(auto_attribs=True)
 class CutSyscallReader:

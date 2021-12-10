@@ -7,8 +7,8 @@ import sentencepiece as spm
 from tqdm import tqdm
 
 import mrl_nmt.preprocessing.corpora as crp
+from mrl_nmt.utils import SPACE_SYMBOL
 
-SPACE_SYMBOL = "﹏"
 OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char"}
 
 #### Language pair/dataset specific ops
