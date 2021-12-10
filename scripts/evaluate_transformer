@@ -112,9 +112,11 @@ evaluate() {
 	cat "${OUT}" | grep '^S-' | cut -f2 >"${SOURCE}"
 
 	# Compute some evaluation metrics
-	python evaluate.py \
-        --combined-tsv-path "${SOURCE_TSV}"
-		--score-output-path "${SCORE}"
+	python scripts/evaluate.py \
+        --combined-tsv-path "${SOURCE_TSV}" \
+		--score-output-path "${SCORE}" \
+        --src-language "${SRC_LANG}" \
+        --tgt-language "${TGT_LANG}"
 
 	# Finally output the score so Guild.ai grab it
 	cat "${SCORE}"
