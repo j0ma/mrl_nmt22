@@ -18,6 +18,7 @@
 - mtdata
 - tqdm
 - psutil
+- sacremoses
 
 ## Notes on languages
 - Czech

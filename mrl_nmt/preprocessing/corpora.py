@@ -22,6 +22,8 @@ from mrl_nmt import utils as u
 from mrl_nmt.utils import get_line_from_dict
 from mrl_nmt.preprocessing.tmx import TMXHandler
 
+from sacremoses import MosesDetokenizer
+
 
 @attr.s(auto_attribs=True)
 class LoadedFile:
@@ -333,11 +335,35 @@ class CorpusSplit:
     detok_lines: Optional[
         Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]
     ] = None
+    use_moses_detokenizer: bool = True
 
     def __attrs_post_init__(self) -> None:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
         if self.detok_lines is None:
             self.detok_lines = []
+
+        # TODO: language specific rules?
+        self.moses = MosesDetokenizer()
+
+    @property
+    def detokenized_lines(self) -> Iterable[str]:
+        def _detok_line(ld: Dict[str, str]):
+            new_d = {**ld}
+            src_line, tgt_line = u.get_line_from_dict(ld)
+            new_d["src"]["text"] = self.moses.detokenize(src_line)
+            new_d["tgt"]["text"] = self.moses.detokenize(tgt_line)
+            return new_d
+
+        for line in self.detok_lines:
+            if self.use_moses_detokenizer:
+
+                print("Using Moses detokenizer!")
+                print(f"Line: {line}")
+                detok = _detok_line(line)
+                print(f"After: {detok}")
+                yield detok
+            else:
+                yield line
 
     def write_to_disk(
         self,
@@ -376,7 +402,9 @@ class CorpusSplit:
             tgt_detok_out_path, "w", encoding="utf-8"
         ) as tgt_detok_out:
 
-            line_iter = enumerate(it.zip_longest(self.detok_lines, self.lines), start=1)
+            line_iter = enumerate(
+                it.zip_longest(self.detokenized_lines, self.lines), start=1
+            )
             for ix, (detok_line, line) in tqdm(line_iter):
                 src_line, tgt_line = get_line_from_dict(line)
                 try:
