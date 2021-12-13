@@ -1,12 +1,15 @@
+import copy
 import io
 from pathlib import Path
 from typing import Union, Iterable, Optional, Dict, Any
 import math
+import itertools as it
 
 import sentencepiece as spm
 from tqdm import tqdm
 
 import mrl_nmt.preprocessing.corpora as crp
+import mrl_nmt.utils as u
 from mrl_nmt.utils import SPACE_SYMBOL
 
 OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char"}
@@ -177,6 +180,8 @@ def process_subwords(
         tgt_output_lvl in OUTPUT_LEVELS
     ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
 
+    out.lines = (u.unicode_normalize_text(l) for l in out.lines)
+
     for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
         print(
             f'[process_subwords] Processing {side} side into output level "{output_level}"'
@@ -258,22 +263,6 @@ def process_cs(
     )
 
     return out
-
-
-def process_de():
-    pass
-
-
-def process_fi():
-    pass
-
-
-def process_iu():
-    pass
-
-
-def process_ru():
-    pass
 
 
 def process_tr(
@@ -366,6 +355,22 @@ def process_uz(
     return out
 
 
+def process_de():
+    pass
+
+
+def process_fi():
+    pass
+
+
+def process_iu():
+    pass
+
+
+def process_ru():
+    pass
+
+
 ####
 
 
@@ -405,7 +410,9 @@ def duplicate_lines(
     )
 
 
-def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
+def convert_to_chars(
+    corpus: crp.CorpusSplit, side: str, with_detok_lines: bool = True
+) -> crp.CorpusSplit:
     """Converts one side of corpus to characters."""
 
     def to_char_level(s: str, space_symbol: str = SPACE_SYMBOL) -> str:
@@ -414,16 +421,27 @@ def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
     def lines_as_chars(
         line_dict: Dict[str, Optional[Dict[str, str]]], side: str
     ) -> Dict[str, Optional[Dict[str, str]]]:
-        """Modifies lines in-place and returns"""
-        line_dict[side]["text"] = to_char_level(line_dict[side]["text"])
-        return line_dict
 
+        new_ld = copy.deepcopy(line_dict)
+
+        new_ld[side]["text"] = to_char_level(new_ld[side]["text"])
+        return new_ld
+
+    ## TODO: find a way to get around this loading to RAM
+    if corpus.detok_lines:
+        detok_lines = corpus.detok_lines
+        orig_lines = corpus.lines
+    else:
+        detok_lines = list(corpus.lines)
+        orig_lines = list(detok_lines)
+    char_lines = [lines_as_chars(ld, side=side) for ld in orig_lines]
     return crp.CorpusSplit(
-        lines=(lines_as_chars(ld, side=side) for ld in corpus.lines),
+        lines=char_lines,
         split=corpus.split,
         src_lang=corpus.src_lang,
         tgt_lang=corpus.tgt_lang,
         verbose=corpus.verbose,
+        detok_lines=detok_lines,
     )
 
 
@@ -452,8 +470,10 @@ def process_with_sentencepiece(
     lines = []
     lines_str = []
     other_side_lines = []
+    detok_line_dicts = []
     line_count = 0
-    for ld in corpus.lines:
+    for ld, dtld in it.zip_longest(corpus.lines, corpus.detok_lines):
+        detok_line_dicts.append(dtld or ld)
         side_ld = ld[side]
         lines.append(side_ld)
         lines_str.append(side_ld["text"])
@@ -507,11 +527,17 @@ def process_with_sentencepiece(
         ):
 
             new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
-            side_line_dict["text"] = new_line
+            sld = side_line_dict.copy()
+            sld["text"] = new_line
 
-            yield {side: side_line_dict, other_side: other_line_dict}
+            yield {side: sld, other_side: other_line_dict}
 
     output = list(final_lines(sp, lines, other_side_lines, line_count))
+
+    if corpus.detok_lines:
+        detok_lines = corpus.detok_lines
+    else:
+        detok_lines = detok_line_dicts
 
     assert (
         len(output) == len(lines) == line_count
@@ -523,4 +549,5 @@ def process_with_sentencepiece(
         tgt_lang=corpus.tgt_lang,
         split=corpus.split,
         verbose=corpus.verbose,
+        detok_lines=detok_line_dicts,
     )

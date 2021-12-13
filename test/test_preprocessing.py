@@ -1,4 +1,6 @@
+import io
 import os
+import tempfile as tf
 from pathlib import Path
 import unittest
 import itertools as it
@@ -125,10 +127,10 @@ class TestLoadedTextFileRAM(unittest.TestCase):
     """Loading Flores 101 Swedish data to memory works."""
 
     def setUp(self):
-        self.swe_in_ram_src = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+        self.swe_in_ram_src = pp.corpora.LoadedTextFile(
             path=SWE_DEV, side="src", load_to_memory=True, language="swe"
         )
-        self.swe_in_ram_tgt = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+        self.swe_in_ram_tgt = pp.corpora.LoadedTextFile(
             path=SWE_DEV, side="tgt", load_to_memory=True, language="swe"
         )
 
@@ -340,6 +342,177 @@ class TestCorpusSplit(unittest.TestCase):
         self.swe_src = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=SWE_DEV, side="src", language="sv", load_to_memory=False
         )
+        self.sentencepiece_config = {
+            "src": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "fi.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+            "tgt": {
+                "vocab_size": 200,
+                "use_pretrained_model": False,
+                "model_file": "sv.bin",
+                "input_sentence_size": 500000,
+                "shuffle_input_sentence": True,
+            },
+        }
+        # First, align Finnish and Swedish (no preprocessing really)
+        self.cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
+            src=self.fin, tgt=self.swe, split="train"
+        )
+
+    def check_write_to_disk(self, cs, src_lang_code, tgt_lang_code):
+        # Then write out the files to a temporary path
+        td = tf.TemporaryDirectory()
+        with td:
+            td_path = Path(td.name)
+
+            print(
+                f"[test_can_write_detokenized_lines] Writing lines to folder: {td_path}"
+            )
+            cs.write_to_disk(
+                folder=td_path,
+                write_detok_lines=True,
+                prefix="foo",
+                detok_prefix="foo_detok",
+            )
+
+            print("Normal lines:")
+            with open(td_path / f"foo.{src_lang_code}", encoding="utf-8") as src:
+                u.print_a_few_lines(src)
+            with open(td_path / f"foo.{tgt_lang_code}", encoding="utf-8") as tgt:
+                u.print_a_few_lines(tgt)
+
+            print("Detokenized lines:")
+            with open(
+                td_path / f"foo_detok.{src_lang_code}", encoding="utf-8"
+            ) as src_detok:
+                u.print_a_few_lines(src_detok)
+            with open(
+                td_path / f"foo_detok.{tgt_lang_code}", encoding="utf-8"
+            ) as tgt_detok:
+                u.print_a_few_lines(tgt_detok)
+
+    def check_detok_lines(self, cs, src_postprocessor, tgt_postprocessor):
+        def check_detok_line(detok_line: str, postprocessed_line: str) -> bool:
+            if detok_line == postprocessed_line:
+                return True
+            elif detok_line == f" {postprocessed_line}":
+                print("Missing leading space in postprocessed!")
+                print(f"DT: {list(detok_line)}")
+                print(f"PP: {list(postprocessed_line)}")
+                return False
+            elif detok_line == f"{postprocessed_line} ":
+                print("Missing trailing space in postprocessed!")
+                print(f"DT: {list(detok_line)}")
+                print(f"PP: {list(postprocessed_line)}")
+                return False
+            elif f" {detok_line}" == postprocessed_line:
+                print("Extra leading space in postprocessed!")
+                print(f"DT: {list(detok_line)}")
+                print(f"PP: {list(postprocessed_line)}")
+                return False
+            elif f"{detok_line} " == postprocessed_line:
+                print("Extra trailing space in postprocessed!")
+                print(f"DT: {list(detok_line)}")
+                print(f"PP: {list(postprocessed_line)}")
+                return False
+            else:
+                print("Other kind of mismatch")
+                print(f"DT: {list(detok_line)}")
+                print(f"PP: {list(postprocessed_line)}")
+                return False
+
+        for l, dtl in zip(cs.lines, cs.detok_lines):
+            src, tgt = u.get_line_from_dict(l)
+            src_detok, tgt_detok = u.get_line_from_dict(dtl)
+            self.assertTrue(
+                check_detok_line(
+                    detok_line=src_detok, postprocessed_line=src_postprocessor(src)
+                )
+            )
+            self.assertTrue(
+                check_detok_line(
+                    detok_line=tgt_detok, postprocessed_line=tgt_postprocessor(tgt)
+                )
+            )
+
+    def test_can_write_detokenized_lines_char_char(self):
+
+        # Then apply preprocessing and convert both to char lvl
+        cs = pp.ops.process_subwords(
+            out=self.cs,
+            src_output_lvl="char",
+            tgt_output_lvl="char",
+            sentencepiece_config=None,
+        )
+
+        post = pp.Postprocessor(
+            remove_sentencepiece=False, remove_char=True, verbose=False
+        )
+        self.check_detok_lines(cs, post, post)
+
+        self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
+
+    def test_can_write_detokenized_lines_sp_sp(self):
+
+        cs = pp.ops.process_subwords(
+            out=self.cs,
+            src_output_lvl="sentencepiece",
+            tgt_output_lvl="sentencepiece",
+            sentencepiece_config=self.sentencepiece_config,
+        )
+
+        post = pp.Postprocessor(
+            remove_sentencepiece=True, remove_char=False, verbose=True
+        )
+        self.check_detok_lines(cs, post, post)
+
+        self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
+
+    def test_can_write_detokenized_lines_sp_char(self):
+
+        cs = pp.ops.process_subwords(
+            out=self.cs,
+            src_output_lvl="sentencepiece",
+            tgt_output_lvl="char",
+            sentencepiece_config=self.sentencepiece_config,
+        )
+
+        src_post = pp.Postprocessor(
+            remove_sentencepiece=True, remove_char=False, verbose=False
+        )
+        tgt_post = pp.Postprocessor(
+            remove_sentencepiece=False, remove_char=True, verbose=False
+        )
+        self.check_detok_lines(
+            cs, src_postprocessor=src_post, tgt_postprocessor=tgt_post
+        )
+
+        self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
+
+    def test_can_write_detokenized_lines_char_sp(self):
+
+        cs = pp.ops.process_subwords(
+            out=self.cs,
+            src_output_lvl="char",
+            tgt_output_lvl="sentencepiece",
+            sentencepiece_config=self.sentencepiece_config,
+        )
+
+        src_post = pp.Postprocessor(
+            remove_sentencepiece=False, remove_char=True, verbose=False
+        )
+        tgt_post = pp.Postprocessor(
+            remove_sentencepiece=True, remove_char=False, verbose=False
+        )
+        self.check_detok_lines(
+            cs, src_postprocessor=src_post, tgt_postprocessor=tgt_post
+        )
+
+        self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
 
     def test_can_align_src_tgt(self) -> None:
 

@@ -11,6 +11,7 @@ from typing import (
     Sequence,
     Mapping,
 )
+import itertools as it
 import sys
 
 import attr
@@ -18,6 +19,7 @@ from lxml import etree as etree
 from tqdm import tqdm
 
 from mrl_nmt import utils as u
+from mrl_nmt.utils import get_line_from_dict
 from mrl_nmt.preprocessing.tmx import TMXHandler
 
 
@@ -328,16 +330,22 @@ class CorpusSplit:
     src_lang: Optional[str] = None
     tgt_lang: Optional[str] = None
     verbose: bool = True
+    detok_lines: Optional[
+        Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]
+    ] = None
 
     def __attrs_post_init__(self) -> None:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
+        if self.detok_lines is None:
+            self.detok_lines = []
 
     def write_to_disk(
         self,
         folder: Path,
         prefix: str = "",
+        detok_prefix: str = "",
         skip_upon_fail: bool = True,
-        debug: bool = False,
+        write_detok_lines: bool = False,
     ) -> None:
         """Writes self.lines to the folder specified by folder,
         inside which two files will be created, one for src and tgt.
@@ -348,20 +356,29 @@ class CorpusSplit:
         By default, skip_upon_fail=True which causes lines where either side is empty to be skipped.
         """
         prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
-
         src_out_path = folder / f"{prefix}.{self.src_lang}"
         tgt_out_path = folder / f"{prefix}.{self.tgt_lang}"
 
-        def get_line(d):
-            return (d["src"]["text"], d["tgt"]["text"])
+        detok_prefix = detok_prefix or f"{prefix}.detok"
+        src_detok_out_path = folder / f"{detok_prefix}.{self.src_lang}"
+        tgt_detok_out_path = folder / f"{detok_prefix}.{self.tgt_lang}"
 
         src_lines_written = 0
         tgt_lines_written = 0
+        src_detok_lines_written = 0
+        tgt_detok_lines_written = 0
+        skipped_lines = 0
         with open(src_out_path, "w", encoding="utf-8") as src_out, open(
             tgt_out_path, "w", encoding="utf-8"
-        ) as tgt_out:
-            for ix, line in tqdm(enumerate(self.lines, start=1)):
-                src_line, tgt_line = get_line(line)
+        ) as tgt_out, open(
+            src_detok_out_path, "w", encoding="utf-8"
+        ) as src_detok_out, open(
+            tgt_detok_out_path, "w", encoding="utf-8"
+        ) as tgt_detok_out:
+
+            line_iter = enumerate(it.zip_longest(self.detok_lines, self.lines), start=1)
+            for ix, (detok_line, line) in tqdm(line_iter):
+                src_line, tgt_line = get_line_from_dict(line)
                 try:
                     assert (
                         len(src_line) > 0 and len(tgt_line) > 0
@@ -372,8 +389,19 @@ class CorpusSplit:
                     tgt_out.write(f"{tgt_line}\n")
                     tgt_lines_written += 1
 
+                    if detok_line:
+                        src_detok_line, tgt_detok_line = get_line_from_dict(detok_line)
+                        assert (
+                            len(src_detok_line) > 0 and len(tgt_detok_line) > 0
+                        ), f"Null detokenized source and/or target line! Got: src={src_detok_line}, tgt={tgt_detok_line}"
+                        src_detok_out.write(f"{src_detok_line}\n")
+                        src_detok_lines_written += 1
+                        tgt_detok_out.write(f"{tgt_detok_line}\n")
+                        tgt_detok_lines_written += 1
+
                 except:
                     if skip_upon_fail:
+                        skipped_lines += 1
                         print(
                             f"WARNING: Skipping since both sides not complete. Line: {line}",
                             file=sys.stderr,
@@ -385,6 +413,11 @@ class CorpusSplit:
         assert (
             src_lines_written == tgt_lines_written
         ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
+
+        if self.detok_lines is not None:
+            assert (
+                src_detok_lines_written == tgt_detok_lines_written
+            ), f"Different number of detok src/tgt lines written: {src_detok_lines_written} (src) vs. {tgt_detok_lines_written} (tgt)"
 
     @classmethod
     def from_src_tgt(
