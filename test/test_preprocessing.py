@@ -396,48 +396,11 @@ class TestCorpusSplit(unittest.TestCase):
                 u.print_a_few_lines(tgt_detok)
 
     def check_detok_lines(self, cs, src_postprocessor, tgt_postprocessor):
-        def check_detok_line(detok_line: str, postprocessed_line: str) -> bool:
-            if detok_line == postprocessed_line:
-                return True
-            elif detok_line == f" {postprocessed_line}":
-                print("Missing leading space in postprocessed!")
-                print(f"DT: {list(detok_line)}")
-                print(f"PP: {list(postprocessed_line)}")
-                return False
-            elif detok_line == f"{postprocessed_line} ":
-                print("Missing trailing space in postprocessed!")
-                print(f"DT: {list(detok_line)}")
-                print(f"PP: {list(postprocessed_line)}")
-                return False
-            elif f" {detok_line}" == postprocessed_line:
-                print("Extra leading space in postprocessed!")
-                print(f"DT: {list(detok_line)}")
-                print(f"PP: {list(postprocessed_line)}")
-                return False
-            elif f"{detok_line} " == postprocessed_line:
-                print("Extra trailing space in postprocessed!")
-                print(f"DT: {list(detok_line)}")
-                print(f"PP: {list(postprocessed_line)}")
-                return False
-            else:
-                print("Other kind of mismatch")
-                print(f"DT: {list(detok_line)}")
-                print(f"PP: {list(postprocessed_line)}")
-                return False
 
         for ix, (l, dtl) in enumerate(zip(cs.lines, cs.detok_lines)):
             src, tgt = u.get_line_from_dict(l)
             src_detok, tgt_detok = u.get_line_from_dict(dtl)
-            self.assertTrue(
-                check_detok_line(
-                    detok_line=src_detok, postprocessed_line=src_postprocessor(src)
-                )
-            )
-            self.assertTrue(
-                check_detok_line(
-                    detok_line=tgt_detok, postprocessed_line=tgt_postprocessor(tgt)
-                )
-            )
+            self.assertEqual(src_detok, src_postprocessor(src))
 
     def test_can_write_detokenized_lines_char_char(self):
 
