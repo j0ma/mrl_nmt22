@@ -8,6 +8,7 @@ import sys
 
 from nltk.translate.chrf_score import corpus_chrf
 import mrl_nmt.utils as u
+from mrl_nmt.preprocessing import Postprocessor
 
 """evaluate.py
 
@@ -29,42 +30,6 @@ def maybe_search(pattern: str, string: str, guess: int = 5) -> int:
 
 def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
-
-
-@attr.s(auto_attribs=True)
-class Postprocessor:
-
-    remove_sentencepiece: bool = False
-    remove_char: bool = False
-    verbose: bool = True
-
-    def __attrs_post_init__(self):
-        assert not (
-            self.remove_sentencepiece and self.remove_char
-        ), "Can only convert one of {SP, char} to word-level"
-        if self.remove_sentencepiece:
-            self.postprocess = self.sp_to_words
-        elif self.remove_char:
-            self.postprocess = self.chars_to_words
-        else:
-            self.postprocess = lambda s: s
-
-    def __call__(self, s: str) -> str:
-        return self.postprocess(s)
-
-    @staticmethod
-    def sp_to_words(s: str) -> str:
-        print(f"Original: {s}")
-        out = s.replace(" ", "").replace(u.SP_BOW_SYMBOL, " ")
-        print(f"Post-processed: {out}")
-        return out
-
-    @staticmethod
-    def chars_to_words(s: str) -> str:
-        print(f"Original: {s}")
-        out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
-        print(f"Post-processed: {out}")
-        return out
 
 
 @attr.s(kw_only=True)  # kw_only ensures we are explicit

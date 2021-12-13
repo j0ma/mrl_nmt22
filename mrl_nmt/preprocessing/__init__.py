@@ -11,9 +11,11 @@ import multiprocessing
 import subprocess
 
 import attr
-import mrl_nmt.utils as u
 import mrl_nmt.preprocessing.ops as ops
+from mrl_nmt import utils as u
 from mrl_nmt.preprocessing.corpora import CorpusSplit
+
+import sentencepiece as spm
 
 CPU_COUNT = multiprocessing.cpu_count()
 
@@ -157,3 +159,42 @@ class ExperimentPreprocessingPipeline:
                 data_bin_folder=str(data_bin_folder),
             )
             fairseq.process()
+
+
+@attr.s(auto_attribs=True)
+class Postprocessor:
+
+    remove_sentencepiece: bool = False
+    remove_char: bool = False
+    verbose: bool = True
+
+    def __attrs_post_init__(self):
+        assert not (
+            self.remove_sentencepiece and self.remove_char
+        ), "Can only convert one of {SP, char} to word-level"
+        if self.remove_sentencepiece:
+            self.postprocess = self.sp_to_words
+        elif self.remove_char:
+            self.postprocess = self.chars_to_words
+        else:
+            self.postprocess = lambda s: s
+
+    def __call__(self, s: str) -> str:
+        return self.postprocess(s)
+
+    def sp_to_words(self, s: str) -> str:
+        if self.verbose:
+            print(f"Original: {s}")
+        tokens = [t or u.SP_BOW_SYMBOL for t in s.split(" ")]
+        out = "".join(tokens).replace(u.SP_BOW_SYMBOL, " ").lstrip()
+        if self.verbose:
+            print(f"Post-processed: {out}")
+        return out
+
+    def chars_to_words(self, s: str) -> str:
+        if self.verbose:
+            print(f"Original: {s}")
+        out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+        if self.verbose:
+            print(f"Post-processed: {out}")
+        return out
