@@ -185,7 +185,7 @@ class Postprocessor:
     def sp_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
-        tokens = [t or u.SP_BOW_SYMBOL for t in s.split(" ")]
+        tokens = [t for t in s.split(" ")]
         out = "".join(tokens).replace(u.SP_BOW_SYMBOL, " ").lstrip()
         if self.verbose:
             print(f"Post-processed: {out}")

@@ -244,10 +244,3 @@ def print_a_few_lines(
 
 def get_line_from_dict(d):
     return d["src"]["text"], d["tgt"]["text"]
-
-
-def unicode_normalize_text(d, form="NFKC"):
-    out = {"src": {}, "tgt": {}}
-    out["src"]["text"] = ud.normalize(form, d["src"]["text"])
-    out["tgt"]["text"] = ud.normalize(form, d["tgt"]["text"])
-    return out

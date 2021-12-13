@@ -180,8 +180,6 @@ def process_subwords(
         tgt_output_lvl in OUTPUT_LEVELS
     ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
 
-    out.lines = (u.unicode_normalize_text(l) for l in out.lines)
-
     for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
         print(
             f'[process_subwords] Processing {side} side into output level "{output_level}"'
@@ -500,13 +498,14 @@ def process_with_sentencepiece(
         # create a BytesIO object to hold the model
         model = io.BytesIO()
 
-        # train the model
         spm.SentencePieceTrainer.train(
             sentence_iterator=iter(lines_str),
             model_writer=model,
             vocab_size=vocab_size,
             input_sentence_size=input_sentence_size,
             shuffle_input_sentence=shuffle_input_sentence,
+            remove_extra_whitespaces=False,
+            normalization_rule_name="identity",
         )
 
         if model_file_is_correct:

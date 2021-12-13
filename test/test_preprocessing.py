@@ -425,7 +425,7 @@ class TestCorpusSplit(unittest.TestCase):
                 print(f"PP: {list(postprocessed_line)}")
                 return False
 
-        for l, dtl in zip(cs.lines, cs.detok_lines):
+        for ix, (l, dtl) in enumerate(zip(cs.lines, cs.detok_lines)):
             src, tgt = u.get_line_from_dict(l)
             src_detok, tgt_detok = u.get_line_from_dict(dtl)
             self.assertTrue(
@@ -466,7 +466,7 @@ class TestCorpusSplit(unittest.TestCase):
         )
 
         post = pp.Postprocessor(
-            remove_sentencepiece=True, remove_char=False, verbose=True
+            remove_sentencepiece=True, remove_char=False, verbose=False
         )
         self.check_detok_lines(cs, post, post)
 
