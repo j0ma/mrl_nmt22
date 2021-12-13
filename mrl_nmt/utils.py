@@ -4,6 +4,7 @@ import sys
 from io import StringIO
 from typing import Union, Iterable, Dict, Any, Sequence, Generator
 from pathlib import Path
+import unicodedata as ud
 import csv
 
 import attr
@@ -239,3 +240,14 @@ def print_a_few_lines(
         for ix, line in enumerate(line_iter):
             print(line, file=(sys.stdout if ix < n_lines else dev_null))
     print("\n" + 70 * "=")
+
+
+def get_line_from_dict(d):
+    return d["src"]["text"], d["tgt"]["text"]
+
+
+def unicode_normalize_text(d, form="NFKC"):
+    out = {"src": {}, "tgt": {}}
+    out["src"]["text"] = ud.normalize(form, d["src"]["text"])
+    out["tgt"]["text"] = ud.normalize(form, d["tgt"]["text"])
+    return out
