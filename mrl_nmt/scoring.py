@@ -68,6 +68,44 @@ class BLEUMetric(Metric):
 
 
 @attr.s(auto_attribs=True)
+class CHRFMetricSB(Metric):
+    """SacreBLEU implementation of CHRF"""
+
+    char_order: int = 6
+    word_order: int = 0
+    beta: int = 2
+    lowercase: bool = False
+    whitespace: bool = False
+    eps_smoothing: bool = False
+
+    ignore_whitespace: bool = False
+
+    def __attrs_post_init__(self):
+        self.callable = self._compute_chrf
+        self.name = f"CHRF{self.beta}-char{self.char_order}-word{self.word_order}"
+
+    def _compute_chrf(
+        self,
+        system_outputs: List[TranslationOutput],
+    ) -> float:
+        hypotheses = [o.hypothesis for o in system_outputs]
+        references = [[o.reference for o in system_outputs]]
+
+        chrf = sacrebleu.CHRF(
+            char_order=self.char_order,
+            word_order=self.word_order,
+            beta=self.beta,
+            lowercase=self.lowercase,
+            whitespace=self.whitespace,
+            eps_smoothing=self.eps_smoothing,
+        )
+
+        score = chrf.corpus_score(hypotheses, references).score
+        print(f"SacreBLEU CHRF signature: {chrf.get_signature()}")
+        return score
+
+
+@attr.s(auto_attribs=True)
 class CHRFMetric(Metric):
 
     min_len: int = 1

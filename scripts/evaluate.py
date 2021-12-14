@@ -2,7 +2,7 @@ import click
 import csv
 import sys
 
-from mrl_nmt.scoring import BLEUMetric, CHRFMetric, ExperimentResults
+from mrl_nmt.scoring import BLEUMetric, CHRFMetric, ExperimentResults, CHRFMetricSB
 
 """evaluate.py
 
@@ -21,6 +21,7 @@ DEFAULT_METRICS = [
     BLEUMetric(tokenize="char", ignore_case=True),
     BLEUMetric(tokenize="none", ignore_case=True),
     CHRFMetric(beta=3),
+    CHRFMetricSB(),
 ]
 
 
