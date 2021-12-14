@@ -347,11 +347,14 @@ class CorpusSplit:
 
     @property
     def detokenized_lines(self) -> Iterable[str]:
-        def _detok_line(ld: Dict[str, str]):
+        if not self.detok_lines:
+            return []
+
+        def _detok_line(ld: Dict[str, Dict[str, str]]):
             new_d = {**ld}
             src_line, tgt_line = u.get_line_from_dict(ld)
-            new_d["src"]["text"] = self.moses.detokenize(src_line)
-            new_d["tgt"]["text"] = self.moses.detokenize(tgt_line)
+            new_d["src"]["text"] = self.moses.detokenize(src_line.split(" "))
+            new_d["tgt"]["text"] = self.moses.detokenize(tgt_line.split(" "))
             return new_d
 
         for line in self.detok_lines:
