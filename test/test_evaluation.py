@@ -4,6 +4,7 @@ from pathlib import Path
 
 import psutil as psu
 
+import mrl_nmt.scoring
 import scripts.evaluate as e
 
 # if we're not in test/ append it to the paths
@@ -25,6 +26,24 @@ class TestEvaluateScript(unittest.TestCase):
 
         Call evaluate just as if calling scripts/evaluate.py as a script.
         """
+
+        print("Test: String output")
+        e.evaluate(
+            references_path="",
+            hypotheses_path="",
+            source_path="",
+            combined_tsv_path=str(ENG_FIN_FAKE_MT_OUTPUT),
+            score_output_path="/dev/stdout",
+            output_as_tsv=False,
+            output_as_json=False,
+            src_language="en",
+            tgt_language="fi",
+            skip_header=True,
+            remove_sentencepiece=False,
+            remove_char=False,
+        )
+
+        print("Test: TSV output")
         e.evaluate(
             references_path="",
             hypotheses_path="",
@@ -36,6 +55,8 @@ class TestEvaluateScript(unittest.TestCase):
             src_language="en",
             tgt_language="fi",
             skip_header=True,
+            remove_sentencepiece=False,
+            remove_char=False,
         )
 
     def test_eng_fin_fake_mt_output2(self):
@@ -45,28 +66,25 @@ class TestEvaluateScript(unittest.TestCase):
         Use the classes from scripts/evaluate.py and check the output values make sense.
         """
 
-        results = e.ExperimentResults.from_tsv(
+        results = mrl_nmt.scoring.ExperimentResults.from_tsv(
             tsv_path=str(ENG_FIN_FAKE_MT_OUTPUT),
             src_language="en",
             tgt_language="fi",
             skip_header=True,
+            remove_sentencepiece=False,
+            remove_char=False,
+            metrics_to_compute=e.DEFAULT_METRICS,
         )
 
-        global_results = results.metrics_dict["global"]
-        fi_results = results.metrics_dict["fi"]
-        assert (
-            global_results.metrics.bleu == 100
-        ), f"Expected global BLEU = 100, got BLEU = {global_results.metrics.bleu}"
-        assert (
-            fi_results.metrics.bleu == 100
-        ), f"Expected Finnish BLEU = 100, got BLEU = {fi_results.metrics.bleu}"
-
-        assert (
-            global_results.metrics.chrf3 == 100
-        ), f"Expected global CHRF3 = 100, got CHRF3 = {global_results.metrics.chrf3}"
-        assert (
-            fi_results.metrics.chrf3 == 100
-        ), f"Expected Finnish CHRF3 = 100, got CHRF3 = {fi_results.metrics.chrf3}"
+        for lang in results.languages | {"global"}:
+            try:
+                _res = results.by_language(lang)
+                for m in _res.metrics:
+                    self.assertEqual(
+                        100.0, m.value, msg=f"Expected {m.name} == 100, got {m.value}."
+                    )
+            except KeyError:
+                pass
 
 
 if __name__ == "__main__":
