@@ -2,7 +2,7 @@ import itertools
 import subprocess
 import sys
 from io import StringIO
-from typing import Union, Iterable, Dict, Any, Sequence, Generator
+from typing import Union, Iterable, Dict, Any, Sequence, Generator, TextIO
 from pathlib import Path
 import unicodedata as ud
 import csv
@@ -244,3 +244,17 @@ def print_a_few_lines(
 
 def get_line_from_dict(d):
     return d["src"]["text"], d["tgt"]["text"]
+
+
+def maybe_search(pattern: str, string: str, guess: int = 5) -> int:
+    guess = 5  # this is the normal case with 3-letter ISO code
+    try:
+        assert string[guess] == ">"
+
+        return guess
+    except (IndexError, AssertionError, ValueError):
+        return string.index(">")
+
+
+def read_text(path: str) -> TextIO:
+    return open(path, encoding="utf-8")
