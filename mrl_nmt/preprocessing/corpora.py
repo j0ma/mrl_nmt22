@@ -359,11 +359,7 @@ class CorpusSplit:
 
         for line in self.detok_lines:
             if self.use_moses_detokenizer:
-
-                print("Using Moses detokenizer!")
-                print(f"Line: {line}")
                 detok = _detok_line(line)
-                print(f"After: {detok}")
                 yield detok
             else:
                 yield line
