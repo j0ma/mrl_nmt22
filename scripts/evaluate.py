@@ -121,7 +121,6 @@ def evaluate(
 @click.option("--combined-tsv-path", "--tsv", default="")
 @click.option("--score-output-path", "--score", default="/dev/stdout")
 @click.option("--output-as-tsv", is_flag=True)
-@click.option("--output-as-json", is_flag=True)
 @click.option(
     "--src-language",
     help="Optionally specify a global source language (default: en)",
@@ -148,12 +147,6 @@ def evaluate(
     "--remove-char",
     is_flag=True,
     help="Convert chars => words before scoring",
-    default=False,
-)
-@click.option(
-    "--ignore-case",
-    is_flag=True,
-    help="Ignore case while scoring.",
     default=False,
 )
 def main(

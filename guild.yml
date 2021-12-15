@@ -153,12 +153,6 @@
         - file: scripts
         - file: checkpoints
         - file: experiments
-      compare:
-        - ler
-        - wer
-        - mean_f1
-        - word_acc
-        - bleu
     experiment_pipeline:
       description: "Prep experiment -> train model -> evaluate model"
       flags:
