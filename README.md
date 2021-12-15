@@ -18,7 +18,8 @@
 - mtdata
 - tqdm
 - psutil
-- sacremoses
+- sacrebleu
+    - install from master branch to get SPM tokenizer support
 
 ## Notes on languages
 - Czech
