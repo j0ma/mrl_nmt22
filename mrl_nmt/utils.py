@@ -215,3 +215,9 @@ def maybe_search(pattern: str, string: str, guess: int = 5) -> int:
 
 def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
+
+
+def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path]):
+    Path(link_path).expanduser().absolute().symlink_to(
+        target=Path(dest_path).expanduser().absolute()
+    )
