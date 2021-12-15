@@ -147,8 +147,7 @@
             type: string
             default: "none"
       output-scalars:
-          - bleu: 'BLEU\t(\value)'
-          - bleu: 'CHRF3\t(\value)'
+        - 'EVAL_SCALAR: (\key)\t(\value)'
       requires:
         - file: data-bin
         - file: scripts

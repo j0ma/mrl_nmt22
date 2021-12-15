@@ -100,14 +100,18 @@ def evaluate(
                         results.metrics_dict.get(lang).format_as_dict().items()
                     ):
                         if metric_name not in ["Source", "Target"]:
-                            score_out_file.write(f"{lang}-{metric_name}\t{metric_value}\n")
+                            score_out_file.write(
+                                f"EVAL_SCALAR: {lang}-{metric_name}\t{metric_value}\n"
+                            )
 
             # finally write out global
             for metric_name, metric_value in (
                 results.metrics_dict.get("global").format_as_dict().items()
             ):
                 if metric_name not in ["Source", "Target"]:
-                    score_out_file.write(f"global-{metric_name}\t{metric_value}\n")
+                    score_out_file.write(
+                        f"EVAL_SCALAR: global-{metric_name}\t{metric_value}\n"
+                    )
 
 
 @click.command()
