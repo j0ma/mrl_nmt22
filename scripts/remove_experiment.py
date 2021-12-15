@@ -7,12 +7,17 @@ import click
 def rm_tree(pth):
     """Source: https://stackoverflow.com/questions/50186904/pathlib-recursively-remove-directory"""
     pth = Path(pth)
+    print(f"[rm_tree] Recursively removing {pth}")
     for child in pth.glob("*"):
         if child.is_file():
             child.unlink(missing_ok=True)
         else:
             rm_tree(child)
-    pth.rmdir()
+    try:
+        pth.rmdir()
+    except NotADirectoryError:
+        pth.unlink(missing_ok=True)
+
 
 
 @click.command()
@@ -37,7 +42,7 @@ def main(experiment_name, prefix, keep_checkpoints):
         checkpoints_abs = checkpoints.resolve().expanduser().absolute()
         try:
             print(f"Removing checkpoints: {checkpoints_abs}")
-            checkpoints_abs.rmdir()
+            rm_tree(checkpoints_abs)
         except FileNotFoundError:
             pass
         checkpoints.unlink(missing_ok=True)
@@ -46,8 +51,8 @@ def main(experiment_name, prefix, keep_checkpoints):
     rest = exp_path.glob("*")
     if rest:
         for fname in tqdm(rest):
-            print(f"Removing other folder: {fname}")
             p = Path(fname).expanduser().absolute()
+            print(f"Removing other folder/file: {p}")
             if p.is_dir:
                 rm_tree(p)
             else:
