@@ -9,6 +9,7 @@ from typing import (
 )
 from pathlib import Path
 from collections import defaultdict
+import tempfile as tf
 import multiprocessing
 import subprocess
 
@@ -224,41 +225,105 @@ class MosesCleanCorpusNProcessor:
 
     def __call__(
         self,
-        input_prefix: Union[str, Path],
-        output_prefix: Union[str, Path],
         src_suffix: str,
         tgt_suffix: str,
+        input_prefix: Union[str, Path] = "",
+        output_prefix: Union[str, Path] = "",
+        src_input_file: Union[str, Path] = "",
+        tgt_input_file: Union[str, Path] = "",
     ):
-        input_prefix = Path(input_prefix).expanduser()
-        output_prefix = Path(output_prefix).expanduser()
 
-        # Check that input files exist
-        for side, suf in zip(["src", "tgt"], [src_suffix, tgt_suffix]):
-            f = Path(f"{input_prefix}.{suf}")
-            assert f.exists(), f"Nonexistent {side} file: {f}"
+        with tf.TemporaryDirectory() as temp_dir:
 
-        # Infer output folder and mkdir if necessary
-        output_folder = Path(output_prefix).parent
-        if not output_folder.exists():
-            output_folder.mkdir(parents=True, exist_ok=True)
+            mode = self._infer_mode(
+                input_prefix, src_suffix, tgt_suffix, src_input_file, tgt_input_file
+            )
 
-        popen_args = [
-            "perl",
-            self.cmd,
-            f"-ratio={self.ratio}",
-            str(input_prefix),
-            str(src_suffix),
-            str(tgt_suffix),
-            str(output_prefix),
-            str(self.min_len),
-            str(self.max_len),
-        ]
+            if mode == "file":
+                input_prefix = self._file_to_input_prefix(
+                    src_suffix,
+                    tgt_suffix,
+                    src_input_file,
+                    tgt_input_file,
+                    temp_folder=Path(temp_dir),
+                )
+            else:
+                input_prefix = Path(input_prefix).expanduser()
 
-        completed_pid = subprocess.run(
-            popen_args,
-            capture_output=True,
-            encoding="utf-8",
-            text=True,
-        )
+            output_prefix = Path(output_prefix).expanduser()
 
-        print(completed_pid.stderr, file=sys.stderr)
+            # Infer output folder and mkdir if necessary
+            output_folder = Path(output_prefix).parent
+            if not output_folder.exists():
+                output_folder.mkdir(parents=True, exist_ok=True)
+
+            popen_args = [
+                "perl",
+                self.cmd,
+                f"-ratio={self.ratio}",
+                str(input_prefix),
+                str(src_suffix),
+                str(tgt_suffix),
+                str(output_prefix),
+                str(self.min_len),
+                str(self.max_len),
+            ]
+
+            completed_pid = subprocess.run(
+                popen_args,
+                capture_output=True,
+                encoding="utf-8",
+                text=True,
+            )
+
+            print(completed_pid.stderr, file=sys.stderr)
+
+    @staticmethod
+    def _infer_mode(
+        input_prefix: Union[str, Path],
+        src_suffix: Union[str, Path],
+        tgt_suffix: Union[str, Path],
+        src_input_file: Union[str, Path],
+        tgt_input_file: Union[str, Path],
+    ):
+        _f_src = Path(src_input_file)
+        _f_tgt = Path(tgt_input_file)
+        if input_prefix:
+            _src = Path(f"{input_prefix}.{src_suffix}")
+            _tgt = Path(f"{input_prefix}.{tgt_suffix}")
+            assert (
+                _src.exists or _f_src.exists
+            ), "Must provide an input prefix or src input file"
+            assert (
+                _tgt.exists or _f_tgt.exists
+            ), "Must provide an input prefix or tgt input file"
+
+            mode = "prefix"
+        else:
+            mode = "file"
+
+        if mode == "prefix":
+            for side, suf in zip(["src", "tgt"], [src_suffix, tgt_suffix]):
+                f = Path(f"{input_prefix}.{suf}")
+                assert f.exists(), f"Nonexistent {side} file: {f}"
+
+        return mode
+
+    @staticmethod
+    def _file_to_input_prefix(
+        src_suffix: str,
+        tgt_suffix: str,
+        src_input_file: Union[str, Path],
+        tgt_input_file: Union[str, Path],
+        temp_folder: Union[str, Path],
+    ):
+
+        input_prefix = Path(temp_folder) / "corpus"
+
+        # symlink the files we need
+        src_input = f"{input_prefix}.{src_suffix}"
+        tgt_input = f"{input_prefix}.{tgt_suffix}"
+        u.create_symlink(link_path=src_input, dest_path=src_input_file)
+        u.create_symlink(link_path=tgt_input, dest_path=tgt_input_file)
+
+        return input_prefix

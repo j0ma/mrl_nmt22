@@ -122,7 +122,8 @@ class TestTextUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             assert 3 == len(sample_tsv)
 
-    def test_moses_clean_corpus_n(self):
+    def test_moses_clean_corpus_n_input_prefix(self):
+        """Moses clean-corpus-n.perl works when given an input prefix and src/tgt suffixes"""
 
         moses = pp.MosesCleanCorpusNProcessor(
             ratio=3, min_len=1, max_len=100, moses_scripts_path=Path("../moses/scripts")
@@ -140,6 +141,36 @@ class TestTextUtils(unittest.TestCase):
                 output_prefix=output_prefix,
                 src_suffix=src_suffix,
                 tgt_suffix=tgt_suffix,
+            )
+
+            src_out_path = Path(f"{output_prefix}.{src_suffix}")
+            tgt_out_path = Path(f"{output_prefix}.{tgt_suffix}")
+            self.assertTrue(src_out_path.exists)
+            self.assertTrue(tgt_out_path.exists)
+
+            print(f"Filtered source side lines from {src_out_path}")
+            u.print_a_few_lines(line_iter=u.stream_lines(src_out_path), n_lines=5)
+
+            print(f"Filtered target side lines from {tgt_out_path}")
+            u.print_a_few_lines(line_iter=u.stream_lines(tgt_out_path), n_lines=5)
+
+    def test_moses_clean_corpus_n_input_file(self):
+        """Moses clean-corpus-n.perl works when given input files instead of prefix/suffix"""
+
+        moses = pp.MosesCleanCorpusNProcessor(
+            ratio=3, min_len=1, max_len=100, moses_scripts_path=Path("../moses/scripts")
+        )
+
+        with tf.TemporaryDirectory() as temp_dir:
+            output_folder = Path(temp_dir)
+            output_prefix = str(output_folder / "corpus")
+            src_suffix, tgt_suffix = "en", "fi"
+            moses(
+                src_input_file=ENG_DEV,
+                tgt_input_file=FIN_DEV,
+                src_suffix=src_suffix,
+                tgt_suffix=tgt_suffix,
+                output_prefix=output_prefix,
             )
 
             src_out_path = Path(f"{output_prefix}.{src_suffix}")
