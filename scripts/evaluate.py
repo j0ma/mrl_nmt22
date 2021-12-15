@@ -1,3 +1,5 @@
+from typing import List
+
 import click
 import csv
 import sys
@@ -39,7 +41,10 @@ def evaluate(
     skip_header: bool,
     remove_sentencepiece: bool,
     remove_char: bool,
+    metrics_to_compute: List[str] = None,
 ):
+    if not metrics_to_compute:
+        metrics_to_compute = DEFAULT_METRICS
 
     if combined_tsv_path:
         results = ExperimentResults.from_tsv(
@@ -49,7 +54,7 @@ def evaluate(
             skip_header=skip_header,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
-            metrics_to_compute=DEFAULT_METRICS,
+            metrics_to_compute=metrics_to_compute,
         )
     else:
         results = ExperimentResults.from_paths(
@@ -60,7 +65,7 @@ def evaluate(
             tgt_language=tgt_language,
             remove_sentencepiece=remove_sentencepiece,
             remove_char=remove_char,
-            metrics_to_compute=DEFAULT_METRICS,
+            metrics_to_compute=metrics_to_compute,
         )
 
     with (
@@ -91,12 +96,18 @@ def evaluate(
         else:
             for lang in results.languages:
                 if lang in results.metrics_dict:
-                    score_out_file.write(f"{lang}:\n")
-                    score_out_file.write(results.metrics_dict.get(lang).format())
+                    for metric_name, metric_value in (
+                        results.metrics_dict.get(lang).format_as_dict().items()
+                    ):
+                        if metric_name not in ["Source", "Target"]:
+                            score_out_file.write(f"{lang}-{metric_name}\t{metric_value}\n")
 
             # finally write out global
-            score_out_file.write("global:\n")
-            score_out_file.write(results.metrics_dict.get("global").format())
+            for metric_name, metric_value in (
+                results.metrics_dict.get("global").format_as_dict().items()
+            ):
+                if metric_name not in ["Source", "Target"]:
+                    score_out_file.write(f"global-{metric_name}\t{metric_value}\n")
 
 
 @click.command()
