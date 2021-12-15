@@ -79,6 +79,11 @@ else:
     SKIP_LARGE_TESTS = False
 
 
+def get_moses_path():
+    _prefix = Path("..") if str(Path.cwd()).endswith("/test") else Path(".")
+    return Path(f"{_prefix}/moses/scripts")
+
+
 class TestTextUtils(unittest.TestCase):
     def test_can_read_txt_into_memory(self):
         sample_sents = u.read_lines(path=SAMPLE_SENTENCES_TXT)
@@ -129,10 +134,7 @@ class TestMoses(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             moses = pp.MosesCleanCorpusNProcessor(
-                ratio=3,
-                min_len=1,
-                max_len=80,
-                moses_scripts_path=Path("../moses/scripts"),
+                ratio=3, min_len=1, max_len=80, moses_scripts_path=get_moses_path()
             )
 
             input_prefix = prefix / "data/moses_test"
@@ -150,7 +152,7 @@ class TestMoses(unittest.TestCase):
         """Moses clean-corpus-n.perl works when given input/output files"""
 
         moses = pp.MosesCleanCorpusNProcessor(
-            ratio=3, min_len=1, max_len=80, moses_scripts_path=Path("../moses/scripts")
+            ratio=3, min_len=1, max_len=80, moses_scripts_path=get_moses_path()
         )
 
         with tf.TemporaryDirectory() as temp_dir:
@@ -176,7 +178,7 @@ class TestMoses(unittest.TestCase):
             u.print_a_few_lines(line_iter=u.stream_lines(tgt_output_file), n_lines=5)
 
     def test_moses_clean_corpus_n_corpus_split(self):
-        """Moses clean-corpus-n.perl works when given a CorpusSplit"""
+        """Moses clean-corpus-n.perl works when given a CorpusSplit."""
 
         fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=FIN_DEV, side="src", language="fi", load_to_memory=False
@@ -189,12 +191,35 @@ class TestMoses(unittest.TestCase):
         )
 
         moses = pp.MosesCleanCorpusNProcessor(
-            ratio=3, min_len=1, max_len=80, moses_scripts_path=Path("../moses/scripts")
+            ratio=3, min_len=1, max_len=80, moses_scripts_path=get_moses_path()
         )
 
         new_cs = moses.process_corpus_split(cs)
         n_lines = sum(1 for _ in new_cs.lines)
         self.assertTrue(N_LINES_FLORES101_DEV, n_lines)
+
+    def test_moses_clean_corpus_n_strict_filter_corpus_split(self):
+        """Moses clean-corpus-n.perl works when given a CorpusSplit.
+        When running with a max_len=15, more lines are filtered than with max_len=80
+        """
+
+        fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=FIN_DEV, side="src", language="fi", load_to_memory=False
+        )
+        swe = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=SWE_DEV, side="tgt", language="sv", load_to_memory=False
+        )
+        cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
+            src=fin, tgt=swe, split="train"
+        )
+
+        moses = pp.MosesCleanCorpusNProcessor(
+            ratio=3, min_len=1, max_len=15, moses_scripts_path=get_moses_path()
+        )
+
+        new_cs = moses.process_corpus_split(cs)
+        n_lines = sum(1 for _ in new_cs.lines)
+        self.assertGreater(N_LINES_FLORES101_DEV, n_lines)
 
 
 class TestLoadedTextFileRAM(unittest.TestCase):
