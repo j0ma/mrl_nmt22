@@ -1,9 +1,11 @@
+import sys
 from typing import (
     Any,
     Iterable,
     Dict,
     Union,
     DefaultDict,
+    Optional,
 )
 from pathlib import Path
 from collections import defaultdict
@@ -198,3 +200,65 @@ class Postprocessor:
         if self.verbose:
             print(f"Post-processed: {out}")
         return out
+
+
+@attr.s(auto_attribs=True)
+class MosesCleanCorpusNProcessor:
+
+    ratio: int
+
+    min_len: int
+    max_len: int
+
+    moses_scripts_path: Union[Path, str] = Path("moses/scripts").expanduser()
+
+    def __attrs_post_init__(self) -> None:
+
+        if not self.moses_scripts_path.exists():
+            raise ValueError(
+                "Must provide a existing path to Moses scripts! "
+                f"Got: {str(self.moses_scripts_path.expanduser())}"
+            )
+
+        self.cmd = str(self.moses_scripts_path / "training/clean-corpus-n.perl")
+
+    def __call__(
+        self,
+        input_prefix: Union[str, Path],
+        output_prefix: Union[str, Path],
+        src_suffix: str,
+        tgt_suffix: str,
+    ):
+        input_prefix = Path(input_prefix).expanduser()
+        output_prefix = Path(output_prefix).expanduser()
+
+        # Check that input files exist
+        for side, suf in zip(["src", "tgt"], [src_suffix, tgt_suffix]):
+            f = Path(f"{input_prefix}.{suf}")
+            assert f.exists(), f"Nonexistent {side} file: {f}"
+
+        # Infer output folder and mkdir if necessary
+        output_folder = Path(output_prefix).parent
+        if not output_folder.exists():
+            output_folder.mkdir(parents=True, exist_ok=True)
+
+        popen_args = [
+            "perl",
+            self.cmd,
+            f"-ratio={self.ratio}",
+            str(input_prefix),
+            str(src_suffix),
+            str(tgt_suffix),
+            str(output_prefix),
+            str(self.min_len),
+            str(self.max_len),
+        ]
+
+        completed_pid = subprocess.run(
+            popen_args,
+            capture_output=True,
+            encoding="utf-8",
+            text=True,
+        )
+
+        print(completed_pid.stderr, file=sys.stderr)

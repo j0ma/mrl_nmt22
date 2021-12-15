@@ -122,6 +122,37 @@ class TestTextUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             assert 3 == len(sample_tsv)
 
+    def test_moses_clean_corpus_n(self):
+
+        moses = pp.MosesCleanCorpusNProcessor(
+            ratio=3, min_len=1, max_len=100, moses_scripts_path=Path("../moses/scripts")
+        )
+
+        input_prefix = prefix / "data/moses_test"
+        src_suffix = "en"
+        tgt_suffix = "fi"
+
+        with tf.TemporaryDirectory() as temp_dir:
+            output_folder = Path(temp_dir)
+            output_prefix = str(output_folder / "corpus")
+            moses(
+                input_prefix=input_prefix,
+                output_prefix=output_prefix,
+                src_suffix=src_suffix,
+                tgt_suffix=tgt_suffix,
+            )
+
+            src_out_path = Path(f"{output_prefix}.{src_suffix}")
+            tgt_out_path = Path(f"{output_prefix}.{tgt_suffix}")
+            self.assertTrue(src_out_path.exists)
+            self.assertTrue(tgt_out_path.exists)
+
+            print(f"Filtered source side lines from {src_out_path}")
+            u.print_a_few_lines(line_iter=u.stream_lines(src_out_path), n_lines=5)
+
+            print(f"Filtered target side lines from {tgt_out_path}")
+            u.print_a_few_lines(line_iter=u.stream_lines(tgt_out_path), n_lines=5)
+
 
 class TestLoadedTextFileRAM(unittest.TestCase):
     """Loading Flores 101 Swedish data to memory works."""
