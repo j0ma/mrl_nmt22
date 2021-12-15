@@ -217,7 +217,13 @@ def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
 
 
-def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path]):
+def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path]) -> None:
     Path(link_path).expanduser().absolute().symlink_to(
         target=Path(dest_path).expanduser().absolute()
+    )
+
+
+def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
+    Path(source).expanduser().absolute().rename(
+        target=Path(destination).expanduser().absolute()
     )

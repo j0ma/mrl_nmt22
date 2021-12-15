@@ -441,10 +441,13 @@ class CorpusSplit:
             src_lines_written == tgt_lines_written
         ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
 
-        if self.detok_lines is not None:
+        if src_detok_lines_written > 0 or tgt_detok_lines_written > 0:
             assert (
                 src_detok_lines_written == tgt_detok_lines_written
             ), f"Different number of detok src/tgt lines written: {src_detok_lines_written} (src) vs. {tgt_detok_lines_written} (tgt)"
+        else:
+            src_detok_out_path.unlink(missing_ok=True)
+            tgt_detok_out_path.unlink(missing_ok=True)
 
     @classmethod
     def from_src_tgt(

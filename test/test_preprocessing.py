@@ -122,67 +122,79 @@ class TestTextUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             assert 3 == len(sample_tsv)
 
+
+class TestMoses(unittest.TestCase):
     def test_moses_clean_corpus_n_input_prefix(self):
-        """Moses clean-corpus-n.perl works when given an input prefix and src/tgt suffixes"""
+        """Moses clean-corpus-n.perl does not work when given an input prefix and src/tgt suffixes"""
 
-        moses = pp.MosesCleanCorpusNProcessor(
-            ratio=3, min_len=1, max_len=100, moses_scripts_path=Path("../moses/scripts")
-        )
-
-        input_prefix = prefix / "data/moses_test"
-        src_suffix = "en"
-        tgt_suffix = "fi"
-
-        with tf.TemporaryDirectory() as temp_dir:
-            output_folder = Path(temp_dir)
-            output_prefix = str(output_folder / "corpus")
-            moses(
-                input_prefix=input_prefix,
-                output_prefix=output_prefix,
-                src_suffix=src_suffix,
-                tgt_suffix=tgt_suffix,
+        with self.assertRaises(TypeError):
+            moses = pp.MosesCleanCorpusNProcessor(
+                ratio=3,
+                min_len=1,
+                max_len=80,
+                moses_scripts_path=Path("../moses/scripts"),
             )
 
-            src_out_path = Path(f"{output_prefix}.{src_suffix}")
-            tgt_out_path = Path(f"{output_prefix}.{tgt_suffix}")
-            self.assertTrue(src_out_path.exists)
-            self.assertTrue(tgt_out_path.exists)
-
-            print(f"Filtered source side lines from {src_out_path}")
-            u.print_a_few_lines(line_iter=u.stream_lines(src_out_path), n_lines=5)
-
-            print(f"Filtered target side lines from {tgt_out_path}")
-            u.print_a_few_lines(line_iter=u.stream_lines(tgt_out_path), n_lines=5)
+            input_prefix = prefix / "data/moses_test"
+            with tf.TemporaryDirectory() as temp_dir:
+                output_folder = Path(temp_dir)
+                output_prefix = str(output_folder / "corpus")
+                moses.process_files(
+                    input_prefix=input_prefix,
+                    output_prefix=output_prefix,
+                    src_suffix="en",
+                    tgt_suffix="fi",
+                )
 
     def test_moses_clean_corpus_n_input_file(self):
-        """Moses clean-corpus-n.perl works when given input files instead of prefix/suffix"""
+        """Moses clean-corpus-n.perl works when given input/output files"""
 
         moses = pp.MosesCleanCorpusNProcessor(
-            ratio=3, min_len=1, max_len=100, moses_scripts_path=Path("../moses/scripts")
+            ratio=3, min_len=1, max_len=80, moses_scripts_path=Path("../moses/scripts")
         )
 
         with tf.TemporaryDirectory() as temp_dir:
             output_folder = Path(temp_dir)
-            output_prefix = str(output_folder / "corpus")
+            output_prefix = str(output_folder / "foobar")
             src_suffix, tgt_suffix = "en", "fi"
-            moses(
+            src_output_file = Path(f"{output_prefix}.{src_suffix}")
+            tgt_output_file = Path(f"{output_prefix}.{tgt_suffix}")
+            moses.process_files(
                 src_input_file=ENG_DEV,
                 tgt_input_file=FIN_DEV,
-                src_suffix=src_suffix,
-                tgt_suffix=tgt_suffix,
-                output_prefix=output_prefix,
+                src_output_file=src_output_file,
+                tgt_output_file=tgt_output_file,
             )
 
-            src_out_path = Path(f"{output_prefix}.{src_suffix}")
-            tgt_out_path = Path(f"{output_prefix}.{tgt_suffix}")
-            self.assertTrue(src_out_path.exists)
-            self.assertTrue(tgt_out_path.exists)
+            self.assertTrue(src_output_file.exists)
+            self.assertTrue(tgt_output_file.exists)
 
-            print(f"Filtered source side lines from {src_out_path}")
-            u.print_a_few_lines(line_iter=u.stream_lines(src_out_path), n_lines=5)
+            print(f"Filtered source side lines from {src_output_file}")
+            u.print_a_few_lines(line_iter=u.stream_lines(src_output_file), n_lines=5)
 
-            print(f"Filtered target side lines from {tgt_out_path}")
-            u.print_a_few_lines(line_iter=u.stream_lines(tgt_out_path), n_lines=5)
+            print(f"Filtered target side lines from {tgt_output_file}")
+            u.print_a_few_lines(line_iter=u.stream_lines(tgt_output_file), n_lines=5)
+
+    def test_moses_clean_corpus_n_corpus_split(self):
+        """Moses clean-corpus-n.perl works when given a CorpusSplit"""
+
+        fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=FIN_DEV, side="src", language="fi", load_to_memory=False
+        )
+        swe = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=SWE_DEV, side="tgt", language="sv", load_to_memory=False
+        )
+        cs = mrl_nmt.preprocessing.corpora.CorpusSplit.from_src_tgt(
+            src=fin, tgt=swe, split="train"
+        )
+
+        moses = pp.MosesCleanCorpusNProcessor(
+            ratio=3, min_len=1, max_len=80, moses_scripts_path=Path("../moses/scripts")
+        )
+
+        new_cs = moses.process_corpus_split(cs)
+        n_lines = sum(1 for _ in new_cs.lines)
+        self.assertTrue(N_LINES_FLORES101_DEV, n_lines)
 
 
 class TestLoadedTextFileRAM(unittest.TestCase):

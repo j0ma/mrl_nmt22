@@ -16,7 +16,7 @@ import subprocess
 import attr
 import mrl_nmt.preprocessing.ops as ops
 from mrl_nmt import utils as u
-from mrl_nmt.preprocessing.corpora import CorpusSplit
+from mrl_nmt.preprocessing.corpora import CorpusSplit, LoadedTextFile
 
 import sentencepiece as spm
 
@@ -223,48 +223,95 @@ class MosesCleanCorpusNProcessor:
 
         self.cmd = str(self.moses_scripts_path / "training/clean-corpus-n.perl")
 
-    def __call__(
-        self,
-        src_suffix: str,
-        tgt_suffix: str,
-        input_prefix: Union[str, Path] = "",
-        output_prefix: Union[str, Path] = "",
-        src_input_file: Union[str, Path] = "",
-        tgt_input_file: Union[str, Path] = "",
-    ):
+    def process_corpus_split(self, cs: CorpusSplit) -> CorpusSplit:
+        """Filter lines in a CorpusSplit object.
+
+        NOTE: intended to be used before any subword tokenization
+        i.e. cs.detok_lines should not exist.
+        """
+        _msg = f"Corpus line filtering only supported with unmodified corpora whose .detok_lines = None!"
+        assert not cs.detok_lines, _msg
+
+        split = cs.split
+        src_lang = cs.src_lang
+        tgt_lang = cs.tgt_lang
+        verbose = cs.verbose
 
         with tf.TemporaryDirectory() as temp_dir:
+            temp_dir_path = Path(temp_dir)
+            tmp_prefix_in = "corpus"
+            tmp_prefix_out = "corpus_clean"
 
-            mode = self._infer_mode(
-                input_prefix, src_suffix, tgt_suffix, src_input_file, tgt_input_file
+            # write lines to temporary directory
+            cs.write_to_disk(
+                folder=temp_dir_path, prefix=tmp_prefix_in, write_detok_lines=False
             )
 
-            if mode == "file":
-                input_prefix = self._file_to_input_prefix(
-                    src_suffix,
-                    tgt_suffix,
-                    src_input_file,
-                    tgt_input_file,
-                    temp_folder=Path(temp_dir),
-                )
-            else:
-                input_prefix = Path(input_prefix).expanduser()
+            src_input_file = temp_dir_path / f"{tmp_prefix_in}.{src_lang}"
+            tgt_input_file = temp_dir_path / f"{tmp_prefix_in}.{tgt_lang}"
 
-            output_prefix = Path(output_prefix).expanduser()
+            src_output_file = temp_dir_path / f"{tmp_prefix_out}.{src_lang}"
+            tgt_output_file = temp_dir_path / f"{tmp_prefix_out}.{tgt_lang}"
 
-            # Infer output folder and mkdir if necessary
-            output_folder = Path(output_prefix).parent
-            if not output_folder.exists():
-                output_folder.mkdir(parents=True, exist_ok=True)
+            self.process_files(
+                src_input_file=src_input_file,
+                tgt_input_file=tgt_input_file,
+                src_output_file=src_output_file,
+                tgt_output_file=tgt_output_file,
+            )
+
+            src_clean = LoadedTextFile(
+                path=src_output_file,
+                side="src",
+                language=src_lang,
+                load_to_memory=True,
+            )
+            tgt_clean = LoadedTextFile(
+                path=tgt_output_file,
+                side="tgt",
+                language=tgt_lang,
+                load_to_memory=True,
+            )
+            new_cs = CorpusSplit.from_src_tgt(
+                src=src_clean, tgt=tgt_clean, split=split, verbose=verbose
+            )
+            return new_cs
+
+    def process_files(
+        self,
+        src_input_file: Union[str, Path],
+        tgt_input_file: Union[str, Path],
+        src_output_file: Union[str, Path],
+        tgt_output_file: Union[str, Path],
+    ):
+        for side, f in zip(["src", "tgt"], [src_input_file, tgt_input_file]):
+            assert Path(f).exists(), f"Nonexistent {side} input file: {f}"
+
+        src_suff, tgt_suff = "src", "tgt"
+        with tf.TemporaryDirectory() as staging_path:
+
+            staging = Path(staging_path)
+
+            # Symlink input files to temp dir
+            tmp_input_prefix = staging / "corpus"
+            tmp_src_input = Path(f"{tmp_input_prefix}.{src_suff}")
+            tmp_tgt_input = Path(f"{tmp_input_prefix}.{tgt_suff}")
+
+            u.create_symlink(link_path=tmp_src_input, dest_path=src_input_file)
+            u.create_symlink(link_path=tmp_tgt_input, dest_path=tgt_input_file)
+
+            tmp_output_prefix = staging / "corpus_clean"
+            tmp_src_output = Path(f"{tmp_output_prefix}.{src_suff}")
+            tmp_tgt_output = Path(f"{tmp_output_prefix}.{tgt_suff}")
 
             popen_args = [
                 "perl",
                 self.cmd,
                 f"-ratio={self.ratio}",
-                str(input_prefix),
-                str(src_suffix),
-                str(tgt_suffix),
-                str(output_prefix),
+                str(tmp_input_prefix),
+                src_suff,
+                tgt_suff,
+                str(tmp_output_prefix),
                 str(self.min_len),
                 str(self.max_len),
             ]
@@ -278,52 +325,6 @@ class MosesCleanCorpusNProcessor:
 
             print(completed_pid.stderr, file=sys.stderr)
 
-    @staticmethod
-    def _infer_mode(
-        input_prefix: Union[str, Path],
-        src_suffix: Union[str, Path],
-        tgt_suffix: Union[str, Path],
-        src_input_file: Union[str, Path],
-        tgt_input_file: Union[str, Path],
-    ):
-        _f_src = Path(src_input_file)
-        _f_tgt = Path(tgt_input_file)
-        if input_prefix:
-            _src = Path(f"{input_prefix}.{src_suffix}")
-            _tgt = Path(f"{input_prefix}.{tgt_suffix}")
-            assert (
-                _src.exists or _f_src.exists
-            ), "Must provide an input prefix or src input file"
-            assert (
-                _tgt.exists or _f_tgt.exists
-            ), "Must provide an input prefix or tgt input file"
-
-            mode = "prefix"
-        else:
-            mode = "file"
-
-        if mode == "prefix":
-            for side, suf in zip(["src", "tgt"], [src_suffix, tgt_suffix]):
-                f = Path(f"{input_prefix}.{suf}")
-                assert f.exists(), f"Nonexistent {side} file: {f}"
-
-        return mode
-
-    @staticmethod
-    def _file_to_input_prefix(
-        src_suffix: str,
-        tgt_suffix: str,
-        src_input_file: Union[str, Path],
-        tgt_input_file: Union[str, Path],
-        temp_folder: Union[str, Path],
-    ):
-
-        input_prefix = Path(temp_folder) / "corpus"
-
-        # symlink the files we need
-        src_input = f"{input_prefix}.{src_suffix}"
-        tgt_input = f"{input_prefix}.{tgt_suffix}"
-        u.create_symlink(link_path=src_input, dest_path=src_input_file)
-        u.create_symlink(link_path=tgt_input, dest_path=tgt_input_file)
-
-        return input_prefix
+            # Move files from temp folder to output
+            u.move(tmp_src_output, src_output_file)
+            u.move(tmp_tgt_output, tgt_output_file)
