@@ -4,11 +4,11 @@
       type: string
       required: true
     src_lang:
-        type: string
-        required: true
+      type: string
+      required: true
     tgt_lang:
-        type: string
-        required: true
+      type: string
+      required: true
     model_name:
       type: string
       default: required
@@ -35,8 +35,8 @@
       type: int
       default: 5
     remove_preprocessing:
-        type: string
-        default: "none"
+      type: string
+      default: "none"
 - config: transformer-flags
   flags:
     criterion:
@@ -117,8 +117,9 @@
       description: "Prepares an experiment folder for an MT experiment"
       exec: "bash scripts/prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder} ${model_name}"
       flags:
-        $include: basic-flags
-        $include: prep-flags
+        $include:
+          - basic-flags
+          - prep-flags
       requires:
         - file: data-bin
         - file: checkpoints
@@ -171,6 +172,7 @@
               - transformer-flags
         - run: evaluate_transformer
           flags:
+            $include:
               - basic-flags
               - evaluate-flags
       requires:
