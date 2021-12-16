@@ -11,7 +11,7 @@
       required: true
     model_name:
       type: string
-      default: required
+      default: "transformer"
     seed:
       type: int
       default: 1917
@@ -112,26 +112,23 @@
       type: int
       default: 10000
 
-- operations:
+- model: mrl_transformer
+  operations:
     prep_experiment:
       description: "Prepares an experiment folder for an MT experiment"
       exec: "bash scripts/prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder} ${model_name}"
       flags:
-        $include:
-          - basic-flags
-          - prep-flags
+        $include: ["basic-flags", "prep-flags"]
       requires:
         - file: data-bin
         - file: checkpoints
         - file: experiments
-        - file: prep_experiment.sh
+        - file: scripts
     train_transformer:
       description: "Train transformer model"
       exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name}"
       flags:
-        $include:
-          - basic-flags
-          - transformer-flags
+        $include: ["basic-flags", "transformer-flags"]
       requires:
         - file: data-bin
         - file: scripts
@@ -141,9 +138,7 @@
       description: "Evaluate transformer model"
       exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing}"
       flags:
-        $include:
-          - basic-flags
-          - evaluate-flags
+        $include: ["basic-flags", "evaluate-flags"]
       output-scalars:
         - 'EVAL_SCALAR: (\key)\t(\value)'
       requires:
@@ -154,27 +149,61 @@
     experiment_pipeline:
       description: "Prep experiment -> train model -> evaluate model"
       flags:
-        $include:
-          - basic-flags
-          - prep-flags
-          - transformer-flags
-          - evaluate-flags
+          $include: ["basic-flags", "prep-flags", "transformer-flags", "evaluate-flags"]
       steps:
-        - run: prep_experiment
-          flags:
-            $include:
-              - basic-flags
-              - prep-flags
-        - run: train_transformer
-          flags:
-            $include:
-              - basic-flags
-              - transformer-flags
-        - run: evaluate_transformer
-          flags:
-            $include:
-              - basic-flags
-              - evaluate-flags
+          - run: prep_experiment
+            flags:
+                experiment_name: "${experiment_name}"
+                src_lang: "${src_lang}"
+                tgt_lang: "${tgt_lang}"
+                model_name: "${model_name}"
+                seed: "${seed}"
+                gpu_device: "${gpu_device}"
+                raw_data_folder: "${raw_data_folder}"
+                bin_data_folder: "${bin_data_folder}"
+          - run: train_transformer
+            flags:
+                experiment_name: "${experiment_name}"
+                src_lang: "${src_lang}"
+                tgt_lang: "${tgt_lang}"
+                model_name: "${model_name}"
+                seed: "${seed}"
+                gpu_device: "${gpu_device}"
+                criterion: "${criterion}"
+                label_smoothing: "${label_smoothing}"
+                lr: "${lr}"
+                lr_scheduler: "${lr_scheduler}"
+                warmup_init_lr: "${warmup_init_lr}"
+                clip_norm: "${clip_norm}"
+                save_interval: "${save_interval}"
+                activation_fn: "${activation_fn}"
+                encoder_layers: "${encoder_layers}"
+                decoder_layers: "${decoder_layers}"
+                encoder_attention_heads: "${encoder_attention_heads}"
+                decoder_attention_heads: "${decoder_attention_heads}"
+                decoder_embedding_dim: "${decoder_embedding_dim}"
+                decoder_hidden_size: "${decoder_hidden_size}"
+                encoder_embedding_dim: "${encoder_embedding_dim}"
+                encoder_hidden_size: "${encoder_hidden_size}"
+                batch_size: "${batch_size}"
+                optimizer: "${optimizer}"
+                p_dropout: "${p_dropout}"
+                max_update: "${max_update}"
+                max_epoch: "${max_epoch}"
+                validate_interval: "${validate_interval}"
+                validate_interval_updates: "${validate_interval_updates}"
+                warmup_updates: "${warmup_updates}"
+          - run: evaluate_transformer
+            flags:
+                experiment_name: "${experiment_name}"
+                src_lang: "${src_lang}"
+                tgt_lang: "${tgt_lang}"
+                model_name: "${model_name}"
+                seed: "${seed}"
+                gpu_device: "${gpu_device}"
+                mode: "${mode}"
+                beam_size: "${beam_size}"
+                remove_preprocessing: "${remove_preprocessing}"
       requires:
         - file: data-bin
         - file: scripts
