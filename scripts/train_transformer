@@ -49,7 +49,7 @@ readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
 readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/checkpoints"
 
 # GPU device
-readonly GPU_DEVICE=${24}
+readonly GPU_DEVICE="${24}"
 
 # Validate interval (note: these are new in fairseq 0.10.0)
 #echo "validate interval: ${25}"

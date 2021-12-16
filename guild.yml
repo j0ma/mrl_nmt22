@@ -7,7 +7,7 @@
       type: int
       default: 1917
     gpu_device:
-      type: int
+      type: string
       default: 1
 - config: transformer-flags
   flags:
