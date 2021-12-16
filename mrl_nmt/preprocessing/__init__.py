@@ -68,6 +68,7 @@ class Preprocessor:
             output = self.apply_op(
                 output, op_name=op_dict["name"], options=op_dict.get("options", {})
             )
+
         return output
 
     def apply_op(self, input_obj: Any, op_name: str, options: dict) -> Any:
@@ -136,6 +137,7 @@ class ExperimentPreprocessingPipeline:
         # Load in all the data and preprocess it
 
         preprocessor = Preprocessor(verbose=self.verbose)
+
         for split in splits:
             split_config = config[split]
             input_base_path = Path(split_config["input_base_path"]).expanduser()
@@ -147,6 +149,7 @@ class ExperimentPreprocessingPipeline:
         # Finally write all the data out
         output_folder = Path(config["output_base_path"]).expanduser()
         output_folder.mkdir(parents=True, exist_ok=True)
+
         for split, corpus_split in lines.items():
             corpus_split.write_to_disk(folder=output_folder)
 
@@ -175,6 +178,7 @@ class Postprocessor:
         assert not (
             self.remove_sentencepiece and self.remove_char
         ), "Can only convert one of {SP, char} to word-level"
+
         if self.remove_sentencepiece:
             self.postprocess = self.sp_to_words
         elif self.remove_char:
@@ -190,16 +194,20 @@ class Postprocessor:
             print(f"Original: {s}")
         tokens = [t for t in s.split(" ")]
         out = "".join(tokens).replace(u.SP_BOW_SYMBOL, " ").lstrip()
+
         if self.verbose:
             print(f"Post-processed: {out}")
+
         return out
 
     def chars_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
         out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+
         if self.verbose:
             print(f"Post-processed: {out}")
+
         return out
 
 
@@ -214,6 +222,8 @@ class MosesCleanCorpusNProcessor:
     moses_scripts_path: Union[Path, str] = Path("moses/scripts").expanduser()
 
     def __attrs_post_init__(self) -> None:
+
+        self.moses_scripts_path = Path(self.moses_scripts_path)
 
         if not self.moses_scripts_path.exists():
             raise ValueError(
@@ -275,6 +285,7 @@ class MosesCleanCorpusNProcessor:
             new_cs = CorpusSplit.from_src_tgt(
                 src=src_clean, tgt=tgt_clean, split=split, verbose=verbose
             )
+
             return new_cs
 
     def process_files(

@@ -19,7 +19,6 @@ def rm_tree(pth):
         pth.unlink(missing_ok=True)
 
 
-
 @click.command()
 @click.option("--experiment-name", "-n")
 @click.option("--prefix", "-p", default="")
