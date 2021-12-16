@@ -7,6 +7,7 @@ set -euo pipefail
 EXPERIMENT_NAME="${1}"
 RAW_DATA_FOLDER="${2}"
 BIN_DATA_FOLDER="${3}"
+MODEL_NAME="${4}"
 WORKING_DIR=$(pwd)
 
 echo "Preparing folders for experiment: '${EXPERIMENT_NAME}'"
@@ -33,4 +34,6 @@ mkdir -p --verbose "${CHECKPOINT_FOLDER}"
 
 # symlink checkpoint folder in experiment folder
 echo "Symlinking checkpoint folder..."
-ln -vs "${CHECKPOINT_FOLDER}" "${EXPERIMENT_FOLDER}/checkpoints"
+MODEL_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}"
+mkdir -p --verbose $MODEL_FOLDER
+ln -vs "${CHECKPOINT_FOLDER}" "${MODEL_FOLDER}/checkpoints"

@@ -87,9 +87,12 @@
 - operations:
     prep_experiment:
       description: "Prepares an experiment folder for an MT experiment"
-      exec: "bash prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder}"
+      exec: "bash prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder} ${model_name}"
       flags:
         $include: basic-flags
+        model_name:
+          type: string
+          default: "transformer"
         raw_data_folder:
           type: string
           required: true
@@ -103,11 +106,14 @@
         - file: prep_experiment.sh
     train_transformer:
       description: "Train transformer model"
-      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch}"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name}"
       flags:
         $include:
           - basic-flags
           - transformer-flags
+        model_name:
+          type: string
+          default: "transformer"
         src_lang:
             type: string
             required: true
@@ -121,7 +127,7 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing} ${casing}"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing}"
       flags:
         $include:
           - basic-flags
@@ -141,9 +147,6 @@
             type: string
             required: true
         remove_preprocessing:
-            type: string
-            default: "none"
-        casing:
             type: string
             default: "none"
       output-scalars:
@@ -217,9 +220,3 @@
         - file: checkpoints
         - file: experiments
         - file: evaluate.py
-      compare:
-        - ler
-        - wer
-        - mean_f1
-        - word_acc
-        - bleu

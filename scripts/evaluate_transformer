@@ -20,8 +20,8 @@ fi
 
 EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
 DATA_BIN_FOLDER="${EXPERIMENT_FOLDER}/binarized_data"
-CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/checkpoints"
-EVAL_OUTPUT_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}"
+MODEL_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}"
+CHECKPOINT_FOLDER="${MODEL_FOLDER}/checkpoints"
 
 mkdir -vp $EVAL_OUTPUT_FOLDER
 
@@ -30,11 +30,10 @@ if [[ -z $BEAM ]]; then
 fi
 
 REMOVE_PREPROCESSING=${9}
-CASING=${10}
 
 RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
 RAW_GOLD_DEFAULT="${RAW_DATA_FOLDER}/${SRC_LANG}-${TGT_LANG}.${MODE}.detok.${TGT_LANG}"
-RAW_GOLD=${11:-$RAW_GOLD_DEFAULT}
+RAW_GOLD=${10:-$RAW_GOLD_DEFAULT}
 
 echo "DATA_BIN_FOLDER=${DATA_BIN_FOLDER}"
 echo "CHECKPOINT_FOLDER=${CHECKPOINT_FOLDER}"
@@ -67,8 +66,6 @@ evaluate() {
 	local -r RAW_GOLD_FILE="$1"
 	shift
 	local -r REMOVE_PREPROCESSING="$1"
-	shift
-	local -r CASING="$1"
 	shift
 
 	echo "seed = ${SEED}"
@@ -106,22 +103,6 @@ evaluate() {
         ;;
     esac
 
-    # Flag for removing preprocessing
-    case "${CASING}" in
-        "lower")
-            echo "Ignoring casing due to casing=${CASING}"
-            CASING_FLAG="--ignore-case"
-        ;;
-        "ignore")
-            echo "Ignoring casing due to casing=${CASING}"
-            CASING_FLAG="--ignore-case"
-        ;;
-        *)
-            echo "Unrecognized casing type: ${CASING}"
-            echo "Not ignoring case!"
-            CASING_FLAG=""
-        ;;
-    esac
 
 	# Fairseq insists on calling the dev-set "valid"; hack around this.
 	local -r FAIRSEQ_MODE="${MODE/dev/valid}"
@@ -159,7 +140,7 @@ evaluate() {
 	python scripts/evaluate.py \
         --combined-tsv-path "${SOURCE_TSV}" \
 		--score-output-path "${SCORE}" \
-        ${RM_PP_FLAG} ${CASING_FLAG} \
+        ${RM_PP_FLAG} \
         --src-language "${SRC_LANG}" \
         --tgt-language "${TGT_LANG}"
 
@@ -167,4 +148,4 @@ evaluate() {
 	cat "${SCORE}"
 }
 
-evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING}" "${CASING}"
+evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING}"

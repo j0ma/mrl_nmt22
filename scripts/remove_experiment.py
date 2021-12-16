@@ -36,18 +36,10 @@ def main(experiment_name, prefix, keep_checkpoints):
     print(f"Removing symlink for bin data: {bin_data}")
     bin_data.unlink(missing_ok=True)
 
-    # remove all checkpoints unless told otherwise
-    if not keep_checkpoints:
-        checkpoints = exp_path / "checkpoints"
-        checkpoints_abs = checkpoints.resolve().expanduser().absolute()
-        try:
-            print(f"Removing checkpoints: {checkpoints_abs}")
-            rm_tree(checkpoints_abs)
-        except FileNotFoundError:
-            pass
-        checkpoints.unlink(missing_ok=True)
+    if keep_checkpoints:
+        pass  # TODO: implement
 
-    # remove all other evaluation outputs
+    # remove all other model folders
     rest = exp_path.glob("*")
     if rest:
         for fname in tqdm(rest):

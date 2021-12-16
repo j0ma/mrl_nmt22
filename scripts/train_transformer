@@ -44,9 +44,6 @@ readonly EHS=${22}
 
 # Path to binarized data & checkpoints
 readonly EXPERIMENT_NAME=${23}
-readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
-readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
-readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/checkpoints"
 
 # GPU device
 readonly GPU_DEVICE="${24}"
@@ -60,6 +57,13 @@ readonly SRC_LANG=${27}
 readonly TGT_LANG=${28}
 
 readonly MAX_EPOCH=${29}
+
+readonly MODEL_NAME="${30}"
+
+# Derive some paths based on the above
+readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
+readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
+readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}/checkpoints"
 
 get_max_flag() {
     if [ "${MAX_UPDATE}" = "0" ]
