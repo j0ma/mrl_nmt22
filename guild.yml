@@ -57,9 +57,9 @@
     clip_norm:
       type: float
       default: 1.0
-    save_interval:
+    save_interval_updates:
       type: int
-      default: 5
+      default: 25000
     activation_fn:
       type: string
       default: "relu"
@@ -90,13 +90,16 @@
     batch_size:
       type: int
       default: 64
+    max_tokens:
+      type: int
+      default: 0
     optimizer:
       type: string
       default: "adadelta"
     p_dropout:
       type: float
       default: 0.2
-    max_update:
+    max_updates:
       type: int
       default: 0
     max_epoch:
@@ -126,7 +129,7 @@
         - file: scripts
     train_transformer:
       description: "Train transformer model"
-      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_update} ${save_interval} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name}"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_updates} ${save_interval_updates} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name} ${max_tokens}"
       flags:
         $include: ["basic-flags", "transformer-flags"]
       requires:
@@ -160,7 +163,7 @@
                 seed: "${seed}"
                 gpu_device: "${gpu_device}"
                 raw_data_folder: "${raw_data_folder}"
-                bin_data_folder: "${bin_data_folder}"
+               bin_data_folder: "${bin_data_folder}"
           - run: train_transformer
             flags:
                 experiment_name: "${experiment_name}"
@@ -175,7 +178,7 @@
                 lr_scheduler: "${lr_scheduler}"
                 warmup_init_lr: "${warmup_init_lr}"
                 clip_norm: "${clip_norm}"
-                save_interval: "${save_interval}"
+                save_interval_updates: "${save_interval_updates}"
                 activation_fn: "${activation_fn}"
                 encoder_layers: "${encoder_layers}"
                 decoder_layers: "${decoder_layers}"
@@ -186,9 +189,10 @@
                 encoder_embedding_dim: "${encoder_embedding_dim}"
                 encoder_hidden_size: "${encoder_hidden_size}"
                 batch_size: "${batch_size}"
+                max_tokens: "${max_tokens}"
                 optimizer: "${optimizer}"
                 p_dropout: "${p_dropout}"
-                max_update: "${max_update}"
+                max_updates: "${max_updates}"
                 max_epoch: "${max_epoch}"
                 validate_interval: "${validate_interval}"
                 validate_interval_updates: "${validate_interval_updates}"

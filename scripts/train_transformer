@@ -25,7 +25,7 @@ echo "warmup init LR flag: ${WARMUP_INIT_LR_FLAG}"
 
 readonly CLIP_NORM=$9
 readonly MAX_UPDATE=${10}
-readonly SAVE_INTERVAL=${11}
+readonly SAVE_INTERVAL_UPDATES=${11}
 readonly ENCODER_LAYERS=${12}
 readonly ENCODER_ATTENTION_HEADS=${13}
 readonly DECODER_LAYERS=${14}
@@ -59,6 +59,8 @@ readonly TGT_LANG=${28}
 readonly MAX_EPOCH=${29}
 
 readonly MODEL_NAME="${30}"
+
+readonly MAX_TOKENS="${31}"
 
 # Derive some paths based on the above
 readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
@@ -108,7 +110,8 @@ train() {
         --lr-scheduler="${LR_SCHEDULER}" \
         --clip-norm="${CLIP_NORM}" \
         --batch-size="${BATCH_SIZE}" \
-        --save-interval="${SAVE_INTERVAL}" \
+        --max-tokens="${MAX_TOKENS}" \
+        --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
