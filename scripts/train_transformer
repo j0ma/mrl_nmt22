@@ -67,6 +67,8 @@ readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
 readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
 readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}/checkpoints"
 
+mkdir -vp ${EXPERIMENT_FOLDER}/${MODEL_NAME}
+
 get_max_flag() {
     if [ "${MAX_UPDATE}" = "0" ]
     then
@@ -125,5 +127,5 @@ echo "Encoder hidden size: ${EHS}"
 echo "Decoder embedding dim: ${DED}"
 echo "Decoder hidden size: ${DHS}"
 
-echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log.log"
-train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log.log"
+echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log"
+train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log"
