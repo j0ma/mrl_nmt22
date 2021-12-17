@@ -2,3 +2,6 @@
 	path = moses
 	url = https://github.com/moses-smt/mosesdecoder.git
     ignore = dirty
+[submodule "til-mt"]
+	path = til-mt
+	url = https://github.com/turkic-interlingua/til-mt.git
