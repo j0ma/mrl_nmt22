@@ -3,13 +3,16 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
+MAX_DEPTH=10
 
 def rm_tree(pth):
     """Source: https://stackoverflow.com/questions/50186904/pathlib-recursively-remove-directory"""
     pth = Path(pth)
     print(f"[rm_tree] Recursively removing {pth}")
     for child in pth.glob("*"):
-        if child.is_file():
+        if child.is_symlink():
+            rm_tree(child.resolve().expanduser())
+        elif child.is_file():
             child.unlink(missing_ok=True)
         else:
             rm_tree(child)
