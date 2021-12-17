@@ -125,5 +125,5 @@ echo "Encoder hidden size: ${EHS}"
 echo "Decoder embedding dim: ${DED}"
 echo "Decoder hidden size: ${DHS}"
 
-echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/train_log.log"
-train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/train_log.log"
+echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log.log"
+train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log.log"

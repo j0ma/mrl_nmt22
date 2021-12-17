@@ -163,7 +163,7 @@
                 seed: "${seed}"
                 gpu_device: "${gpu_device}"
                 raw_data_folder: "${raw_data_folder}"
-               bin_data_folder: "${bin_data_folder}"
+                bin_data_folder: "${bin_data_folder}"
           - run: train_transformer
             flags:
                 experiment_name: "${experiment_name}"
