@@ -1,3 +1,4 @@
+# Configs
 - config: basic-flags
   flags:
     experiment_name:
@@ -115,7 +116,34 @@
       type: int
       default: 10000
 
-- model: mrl_transformer
+# Data download ops
+- model: data
+  operations:
+    download_til:
+      description: "Download Turkic Interlingua corpus"
+      main: scripts.download.download_til
+      flags:
+        download_folder:
+          type: string
+          required: true
+        source_language:
+          type: string
+          required: true
+        target_language:
+          type: string
+          required: true
+        split:
+          type: string
+          required: true
+          default: "all"
+          choices:
+            - train
+            - dev
+            - test
+            - all
+
+# Transformer ops
+- model: nmt
   operations:
     prep_experiment:
       description: "Prepares an experiment folder for an MT experiment"

@@ -1,4 +1,4 @@
-# NAACL 2022 Paper on Multi-Task Learning for NMT
+# Multi-Task Learning for Morphologically rich NMT
 
 ## Initialization
 - Create folders `checkpoints` and `experiments`
@@ -20,6 +20,7 @@
 - psutil
 - sacrebleu
     - install from master branch to get SPM tokenizer support
+- gsutil
 
 ## Notes on languages
 - Czech
