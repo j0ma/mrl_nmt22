@@ -127,9 +127,11 @@ def main(
         detokenize_ref_clean,
     ]
     postprocessors = {
-        side: pp.Postprocessor.from_strings(p2r, dt)
+        side: pp.Postprocessor.from_strings(processing_to_remove, detokenize)
 
-        for side, p2r, dt in zip(sides, processing_to_remove, whether_to_detokenize)
+        for side, processing_to_remove, detokenize in zip(
+            sides, processing_to_remove, whether_to_detokenize
+        )
     }
     outputs = defaultdict(list)
 
