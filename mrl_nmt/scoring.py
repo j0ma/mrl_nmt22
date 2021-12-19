@@ -331,6 +331,7 @@ class ExperimentResults:
         if not tgt_language:
             infer_tgt_language = True
 
+        # TODO: remove hardcode
         columns = ["ref", "hyp", "src", "ref_detok"]
         output_rows = u.read_tsv_dict(
             path=combined_tsv_path,

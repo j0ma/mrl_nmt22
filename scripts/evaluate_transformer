@@ -30,11 +30,19 @@ if [[ -z $BEAM ]]; then
 	readonly BEAM=5
 fi
 
-REMOVE_PREPROCESSING=${9}
+REMOVE_PREPROCESSING_SRC=${9}
+REMOVE_PREPROCESSING_HYP=${10}
+REMOVE_PREPROCESSING_REF=${11}
+REMOVE_PREPROCESSING_REFCLEAN=${12}
+
+DETOK_PREPROCESSING_SRC=${13}
+DETOK_PREPROCESSING_HYP=${14}
+DETOK_PREPROCESSING_REF=${15}
+DETOK_PREPROCESSING_REFCLEAN=${16}
 
 RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
 RAW_GOLD_DEFAULT="${RAW_DATA_FOLDER}/${SRC_LANG}-${TGT_LANG}.${MODE}.detok.${TGT_LANG}"
-RAW_GOLD=${10:-$RAW_GOLD_DEFAULT}
+RAW_GOLD=${17:-$RAW_GOLD_DEFAULT}
 
 echo "DATA_BIN_FOLDER=${DATA_BIN_FOLDER}"
 echo "CHECKPOINT_FOLDER=${CHECKPOINT_FOLDER}"
@@ -43,7 +51,6 @@ echo "BEAM=${BEAM}"
 echo "SEED=${SEED}"
 echo "RAW_DATA_FOLDER=${RAW_DATA_FOLDER}"
 echo "RAW_GOLD=${RAW_GOLD}"
-
 
 # Prediction options.
 
@@ -66,7 +73,21 @@ evaluate() {
 	shift
 	local -r RAW_GOLD_FILE="$1"
 	shift
-	local -r REMOVE_PREPROCESSING="$1"
+	local -r REMOVE_PREPROCESSING_SRC="$1"
+	shift
+	local -r REMOVE_PREPROCESSING_HYP="$1"
+	shift
+	local -r REMOVE_PREPROCESSING_REF="$1"
+	shift
+	local -r REMOVE_PREPROCESSING_REFCLEAN="$1"
+	shift
+	local -r DETOKENIZE_SRC="$1"
+	shift
+	local -r DETOKENIZE_HYP="$1"
+	shift
+	local -r DETOKENIZE_REF="$1"
+	shift
+	local -r DETOKENIZE_REFCLEAN="$1"
 	shift
 
 	echo "seed = ${SEED}"
@@ -79,41 +100,26 @@ evaluate() {
 		echo "Changed checkpoint file to: ${CHECKPOINT_FILE}"
 	fi
 
-    # Flag for removing preprocessing
-    case "${REMOVE_PREPROCESSING}" in
-        "word")
-            echo "Outputs are already words!"
-            RM_PP_FLAG=""
-        ;;
-        "none")
-            echo "Not removing any preprocessing!"
-            RM_PP_FLAG=""
-        ;;
-        "sentencepiece") 
-            echo "Converting outputs from chars to words"
-            RM_PP_FLAG="--remove-sentencepiece"
-        ;;
-        "char") 
-            echo "Converting outputs from SP to words"
-            RM_PP_FLAG="--remove-char"
-        ;;
-        *)
-            echo "Unrecognized preprocessing type: ${REMOVE_PREPROCESSING}"
-            RM_PP_FLAG=""
-            exit 1
-        ;;
-    esac
 
 
 	# Fairseq insists on calling the dev-set "valid"; hack around this.
 	local -r FAIRSEQ_MODE="${MODE/dev/valid}"
 
 	OUT="${EVAL_OUTPUT_FOLDER}/${MODE}.out"
-	SOURCE_TSV="${EVAL_OUTPUT_FOLDER}/${MODE}_with_source.tsv"
+	SCORE="${EVAL_OUTPUT_FOLDER}/${MODE}.eval.score"
+
+    # non-postprocessed outputs    
+    SOURCE_TSV="${EVAL_OUTPUT_FOLDER}/${MODE}_with_source.tsv"
 	GOLD="${EVAL_OUTPUT_FOLDER}/${MODE}.gold"
 	HYPS="${EVAL_OUTPUT_FOLDER}/${MODE}.hyps"
 	SOURCE="${EVAL_OUTPUT_FOLDER}/${MODE}.source"
-	SCORE="${EVAL_OUTPUT_FOLDER}/${MODE}.eval.score"
+    
+    # postprocessed outputs    
+    POST_SOURCE_TSV="${EVAL_OUTPUT_FOLDER}/${MODE}_with_source_postprocessed.tsv"
+    POST_GOLD="${EVAL_OUTPUT_FOLDER}/${MODE}.postprocessed.gold"
+	POST_HYPS="${EVAL_OUTPUT_FOLDER}/${MODE}.postprocessed.hyps"
+	POST_SOURCE="${EVAL_OUTPUT_FOLDER}/${MODE}.postprocessed.source"
+    POST_RAW_GOLD="${EVAL_OUTPUT_FOLDER}/${MODE}.postprocessed.gold_clean"
 
 	echo "Evaluating into ${OUT}"
 
@@ -133,15 +139,37 @@ evaluate() {
 	cat "${OUT}" | grep '^T-' | sed "s/^T-//g" | sort -k1 -n | cut -f2 >"${GOLD}"
 	cat "${OUT}" | grep '^H-' | sed "s/^H-//g" | sort -k1 -n | cut -f3 >"${HYPS}"
 	cat "${OUT}" | grep '^S-' | sed "s/^S-//g" | sort -k1 -n | cut -f2 >"${SOURCE}"
+
+    # Detokenize gold/system output/source/raw gold
+    python scripts/text_processing/postprocess.py \
+        --references-path "${GOLD}" \
+        --references-clean-path "${RAW_GOLD_FILE}" \
+        --hypotheses-path "${HYPS}" \
+        --source-path "${SOURCE}" \
+        --remove-processing-src "${REMOVE_PROCESSING_SRC}" \
+        --remove-processing-ref "${REMOVE_PROCESSING_REF}" \
+        --remove-processing-ref-clean "${REMOVE_PROCESSING_REFCLEAN}" \
+        --remove-processing-hyp "${REMOVE_PROCESSING_HYP}" \
+        --detokenize-src "${DETOKENIZE_SRC}" \
+        --detokenize-ref "${DETOKENIZE_REF}" \
+        --detokenize-ref-clean "${DETOKENIZE_REFCLEAN}" \
+        --detokenize-hyp "${DETOKENIZE_HYP}" \
+        --source-output-path "${POST_SOURCE}" \
+        --hypotheses-output-path "${POST_HYPS}" \
+        --references-output-path "${POST_GOLD}" \
+        --references-clean-output-path "${POST_RAW_GOLD}"
+        
 	
     # Make TSV with source and raw gold included
 	paste "${GOLD}" "${HYPS}" "${SOURCE}" "${RAW_GOLD_FILE}" >"${SOURCE_TSV}"
+    
+    # Make TSV with postprocessed
+	paste "${POST_GOLD}" "${POST_HYPS}" "${POST_SOURCE}" "${POST_RAW_GOLD}" >"${POST_SOURCE_TSV}"
 
 	# Compute some evaluation metrics
 	python scripts/evaluate.py \
         --combined-tsv-path "${SOURCE_TSV}" \
 		--score-output-path "${SCORE}" \
-        ${RM_PP_FLAG} \
         --src-language "${SRC_LANG}" \
         --tgt-language "${TGT_LANG}"
 

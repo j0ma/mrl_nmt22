@@ -18,9 +18,13 @@ import mrl_nmt.preprocessing.ops as ops
 from mrl_nmt import utils as u
 from mrl_nmt.preprocessing.corpora import CorpusSplit, LoadedTextFile
 
+from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 
 CPU_COUNT = multiprocessing.cpu_count()
+
+# keep list of types of supported subword processing
+PROCESSING_TYPES = ["sentencepiece", "characters", "morph", "none"]
 
 
 @attr.s(auto_attribs=True)
@@ -32,10 +36,9 @@ class FairseqPreprocessor:
     n_workers: int = attr.ib(default=CPU_COUNT)
     verbose: bool = attr.ib(default=False)
 
-    fairseq_cmd: str = "scripts/preprocess_with_fairseq.sh"
+    fairseq_cmd: str = "scripts/text_processing/preprocess_with_fairseq.sh"
 
     def process(self) -> None:
-        """Runs fairseq-preprocess using scripts/preprocess_with_fairseq.sh"""
         popen_args = [
             self.fairseq_cmd,
             self.src_lang,
@@ -47,7 +50,7 @@ class FairseqPreprocessor:
         if self.n_workers > 0:
             popen_args.append(str(self.n_workers))
 
-        completed_pid = subprocess.run(
+        subprocess.run(
             popen_args,
             capture_output=False,
             encoding="utf-8",
@@ -134,7 +137,7 @@ class ExperimentPreprocessingPipeline:
         src, tgt = config["src"], config["tgt"]
         lines: DefaultDict[Dict[str, CorpusSplit]] = defaultdict(dict)
 
-        # Load in all the data and preprocess it
+        # Load in all the data and text_processing it
 
         preprocessor = Preprocessor(verbose=self.verbose)
 
@@ -172,6 +175,8 @@ class Postprocessor:
 
     remove_sentencepiece: bool = False
     remove_char: bool = False
+    detokenize: bool = False
+
     verbose: bool = True
 
     def __attrs_post_init__(self):
@@ -180,11 +185,20 @@ class Postprocessor:
         ), "Can only convert one of {SP, char} to word-level"
 
         if self.remove_sentencepiece:
-            self.postprocess = self.sp_to_words
+            self._postprocess = self.sp_to_words
         elif self.remove_char:
-            self.postprocess = self.chars_to_words
+            self._postprocess = self.chars_to_words
         else:
-            self.postprocess = lambda s: s
+            self._postprocess = lambda s: s
+
+        # TODO: languages for which Moses isn't suitable?
+        self.moses = MosesDetokenizer()
+
+    def postprocess(self, s: str) -> str:
+        out = self._postprocess(s)
+        if self.detokenize:
+            out = self.moses.detokenize(out.split(" "))
+        return out
 
     def __call__(self, s: str) -> str:
         return self.postprocess(s)
@@ -209,6 +223,14 @@ class Postprocessor:
             print(f"Post-processed: {out}")
 
         return out
+
+    @classmethod
+    def from_strings(cls, processing_to_remove: str, detokenize: bool):
+        return cls(
+            remove_sentencepiece=processing_to_remove == "sentencepiece",
+            remove_char=processing_to_remove == "characters",
+            detokenize=detokenize,
+        )
 
 
 @attr.s(auto_attribs=True)

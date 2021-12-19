@@ -416,7 +416,7 @@ class CorpusSplit:
                     tgt_out.write(f"{tgt_line}\n")
                     tgt_lines_written += 1
 
-                    if detok_line:
+                    if write_detok_lines and detok_line:
                         src_detok_line, tgt_detok_line = get_line_from_dict(detok_line)
                         assert (
                             len(src_detok_line) > 0 and len(tgt_detok_line) > 0

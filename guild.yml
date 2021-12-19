@@ -35,9 +35,30 @@
     beam_size:
       type: int
       default: 5
-    remove_preprocessing:
+    remove_preprocessing_source:
       type: string
       default: "none"
+    remove_preprocessing_hypotheses:
+      type: string
+      default: "none"
+    remove_preprocessing_reference:
+      type: string
+      default: "none"
+    remove_preprocessing_reference_clean:
+      type: string
+      default: "none"
+    detokenize_source:
+      type: boolean
+      default: true
+    detokenize_hypotheses:
+      type: boolean
+      default: true
+    detokenize_reference:
+      type: boolean
+      default: true
+    detokenize_reference_clean:
+      type: boolean
+      default: false
 - config: transformer-flags
   flags:
     criterion:
@@ -167,7 +188,7 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing}"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${remove_preprocessing_references_clean} ${detokenize_source} ${detokenize_hypotheses} ${detokenze_references} ${detokenize_references_clean}"
       flags:
         $include: ["basic-flags", "evaluate-flags"]
       output-scalars:
@@ -235,7 +256,14 @@
                 gpu_device: "${gpu_device}"
                 mode: "${mode}"
                 beam_size: "${beam_size}"
-                remove_preprocessing: "${remove_preprocessing}"
+                remove_preprocessing_source: "${remove_preprocessing_source}"
+                remove_preprocessing_hypotheses: "${remove_preprocessing_hypotheses}"
+                remove_preprocessing_references: "${remove_preprocessing_references}"
+                remove_preprocessing_references_clean: "${remove_preprocessing_references_clean}"
+                detokenize_source: "${detokenize_source}"
+                detokenize_hypotheses: "${detokenize_hypotheses}"
+                detokenize_references: "${detokenize_references}"
+                detokenize_references_clean: "${detokenize_references_clean}"
       requires:
         - file: data-bin
         - file: scripts

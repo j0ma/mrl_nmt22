@@ -3,7 +3,8 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
-MAX_DEPTH=10
+MAX_DEPTH = 10
+
 
 def rm_tree(pth):
     """Source: https://stackoverflow.com/questions/50186904/pathlib-recursively-remove-directory"""
