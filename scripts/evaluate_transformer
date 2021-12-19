@@ -166,9 +166,9 @@ evaluate() {
     # Make TSV with postprocessed
 	paste "${POST_GOLD}" "${POST_HYPS}" "${POST_SOURCE}" "${POST_RAW_GOLD}" >"${POST_SOURCE_TSV}"
 
-	# Compute some evaluation metrics
+    # Compute some evaluation metrics using the postprocessed (i.e. detokenized etc) outputs
 	python scripts/evaluate.py \
-        --combined-tsv-path "${SOURCE_TSV}" \
+        --combined-tsv-path "${POST_SOURCE_TSV}" \
 		--score-output-path "${SCORE}" \
         --src-language "${SRC_LANG}" \
         --tgt-language "${TGT_LANG}"
