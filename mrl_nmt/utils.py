@@ -233,6 +233,7 @@ def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
         target=Path(destination).expanduser().absolute()
     )
 
+
 def recursively_delete(path: Union[str, Path]):
     path = Path(path)
     for child in path.glob("*"):

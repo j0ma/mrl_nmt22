@@ -43,6 +43,7 @@ def load_flores101_pair(
     )
 
     # Create corpus split
+
     return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_tgt, split=split)
 
 
@@ -64,6 +65,7 @@ def load_commoncrawl(
     )
 
     # Create corpus split
+
     return crp.CorpusSplit.from_src_tgt(src=f_src, tgt=f_tgt, split=split)
 
 
@@ -155,6 +157,7 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
         "model_file",
     ]
     print(f"Got config: {config}")
+
     for param_name in required_params:
         assert (
             param_name in config
@@ -184,6 +187,7 @@ def process_subwords(
         print(
             f'[process_subwords] Processing {side} side into output level "{output_level}"'
         )
+
         if output_level == "sentencepiece":
             if not sentencepiece_config or side not in sentencepiece_config:
                 raise ValueError(
@@ -274,6 +278,7 @@ def process_tr(
 
     # get train
     print(f"[process_tr] Loading {split} corpus...")
+
     if split == "train":
         train_path = Path(f"{input_base_folder}/")
         train_en = crp.LoadedTextFile(
@@ -307,6 +312,7 @@ def process_tr(
         tgt_output_lvl=tr_output_level,
         sentencepiece_config=sentencepiece_config,
     )
+
     return out
 
 
@@ -350,6 +356,7 @@ def process_uz(
         tgt_output_lvl=uz_output_level,
         sentencepiece_config=sentencepiece_config,
     )
+
     return out
 
 
@@ -372,6 +379,38 @@ def process_ru():
 ####
 
 
+def add_lang_token(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
+    """Produces a new CorpusSplit with a magic <lang> token prepended to each sentence"""
+
+    assert side in ["src", "tgt", "both"]
+
+    def _add_token(
+        ld: Dict[str, Optional[Dict[str, str]]], side: str
+    ) -> Dict[str, Optional[Dict[str, str]]]:
+        out = {**ld}
+
+        side_dict = out[side]
+
+        if side_dict is None:
+            return out
+        else:
+            side_lang = side_dict["language"]
+            side_text = side_dict["text"]
+            out[side]["text"] = f"<{side_lang}> {side_text}"
+
+        return out
+
+    new_lines = (_add_token(ld, side) for ld in corpus.lines)
+
+    return crp.CorpusSplit(
+        lines=new_lines,
+        split=corpus.split,
+        src_lang=corpus.src_lang,
+        tgt_lang=corpus.tgt_lang,
+        verbose=corpus.verbose,
+    )
+
+
 def duplicate_lines(
     corpus: crp.CorpusSplit, n: int = 1, round_robin: bool = True
 ) -> crp.CorpusSplit:
@@ -379,6 +418,7 @@ def duplicate_lines(
     With round_robin=False, each line is repeated n_times.
     With round_robin=True, lines are concatenated n times (requires loading to RAM).
     """
+
     if round_robin:
 
         def duplicated(lines: Iterable[Any], n: int) -> Iterable[Any]:
@@ -388,6 +428,7 @@ def duplicate_lines(
             except:
                 # if not a sequence, convert to list :(
                 line_iter = list(lines)
+
             for _ in range(n):
                 for line in line_iter:
                     yield line
@@ -423,9 +464,11 @@ def convert_to_chars(
         new_ld = copy.deepcopy(line_dict)
 
         new_ld[side]["text"] = to_char_level(new_ld[side]["text"])
+
         return new_ld
 
     ## TODO: find a way to get around this loading to RAM
+
     if corpus.detok_lines:
         detok_lines = corpus.detok_lines
         orig_lines = corpus.lines
@@ -433,6 +476,7 @@ def convert_to_chars(
         detok_lines = list(corpus.lines)
         orig_lines = list(detok_lines)
     char_lines = [lines_as_chars(ld, side=side) for ld in orig_lines]
+
     return crp.CorpusSplit(
         lines=char_lines,
         split=corpus.split,
@@ -470,6 +514,7 @@ def process_with_sentencepiece(
     other_side_lines = []
     detok_line_dicts = []
     line_count = 0
+
     for ld, dtld in it.zip_longest(corpus.lines, corpus.detok_lines):
         detok_line_dicts.append(dtld or ld)
         side_ld = ld[side]
@@ -521,6 +566,7 @@ def process_with_sentencepiece(
 
     def final_lines(sp, lines, other_side_lines, line_count):
         print(f"[process_with_sentencepiece] Outputting final lines...")
+
         for side_line_dict, other_line_dict in tqdm(
             zip(lines, other_side_lines), total=line_count
         ):

@@ -61,7 +61,7 @@ def create_folder(base_path, source, target, split):
 
         return True
     else:
-        print(f"{split} data already exists! Skipping...")
+        print(f"{folder_path} already exists! Skipping...")
 
         return False
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         create_folder(download_folder, source, target, split)
 
         # base save path
-        save_path = download_folder / f"{source}-{target}"
+        save_path = download_folder / f"{source}-{target}" / "download"
 
         if not save_path.exists():
             save_path.mkdir(parents=True, exist_ok=True)
@@ -128,26 +128,38 @@ if __name__ == "__main__":
         save_path_str = str(save_path)
 
         if split == "test":
-            if create_folder(download_folder, source, target, f"{split}/bible"):
+            if create_folder(
+                download_folder, source, target, f"download/{split}/bible"
+            ):
                 test_bible_path = f"{base_url}/test/bible/{source}-{target}"
                 test_bible_download_path = f"{save_path_str}/test/bible/"
-                print(f"Downloading bible test files to {test_bible_download_path}")
+                print(
+                    f"Downloading bible test files from {test_bible_path} to {test_bible_download_path}"
+                )
                 download_url(test_bible_path, test_bible_download_path)
 
-            if create_folder(download_folder, source, target, f"{split}/ted"):
+            if create_folder(download_folder, source, target, f"download/{split}/ted"):
                 test_ted_path = f"{base_url}/test/ted/{source}-{target}"
                 test_ted_download_path = f"{save_path_str}/test/ted/"
-                print(f"Downloading ted talk test files to {test_ted_path}")
+                print(
+                    f"Downloading ted talk test files from {test_ted_path} to {test_ted_download_path}"
+                )
                 download_url(test_ted_path, test_ted_download_path)
 
-            if create_folder(download_folder, source, target, f"{split}/x-wmt"):
+            if create_folder(
+                download_folder, source, target, f"download/{split}/x-wmt"
+            ):
                 test_x_wmt_path = f"{base_url}/test/x-wmt/{source}-{target}"
                 test_x_wmt_download_path = f"{save_path_str}/test/x-wmt/"
-                print(f"Downloading x-wmt test files to {test_x_wmt_path}")
+                print(
+                    f"Downloading x-wmt test files from {test_x_wmt_path} to {test_x_wmt_download_path}"
+                )
                 download_url(test_x_wmt_path, test_x_wmt_download_path)
 
         else:
             download_path = f"{base_url}/{split}/{source}-{target}"
-            split_folder = f"{save_path_str}/{split}/"
-            print(f"Downloading {split} files to {split_folder}")
-            download_url(download_path, split_folder)
+            split_folder = Path(f"{save_path_str}/{split}/")
+            if not split_folder.exists():
+                split_folder.mkdir(exist_ok=True, parents=True)
+            print(f"Downloading {split} files from {download_path} to {split_folder}")
+            download_url(download_path, str(split_folder))

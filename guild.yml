@@ -198,6 +198,9 @@
             - dev
             - test
             - all
+      requires:
+        - file: scripts
+        - file: examples
 
 # Transformer ops
 - model: nmt
