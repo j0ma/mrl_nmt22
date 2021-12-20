@@ -41,23 +41,23 @@
     remove_preprocessing_hypotheses:
       type: string
       default: "none"
-    remove_preprocessing_reference:
+    remove_preprocessing_references:
       type: string
       default: "none"
-    remove_preprocessing_reference_clean:
+    remove_preprocessing_references_clean:
       type: string
       default: "none"
     detokenize_source:
-      type: boolean
+      type: string
       default: true
     detokenize_hypotheses:
-      type: boolean
+      type: string
       default: true
-    detokenize_reference:
-      type: boolean
+    detokenize_references:
+      type: string
       default: true
-    detokenize_reference_clean:
-      type: boolean
+    detokenize_references_clean:
+      type: string
       default: false
 - config: transformer-flags
   flags:
@@ -188,7 +188,7 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${remove_preprocessing_references_clean} ${detokenize_source} ${detokenize_hypotheses} ${detokenze_references} ${detokenize_references_clean}"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${remove_preprocessing_references_clean} ${detokenize_source} ${detokenize_hypotheses} ${detokenize_references} ${detokenize_references_clean}"
       flags:
         $include: ["basic-flags", "evaluate-flags"]
       output-scalars:

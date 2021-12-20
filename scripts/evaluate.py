@@ -43,6 +43,7 @@ def evaluate(
     remove_char: bool,
     metrics_to_compute: List[str] = None,
 ):
+
     if not metrics_to_compute:
         metrics_to_compute = DEFAULT_METRICS
 
@@ -124,12 +125,12 @@ def evaluate(
 @click.option(
     "--src-language",
     help="Optionally specify a global source language (default: en)",
-    default="en",
+    required=True
 )
 @click.option(
     "--tgt-language",
     help="Optionally specify a global target language (default: inferred)",
-    default="",
+    required=True
 )
 @click.option(
     "--skip-header-in-tsv",
@@ -162,15 +163,16 @@ def main(
     remove_sentencepiece: bool,
     remove_char: bool,
 ):
+
     evaluate(
-        references_path,
-        hypotheses_path,
-        source_path,
-        combined_tsv_path,
-        score_output_path,
-        output_as_tsv,
-        src_language,
-        tgt_language,
+        references_path=references_path,
+        hypotheses_path=hypotheses_path,
+        source_path=source_path,
+        combined_tsv_path=combined_tsv_path,
+        score_output_path=score_output_path,
+        output_as_tsv=output_as_tsv,
+        src_language=src_language,
+        tgt_language=tgt_language,
         skip_header=skip_header_in_tsv,
         remove_sentencepiece=remove_sentencepiece,
         remove_char=remove_char,

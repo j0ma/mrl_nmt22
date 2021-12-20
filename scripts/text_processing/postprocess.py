@@ -23,7 +23,7 @@ def fetch_lines(
         for ref, hyp, src, ref_clean in it.zip_longest(
             ref_lines, hyp_lines, src_lines, ref_clean_lines
         ):
-            yield ref, hyp, src, ref_clean
+            yield src, hyp, ref, ref_clean
 
 
 @click.command()
@@ -113,22 +113,23 @@ def main(
     references_output_path,
     references_clean_output_path,
 ):
-    sides = ["hyp", "src", "ref", "ref_clean"]
+    sides = ["src", "hyp", "ref", "ref_clean"]
     processing_to_remove = [
-        remove_processing_hyp,
         remove_processing_src,
+        remove_processing_hyp,
         remove_processing_ref,
         remove_processing_ref_clean,
     ]
     whether_to_detokenize = [
-        detokenize_hyp,
         detokenize_src,
+        detokenize_hyp,
         detokenize_ref,
         detokenize_ref_clean,
     ]
     postprocessors = {
-        side: pp.Postprocessor.from_strings(processing_to_remove, detokenize)
-
+        side: pp.Postprocessor.from_strings(
+            processing_to_remove, detokenize, verbose=False
+        )
         for side, processing_to_remove, detokenize in zip(
             sides, processing_to_remove, whether_to_detokenize
         )
@@ -137,23 +138,22 @@ def main(
 
     print("[postprocess] Postprocessing lines:")
 
-    for ref_hyp_src_refclean in tqdm(
+    for src_hyp_ref_refclean in tqdm(
         fetch_lines(
-            references_path,
-            references_clean_path,
-            hypotheses_path,
-            source_path,
+            references_path=references_path,
+            references_clean_path=references_clean_path,
+            hypotheses_path=hypotheses_path,
+            source_path=source_path,
         )
     ):
-        for side, line in zip(sides, ref_hyp_src_refclean):
+        for side, line in zip(sides, src_hyp_ref_refclean):
             postprocess = postprocessors[side]
             processed_line = postprocess(line)
             outputs[side].append(processed_line)
 
-    print("[postprocess] Outputting lines:")
     output_paths = [
-        hypotheses_output_path,
         source_output_path,
+        hypotheses_output_path,
         references_output_path,
         references_clean_output_path,
     ]
@@ -161,9 +161,11 @@ def main(
         bool(p) for p in output_paths
     ), f"Need all output paths, got: {output_paths}"
 
+    print("[postprocess] Outputting lines:")
+    # import ipdb; ipdb.set_trace()
     for side, output_path in zip(sides, output_paths):
         print(f"[postprocess] Writing: {side} to {output_path}")
-        u.write_lines(path=Path(output_path), lines=outputs[side])
+        u.write_lines(path=Path(output_path), lines=outputs[side], should_strip=True)
 
 
 if __name__ == "__main__":

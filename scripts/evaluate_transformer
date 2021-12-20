@@ -35,10 +35,10 @@ REMOVE_PREPROCESSING_HYP=${10}
 REMOVE_PREPROCESSING_REF=${11}
 REMOVE_PREPROCESSING_REFCLEAN=${12}
 
-DETOK_PREPROCESSING_SRC=${13}
-DETOK_PREPROCESSING_HYP=${14}
-DETOK_PREPROCESSING_REF=${15}
-DETOK_PREPROCESSING_REFCLEAN=${16}
+DETOKENIZE_SRC=${13}
+DETOKENIZE_HYP=${14}
+DETOKENIZE_REF=${15}
+DETOKENIZE_REFCLEAN=${16}
 
 RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
 RAW_GOLD_DEFAULT="${RAW_DATA_FOLDER}/${SRC_LANG}-${TGT_LANG}.${MODE}.detok.${TGT_LANG}"
@@ -51,6 +51,16 @@ echo "BEAM=${BEAM}"
 echo "SEED=${SEED}"
 echo "RAW_DATA_FOLDER=${RAW_DATA_FOLDER}"
 echo "RAW_GOLD=${RAW_GOLD}"
+
+echo "REMOVE_PREPROCESSING_SRC=${REMOVE_PREPROCESSING_SRC}"
+echo "REMOVE_PREPROCESSING_HYP=${REMOVE_PREPROCESSING_HYP}"
+echo "REMOVE_PREPROCESSING_REF=${REMOVE_PREPROCESSING_REF}"
+echo "REMOVE_PREPROCESSING_REFCLEAN=${REMOVE_PREPROCESSING_REFCLEAN}"
+
+echo "DETOKENIZE_SRC=${DETOKENIZE_SRC}"
+echo "DETOKENIZE_HYP=${DETOKENIZE_HYP}"
+echo "DETOKENIZE_REF=${DETOKENIZE_REF}"
+echo "DETOKENIZE_REFCLEAN=${DETOKENIZE_REFCLEAN}"
 
 # Prediction options.
 
@@ -146,14 +156,14 @@ evaluate() {
         --references-clean-path "${RAW_GOLD_FILE}" \
         --hypotheses-path "${HYPS}" \
         --source-path "${SOURCE}" \
-        --remove-processing-src "${REMOVE_PROCESSING_SRC}" \
-        --remove-processing-ref "${REMOVE_PROCESSING_REF}" \
-        --remove-processing-ref-clean "${REMOVE_PROCESSING_REFCLEAN}" \
-        --remove-processing-hyp "${REMOVE_PROCESSING_HYP}" \
+        --remove-processing-hyp "${REMOVE_PREPROCESSING_HYP}" \
+        --remove-processing-src "${REMOVE_PREPROCESSING_SRC}" \
+        --remove-processing-ref "${REMOVE_PREPROCESSING_REF}" \
+        --remove-processing-ref-clean "${REMOVE_PREPROCESSING_REFCLEAN}" \
+        --detokenize-hyp "${DETOKENIZE_HYP}" \
         --detokenize-src "${DETOKENIZE_SRC}" \
         --detokenize-ref "${DETOKENIZE_REF}" \
         --detokenize-ref-clean "${DETOKENIZE_REFCLEAN}" \
-        --detokenize-hyp "${DETOKENIZE_HYP}" \
         --source-output-path "${POST_SOURCE}" \
         --hypotheses-output-path "${POST_HYPS}" \
         --references-output-path "${POST_GOLD}" \
@@ -168,7 +178,9 @@ evaluate() {
 
     # Compute some evaluation metrics using the postprocessed (i.e. detokenized etc) outputs
 	python scripts/evaluate.py \
-        --combined-tsv-path "${POST_SOURCE_TSV}" \
+        --references-path "${POST_RAW_GOLD}" \
+        --hypotheses-path "${POST_HYPS}" \
+        --source-path "${POST_SOURCE}" \
 		--score-output-path "${SCORE}" \
         --src-language "${SRC_LANG}" \
         --tgt-language "${TGT_LANG}"
@@ -177,4 +189,4 @@ evaluate() {
 	cat "${SCORE}"
 }
 
-evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING}"
+evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING_SRC}" "${REMOVE_PREPROCESSING_HYP}" "${REMOVE_PREPROCESSING_REF}" "${REMOVE_PREPROCESSING_REFCLEAN}" "${DETOKENIZE_SRC}" "${DETOKENIZE_HYP}" "${DETOKENIZE_REF}" "${DETOKENIZE_REFCLEAN}"

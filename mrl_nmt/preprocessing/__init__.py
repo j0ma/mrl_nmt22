@@ -225,11 +225,11 @@ class Postprocessor:
         return out
 
     @classmethod
-    def from_strings(cls, processing_to_remove: str, detokenize: bool):
+    def from_strings(cls, processing_to_remove: str, detokenize: bool, verbose: bool = False):
         return cls(
             remove_sentencepiece=processing_to_remove == "sentencepiece",
             remove_char=processing_to_remove == "characters",
-            detokenize=detokenize,
+            detokenize=detokenize, verbose=verbose
         )
 
 
