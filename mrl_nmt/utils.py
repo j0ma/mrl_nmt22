@@ -164,7 +164,10 @@ def read_tsv_list_stream(
 
 
 def write_lines(
-        path: Union[str, Path], lines=Iterable[str], check_empty: bool = True, should_strip: bool = False
+    path: Union[str, Path],
+    lines=Iterable[str],
+    check_empty: bool = True,
+    should_strip: bool = False,
 ) -> None:
     with open(path, mode="w", encoding="utf-8") as fout:
         for line in lines:

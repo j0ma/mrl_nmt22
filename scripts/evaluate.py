@@ -125,12 +125,12 @@ def evaluate(
 @click.option(
     "--src-language",
     help="Optionally specify a global source language (default: en)",
-    required=True
+    required=True,
 )
 @click.option(
     "--tgt-language",
     help="Optionally specify a global target language (default: inferred)",
-    required=True
+    required=True,
 )
 @click.option(
     "--skip-header-in-tsv",
