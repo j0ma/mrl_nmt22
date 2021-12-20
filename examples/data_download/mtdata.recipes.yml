@@ -1,0 +1,164 @@
+# Czech
+- id: mrl-czech-wmt
+  langs: ces-eng
+  desc: "English - Czech, mimics WMT 2020 News Task"
+  train:
+    - Statmt-europarl-10-ces-eng
+    - ParaCrawl-paracrawl-9-eng-ces
+    - Statmt-commoncrawl_wmt13-1-ces-eng
+    - Statmt-news_commentary-15-ces-eng
+    - Tilde-rapid-2019-ces-eng
+    - OPUS-wikimatrix-1-ces-eng
+  dev:
+    - Statmt-newstest_csen-2018-ces-eng
+    - Statmt-newstest_encs-2018-eng-ces
+    - Statmt-newstest_encs-2017-eng-ces
+    - Statmt-newstest_csen-2017-ces-eng
+    - Statmt-newstest_encs-2016-eng-ces
+    - Statmt-newstest_csen-2016-ces-eng
+    - Statmt-newstest_csen-2015-ces-eng
+    - Statmt-newstest_encs-2015-eng-ces
+    - Statmt-newstest_csen-2014-ces-eng
+    - Statmt-newstest-2013-eng-ces
+    - Statmt-newstest-2012-eng-ces
+    - Statmt-newstest-2011-eng-ces
+    - Statmt-newstest-2010-eng-ces
+    - Statmt-newstest-2009-eng-ces
+  test:
+    - Statmt-newstest_encs-2020-eng-ces
+    - Statmt-newstest_csen-2020-ces-eng
+    - Statmt-newstest_encs-2019-eng-ces
+
+# German
+- id: mrl-german-wmt
+  langs: deu-eng
+  desc: "English - German, mimics WMT 2020 News Task"
+  train:
+    - Statmt-europarl-10-deu-eng
+    - ParaCrawl-paracrawl-9-eng-deu
+    - Statmt-commoncrawl_wmt13-1-deu-eng
+    - Statmt-news_commentary-15-deu-eng
+    - Tilde-rapid-2019-deu-eng
+    - OPUS-wikimatrix-1-deu-eng
+  dev:
+    - Statmt-newstest_deen-2018-deu-eng
+    - Statmt-newstest_ende-2018-eng-deu
+    - Statmt-newstest_deen-2017-deu-eng
+    - Statmt-newstest_ende-2017-eng-deu
+    - Statmt-newstest_ende-2016-eng-deu
+    - Statmt-newstest_deen-2016-deu-eng
+    - Statmt-newstest_deen-2015-deu-eng
+    - Statmt-newstest_ende-2015-eng-deu
+    - Statmt-newstest_deen-2014-deu-eng
+    - Statmt-newstest-2013-eng-deu
+    - Statmt-newstest-2012-eng-deu
+    - Statmt-newstest-2011-eng-deu
+    - Statmt-newstest-2010-eng-deu
+    - Statmt-newstest-2009-eng-deu
+  test:
+    - Statmt-newstestb_ende-2020-eng-deu
+    - Statmt-newstestb_deen-2020-deu-eng
+    - Statmt-newstest_ende-2020-eng-deu
+    - Statmt-newstest_deen-2020-deu-eng
+    - Statmt-newstest_ende-2019-eng-deu
+    - Statmt-newstest_deen-2019-deu-eng
+
+# Russian
+- id: mrl-russian-wmt
+  langs: rus-eng
+  desc: "English - Russian, mimics WMT 2020 News Task"
+  train:
+    - OPUS-paracrawl-7.1-eng-rus
+    - Statmt-ccaligned-1-eng-rus_RU
+    - Statmt-commoncrawl_wmt13-1-rus-eng
+    - Statmt-news_commentary-15-eng-rus
+    - OPUS-wikimatrix-1-eng-rus
+  test:
+    - Statmt-newstestb_ruen-2020-rus-eng
+    - Statmt-newstest_ruen-2020-rus-eng
+    - Statmt-newstest_enru-2020-eng-rus
+    - Statmt-newstest_enru-2019-eng-rus
+    - Statmt-newstest_ruen-2019-rus-eng
+  dev:
+    - Statmt-newstest_enru-2018-eng-rus
+    - Statmt-newstest_ruen-2018-rus-eng
+    - Statmt-newstest_enru-2017-eng-rus
+    - Statmt-newstest_ruen-2017-rus-eng
+    - Statmt-newstest_enru-2016-eng-rus
+    - Statmt-newstest_ruen-2016-rus-eng
+    - Statmt-newstest_ruen-2015-rus-eng
+    - Statmt-newstest_enru-2015-eng-rus
+    - Statmt-newstest_ruen-2014-rus-eng
+    - Statmt-newstest-2013-eng-rus
+    - Statmt-newstest-2012-eng-rus
+
+      #  TODO: Yandex corpus
+
+# Finnish
+- id: mrl-finnish-wmt
+  langs: eng-fin
+  desc: "English - Finnish, mimics WMT 2019 News Task"
+  train:
+    - Statmt-europarl-9-fin-eng
+    - ParaCrawl-paracrawl-9-eng-fin
+    - Tilde-rapid-2016-eng-fin
+    - Statmt-wiki_titles-1-fin-eng
+  dev:
+    - Statmt-newsdev_enfi-2015-eng-fin
+    - Statmt-newsdev_fien-2015-fin-eng
+    - Statmt-newstest_fien-2017-fin-eng
+    - Statmt-newstest_enfi-2017-eng-fin
+    - Statmt-newstest_fien-2016-fin-eng
+    - Statmt-newstest_enfi-2016-eng-fin
+    - Statmt-newstest_enfi-2015-eng-fin
+    - Statmt-newstest_fien-2015-fin-eng
+  test:
+    - Statmt-newstest_fien-2019-fin-eng
+    - Statmt-newstest_enfi-2019-eng-fin
+    - Statmt-newstest_fien-2018-fin-eng
+    - Statmt-newstest_enfi-2018-eng-fin
+
+# Estonian
+- id: mrl-estonian-wmt
+  langs: eng-est
+  desc: "English - Estonian, mimics WMT 2018 News Task"
+  train:
+    - ParaCrawl-paracrawl-9-eng-est
+    - Statmt-ccaligned-1-eng-est_EE
+    - Statmt-europarl-7-est-eng
+    - Tilde-rapid-2016-eng-est
+  dev:
+    - Statmt-newsdev_enet-2018-eng-est
+    - Statmt-newsdev_eten-2018-est-eng
+  test:
+    - Statmt-newstest_enet-2018-eng-est
+    - Statmt-newstest_eten-2018-est-eng
+
+# Inuktitut
+- id: mrl-inuktitut-wmt
+  langs: eng-iku
+  desc: "English - Inuktitut, Hansard corpus + WMT dev/test sets from 2020"
+  train:
+    - NRC_CA-nunavut_hansard_train-3-iku-eng
+  dev:
+    - NRC_CA-nunavut_hansard_dev-3-iku-eng
+    - NRC_CA-nunavut_hansard_devtest-3-iku-eng
+    - Statmt-newsdev_iuen-2020-iku-eng
+    - Statmt-newsdev_eniu-2020-eng-iku
+  test:
+    - NRC_CA-nunavut_hansard_test-3-iku-eng
+    - Statmt-newstest_iuen-2020-iku-eng
+    - Statmt-newstest_eniu-2020-eng-iku
+
+# Vietnamese
+- id: mrl-vietnamese
+  langs: ces-eng
+  desc: "English - Vietnamese, misc"
+  train:
+    - OPUS-ted2020-1-eng-vie
+    - Neulab-tedtalks_train-1-eng-vie
+    - Facebook-wikimatrix-1-eng-vie
+  dev:
+    - Neulab-tedtalks_dev-1-eng-vie
+  test:
+    - Neulab-tedtalks_test-1-eng-vie
