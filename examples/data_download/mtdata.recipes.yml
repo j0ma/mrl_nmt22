@@ -1,6 +1,6 @@
 # Czech
-- id: mrl-czech-wmt
-  langs: ces-eng
+- id: mrl-en-cs
+  langs: eng-ces
   desc: "English - Czech, mimics WMT 2020 News Task"
   train:
     - Statmt-europarl-10-ces-eng
@@ -30,8 +30,8 @@
     - Statmt-newstest_encs-2019-eng-ces
 
 # German
-- id: mrl-german-wmt
-  langs: deu-eng
+- id: mrl-en-de
+  langs: eng-deu
   desc: "English - German, mimics WMT 2020 News Task"
   train:
     - Statmt-europarl-10-deu-eng
@@ -64,8 +64,8 @@
     - Statmt-newstest_deen-2019-deu-eng
 
 # Russian
-- id: mrl-russian-wmt
-  langs: rus-eng
+- id: mrl-en-ru
+  langs: eng-rus
   desc: "English - Russian, mimics WMT 2020 News Task"
   train:
     - OPUS-paracrawl-7.1-eng-rus
@@ -95,7 +95,7 @@
       #  TODO: Yandex corpus
 
 # Finnish
-- id: mrl-finnish-wmt
+- id: mrl-en-fi
   langs: eng-fin
   desc: "English - Finnish, mimics WMT 2019 News Task"
   train:
@@ -119,7 +119,7 @@
     - Statmt-newstest_enfi-2018-eng-fin
 
 # Estonian
-- id: mrl-estonian-wmt
+- id: mrl-en-et
   langs: eng-est
   desc: "English - Estonian, mimics WMT 2018 News Task"
   train:
@@ -135,7 +135,7 @@
     - Statmt-newstest_eten-2018-est-eng
 
 # Inuktitut
-- id: mrl-inuktitut-wmt
+- id: mrl-en-iu
   langs: eng-iku
   desc: "English - Inuktitut, Hansard corpus + WMT dev/test sets from 2020"
   train:
@@ -151,8 +151,8 @@
     - Statmt-newstest_eniu-2020-eng-iku
 
 # Vietnamese
-- id: mrl-vietnamese
-  langs: ces-eng
+- id: mrl-en-vi
+  langs: eng-vie
   desc: "English - Vietnamese, misc"
   train:
     - OPUS-ted2020-1-eng-vie

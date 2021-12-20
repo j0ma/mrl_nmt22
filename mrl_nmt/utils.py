@@ -232,3 +232,42 @@ def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
     Path(source).expanduser().absolute().rename(
         target=Path(destination).expanduser().absolute()
     )
+
+def recursively_delete(path: Union[str, Path]):
+    path = Path(path)
+    for child in path.glob("*"):
+
+        # case 1/3: symlink
+        if child.is_symlink():
+            recursively_delete(child)
+
+        # case 2/3: file
+        elif child.is_file():
+            child.unlink(missing_ok=True)
+
+        # case 3/3: directory
+        elif child.is_dir():
+            recursively_delete(child)
+        else:
+            raise ValueError(f"Unknown file: child={child}")
+
+    # case 1: symlink
+    if path.is_symlink():
+
+        path = path.resolve()
+        if path.is_dir():
+            recursively_delete(path)
+        elif path.is_file() or path.is_symlink():
+            path.unlink(missing_ok=True)
+
+    # case 2: file
+    elif path.is_file():
+        path.unlink(missing_ok=True)
+
+    # case 3: directory
+    elif path.is_dir():
+        path.rmdir()
+
+    # case 4: ???
+    else:
+        raise ValueError(f"Unknown file: path={path}")
