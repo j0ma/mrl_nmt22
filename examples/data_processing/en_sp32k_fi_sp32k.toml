@@ -1,0 +1,57 @@
+same = "en_sp32k_fi_sp32k"
+lang_pairs = [ "en-fi",]
+
+[en-fi]
+src = "en"
+tgt = "fi"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k"
+data_bin_folder = "./data-bin/en-fi/en_sp32k_fi_sp32k"
+splits = [ "train", "dev",]
+
+[en-fi.train]
+input_base_path = "~/datasets/mrl_nmt22/fi/en-fi"
+
+[[en-fi.train.preprocessing_steps]]
+name = "process_fi"
+
+    [en-fi.train.preprocessing_steps.options]
+    split = "train"
+    en_output_level = "sentencepiece"
+    fi_output_level = "sentencepiece"
+
+        [en-fi.train.preprocessing_steps.options.sentencepiece_config.src]
+        vocab_size = 32000
+        use_pretrained_model = false
+        model_file = "en_sp32k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k"
+        input_sentence_size = 5000000
+        shuffle_input_sentence = true
+
+        [en-fi.train.preprocessing_steps.options.sentencepiece_config.tgt]
+        vocab_size = 32000
+        use_pretrained_model = false
+        model_file = "fi_sp32k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k"
+        input_sentence_size = 5000000
+        shuffle_input_sentence = true
+
+[en-fi.dev]
+input_base_path = "~/datasets/mrl_nmt22/fi/en-fi"
+
+[[en-fi.dev.preprocessing_steps]]
+name = "process_fi"
+
+    [en-fi.dev.preprocessing_steps.options]
+    split = "dev"
+    en_output_level = "sentencepiece"
+    fi_output_level = "sentencepiece"
+
+        [en-fi.dev.preprocessing_steps.options.sentencepiece_config.src]
+        use_pretrained_model = true
+        model_file = "en_sp32k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k"
+
+        [en-fi.dev.preprocessing_steps.options.sentencepiece_config.tgt]
+        use_pretrained_model = true
+        model_file = "fi_sp32k.bin"
+        model_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k"
