@@ -266,58 +266,16 @@ def process_cs(
     sentencepiece_config=None,
 ) -> crp.CorpusSplit:
 
-    if split == "train":
-        print("Loading CommonCrawl...")
-        commoncrawl_train = load_commoncrawl(
-            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
-        )
-        print("Loading ParaCrawl...")
-        paracrawl_train = load_paracrawl(
-            folder=input_base_folder, foreign_language="cs", split=split
-        )
-        print("Loading Europarl v10...")
-        europarl_train = load_europarl_v10(
-            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
-        )
-        print("Loading NewsCommentary...")
-        news_commentary_train = load_news_commentary(
-            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
-        )
-
-        print("Loading TILDE RAPID corpus...")
-        rapid_train = load_rapid_2019_xlf(
-            folder=input_base_folder, src_language="en", tgt_language="cs", split=split
-        )
-
-        print("Stacking everything together...")
-        out = crp.CorpusSplit.stack_corpus_splits(
-            corpus_splits=[
-                commoncrawl_train,
-                paracrawl_train,
-                europarl_train,
-                news_commentary_train,
-                rapid_train,
-            ],
-            split="train",
-        )
-
-    elif split == "dev":
-        print("Loading dev data from FLORES")
-        out = load_flores101_pair(
-            folder=input_base_folder, src_language="en", tgt_language="cs", split="dev"
-        )
-
-    else:
-        raise ValueError("Only train and dev sets supported!")
-
-    out = process_subwords(
-        out=out,
-        src_output_lvl=en_output_level,
-        tgt_output_lvl=cs_output_level,
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="cs",
+        src_output_level=en_output_level,
+        tgt_output_level=cs_output_level,
         sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
     )
-
-    return out
 
 
 def process_tr(
@@ -329,44 +287,16 @@ def process_tr(
     prefix="",
 ) -> crp.CorpusSplit:
 
-    # get train
-    print(f"[process_tr] Loading {split} corpus...")
-
-    if split == "train":
-        train_path = Path(f"{input_base_folder}/")
-        train_en = crp.LoadedTextFile(
-            train_path / "en-tr.en", side="src", language="en", load_to_memory=False
-        )
-        train_tr = crp.LoadedTextFile(
-            train_path / "en-tr.tr", side="tgt", language="tr", load_to_memory=False
-        )
-
-        print(f"[process_tr] Creating CorpusSplit...")
-        out = crp.CorpusSplit.from_src_tgt(
-            src=train_en, tgt=train_tr, split=split, verbose=True
-        )
-
-    elif split == "dev":
-        out = load_flores101_pair(
-            folder=input_base_folder,
-            src_language="en",
-            tgt_language="tr",
-            split=split,
-            prefix=prefix,
-        )
-
-    else:
-        raise ValueError("Only train and dev sets supported!")
-
-    print("[process_tr] Processing corpus into subword representations")
-    out = process_subwords(
-        out,
-        src_output_lvl=en_output_level,
-        tgt_output_lvl=tr_output_level,
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="tr",
+        src_output_level=en_output_level,
+        tgt_output_level=tr_output_level,
         sentencepiece_config=sentencepiece_config,
+        kind="til",
     )
-
-    return out
 
 
 def process_uz(
@@ -378,55 +308,92 @@ def process_uz(
     prefix="",
 ) -> crp.CorpusSplit:
 
-    if split == "train":
-        train_path = Path(f"{input_base_folder}/")
-        train_en = crp.LoadedTextFile(
-            train_path / "en-uz.en", side="src", language="en", load_to_memory=False
-        )
-        train_uz = crp.LoadedTextFile(
-            train_path / "en-uz.uz", side="tgt", language="uz", load_to_memory=False
-        )
-        out = crp.CorpusSplit.from_src_tgt(
-            src=train_en, tgt=train_uz, split=split, verbose=True
-        )
-
-        # get dev
-    elif split == "dev":
-        out = load_flores101_pair(
-            folder=input_base_folder,
-            src_language="en",
-            tgt_language="uz",
-            split="dev",
-            prefix=prefix,
-        )
-
-    else:
-        raise ValueError("Only train and dev sets supported!")
-
-    out = process_subwords(
-        out,
-        src_output_lvl=en_output_level,
-        tgt_output_lvl=uz_output_level,
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="uz",
+        src_output_level=en_output_level,
+        tgt_output_level=uz_output_level,
         sentencepiece_config=sentencepiece_config,
+        kind="til",
     )
 
-    return out
+
+def process_de(
+    input_base_folder,
+    split="train",
+    de_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+):
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="de",
+        src_output_level=en_output_level,
+        tgt_output_level=de_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+    )
 
 
-def process_de():
-    pass
+def process_fi(
+    input_base_folder,
+    split="train",
+    fi_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+):
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="fi",
+        src_output_level=en_output_level,
+        tgt_output_level=fi_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+    )
 
 
-def process_fi():
-    pass
+def process_iu(
+    input_base_folder,
+    split="train",
+    iu_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+):
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="iu",
+        src_output_level=en_output_level,
+        tgt_output_level=iu_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+    )
 
 
-def process_iu():
-    pass
-
-
-def process_ru():
-    pass
+def process_ru(
+    input_base_folder,
+    split="train",
+    ru_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+):
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="ru",
+        src_output_level=en_output_level,
+        tgt_output_level=ru_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+    )
 
 
 ####
