@@ -8,6 +8,7 @@ import unicodedata as ud
 import csv
 
 import attr
+import pycountry
 import toml
 
 SPACE_SYMBOL = "﹏"
@@ -232,6 +233,21 @@ def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
     Path(source).expanduser().absolute().rename(
         target=Path(destination).expanduser().absolute()
     )
+
+
+def get_long_lang_name(language: str) -> str:
+    return {
+        "cs": "ces",
+        "de": "deu",
+        "en": "eng",
+        "fi": "fin",
+        "et": "est",
+        "uz": "uzb",
+        "tr": "tur",
+        "iu": "iku",
+        "ru": "rus",
+        "vi": "vie",
+    }.get(language, pycountry.languages.lookup(language).alpha_3)
 
 
 def recursively_delete(path: Union[str, Path]):

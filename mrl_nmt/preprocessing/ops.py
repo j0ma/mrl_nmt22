@@ -205,6 +205,59 @@ def process_subwords(
     return out
 
 
+def process_download(
+    input_base_folder,
+    src_lang,
+    tgt_lang,
+    split="train",
+    src_output_level="word",
+    tgt_output_level="word",
+    sentencepiece_config=None,
+    kind="mtdata",
+) -> crp.CorpusSplit:
+    """Processes TIL / MTData download into a CorpusSplit object"""
+
+    downloads = Path(input_base_folder) / "download"
+
+    if split == "test":
+        raise NotImplementedError("TODO: implement loading of several test sets")
+
+    if kind == "til":
+        pair = f"{src_lang}-{tgt_lang}"
+        src_path, tgt_path = (
+            downloads / split / pair / f"{pair}.{src_lang}",
+            downloads / split / pair / f"{pair}.{tgt_lang}",
+        )
+    elif kind == "mtdata":
+        src_lang_long, tgt_lang_long = u.get_long_lang_name(
+            src_lang
+        ), u.get_long_lang_name(tgt_lang)
+        src_path, tgt_path = (
+            downloads / f"{split}.{src_lang_long}",
+            downloads / f"{split}.{tgt_lang_long}",
+        )
+    else:
+        raise ValueError(f"Expected kind=mtdata or til but got {kind}")
+
+    f_src = crp.LoadedTextFile(
+        path=src_path, side="src", load_to_memory=False, language=src_lang
+    )
+    f_tgt = crp.LoadedTextFile(
+        path=tgt_path, side="tgt", load_to_memory=False, language=tgt_lang
+    )
+
+    out = crp.CorpusSplit.from_src_tgt(f_src, f_tgt, split=split)
+
+    out = process_subwords(
+        out=out,
+        src_output_lvl=src_output_level,
+        tgt_output_lvl=tgt_output_level,
+        sentencepiece_config=sentencepiece_config,
+    )
+
+    return out
+
+
 def process_cs(
     input_base_folder,
     split="train",
