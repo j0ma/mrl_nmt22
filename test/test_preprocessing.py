@@ -63,6 +63,8 @@ FULL_EN_UZ_PATH = FULL_DATA_PATH / "uz" / "en-uz"
 
 # Constants
 N_LINES_FLORES101_DEV = 997
+N_LINES_TR_WMT_DEV = 5000
+N_LINES_UZ_WMT_DEV = 2500
 N_LINES_PARACRAWL = 14083311
 N_LINES_EN_TR_TRAIN = 35879592
 N_LINES_EN_UZ_TRAIN = 529574
@@ -468,9 +470,7 @@ class TestCorpusSplit(unittest.TestCase):
         with td:
             td_path = Path(td.name)
 
-            print(
-                f"[test_can_write_detokenized_lines] Writing lines to folder: {td_path}"
-            )
+            print(f"[check_write_to_disk] Writing lines to folder: {td_path}")
             cs.write_to_disk(
                 folder=td_path,
                 write_detok_lines=True,
@@ -501,6 +501,7 @@ class TestCorpusSplit(unittest.TestCase):
             src_detok, tgt_detok = u.get_line_from_dict(dtl)
             self.assertEqual(src_detok, src_postprocessor(src))
 
+    @unittest.skip(reason="TODO: refactor")
     def test_can_write_detokenized_lines_char_char(self):
 
         # Then apply preprocessing and convert both to char lvl
@@ -518,6 +519,7 @@ class TestCorpusSplit(unittest.TestCase):
 
         self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
 
+    @unittest.skip(reason="TODO: refactor")
     def test_can_write_detokenized_lines_sp_sp(self):
 
         cs = pp.ops.process_subwords(
@@ -534,6 +536,7 @@ class TestCorpusSplit(unittest.TestCase):
 
         self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
 
+    @unittest.skip(reason="TODO: refactor")
     def test_can_write_detokenized_lines_sp_char(self):
 
         cs = pp.ops.process_subwords(
@@ -555,6 +558,7 @@ class TestCorpusSplit(unittest.TestCase):
 
         self.check_write_to_disk(cs=cs, src_lang_code="fi", tgt_lang_code="sv")
 
+    @unittest.skip(reason="TODO: refactor")
     def test_can_write_detokenized_lines_char_sp(self):
 
         cs = pp.ops.process_subwords(
@@ -676,6 +680,7 @@ class TestPreprocessingOps(unittest.TestCase):
             src=multi_corpus, tgt=en_corpus, split="train"
         )
 
+    @unittest.skip("Deprecated in favor of MTData")
     def test_load_commoncrawl(self):
         cc = mrl_nmt.preprocessing.ops.load_commoncrawl(
             folder=prefix / "data", src_language="cs", tgt_language="en"
@@ -744,10 +749,7 @@ class TestPreprocessingOps(unittest.TestCase):
             for d in corpus.lines
         )
 
-    @unittest.skipIf(
-        condition=not FULL_EN_CS_PATH.exists(),
-        reason=f"{FULL_EN_CS_PATH} not found!",
-    )
+    @unittest.skip("Deprecated in favor of MTData")
     def test_load_paracrawl(self):
         pc = mrl_nmt.preprocessing.ops.load_paracrawl(
             folder=FULL_EN_CS_PATH, foreign_language="cs"
@@ -760,10 +762,7 @@ class TestPreprocessingOps(unittest.TestCase):
 
         self.assertEqual(N_LINES_PARACRAWL, line_count)
 
-    @unittest.skipIf(
-        condition=not FULL_EN_CS_PATH.exists(),
-        reason=f"{FULL_EN_CS_PATH} not found!",
-    )
+    @unittest.skip("Deprecated in favor of MTData")
     def test_stack_corpus_splits_num_lines_simple(self):
         def load(input_base_folder):
             news_commentary_train = pp.ops.load_news_commentary(
@@ -798,8 +797,8 @@ class TestPreprocessingOps(unittest.TestCase):
 
 class TestParallelCorpusStats(unittest.TestCase):
     @unittest.skipIf(
-        condition=(not TUR_DEV.exists()),
-        reason="EN-TR dev data not found.",
+        condition=not FULL_EN_TR_PATH.exists(),
+        reason="English - Turkish data not found",
     )
     def test_en_tr_dev_size(self):
         """EN-TR dev data contains the correct number of lines, regardless of preprocessing"""
@@ -821,28 +820,30 @@ class TestParallelCorpusStats(unittest.TestCase):
         for src_lvl, tgt_lvl in zip(levels, levels):
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_tr_corpus = ops.process_tr(
-                    input_base_folder=prefix / "data",
+                    input_base_folder=FULL_EN_TR_PATH,
                     split="dev",
                     en_output_level=src_lvl,
                     tr_output_level=tgt_lvl,
-                    prefix="flores101_",
+                    prefix="",
                     sentencepiece_config=sp_conf,
+                    detokenized_output_path="/tmp/tr_detok_test/",
                 )
                 line_count = 0
                 for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
-                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+                self.assertEqual(N_LINES_TR_WMT_DEV, line_count)
             else:
                 # NOTE: this will fail once morph processing implemented
                 with self.assertRaises(NotImplementedError):
                     en_tr_corpus = ops.process_tr(
-                        input_base_folder=prefix / "data",
+                        input_base_folder=FULL_EN_TR_PATH,
                         split="dev",
                         en_output_level=src_lvl,
                         tr_output_level=tgt_lvl,
-                        prefix="flores101_",
+                        prefix="",
                         sentencepiece_config=sp_conf,
+                        detokenized_output_path="/tmp/tr_detok_test/",
                     )
 
     @unittest.skipIf(condition=SKIP_LARGE_TESTS, reason="SKIP_LARGE_TESTS=True")
@@ -894,6 +895,9 @@ class TestParallelCorpusStats(unittest.TestCase):
                         sentencepiece_config=sp_conf,
                     )
 
+    @unittest.skipIf(
+        condition=not FULL_EN_UZ_PATH.exists(), reason="English - Uzbek data not found"
+    )
     def test_en_uz_dev_size(self):
         """EN-UZ dev data contains the correct number of lines, regardless of preprocessing"""
 
@@ -914,28 +918,29 @@ class TestParallelCorpusStats(unittest.TestCase):
         for src_lvl, tgt_lvl in zip(levels, levels):
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_uz_corpus = ops.process_uz(
-                    input_base_folder=prefix / "data",
+                    input_base_folder=FULL_EN_UZ_PATH,
                     split="dev",
                     en_output_level=src_lvl,
                     uz_output_level=tgt_lvl,
-                    prefix="flores101_",
                     sentencepiece_config=sp_conf,
+                    detokenized_output_path="/tmp/uz_detok_test/",
                 )
                 line_count = 0
                 for _ in tqdm(en_uz_corpus.lines):
                     line_count += 1
 
-                self.assertEqual(N_LINES_FLORES101_DEV, line_count)
+                self.assertEqual(N_LINES_UZ_WMT_DEV, line_count)
             else:
                 # NOTE: this will fail once morph processing implemented
                 with self.assertRaises(NotImplementedError):
                     en_uz_corpus = ops.process_uz(
-                        input_base_folder=prefix / "data",
+                        input_base_folder=FULL_EN_UZ_PATH,
                         split="dev",
                         en_output_level=src_lvl,
                         uz_output_level=tgt_lvl,
-                        prefix="flores101_",
+                        prefix="",
                         sentencepiece_config=sp_conf,
+                        detokenized_output_path="/tmp/uz_detok_test/",
                     )
 
     @unittest.skipIf(condition=SKIP_LARGE_TESTS, reason="SKIP_LARGE_TESTS=True")

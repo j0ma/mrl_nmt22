@@ -259,14 +259,7 @@ class MosesCleanCorpusNProcessor:
         self.cmd = str(self.moses_scripts_path / "training/clean-corpus-n.perl")
 
     def process_corpus_split(self, cs: CorpusSplit) -> CorpusSplit:
-        """Filter lines in a CorpusSplit object.
-
-        NOTE: intended to be used before any subword tokenization
-        i.e. cs.detok_lines should not exist.
-        """
-        _msg = f"Corpus line filtering only supported with unmodified corpora whose .detok_lines = None!"
-        assert not cs.detok_lines, _msg
-
+        """Filter lines in a CorpusSplit object."""
         split = cs.split
         src_lang = cs.src_lang
         tgt_lang = cs.tgt_lang
@@ -278,9 +271,7 @@ class MosesCleanCorpusNProcessor:
             tmp_prefix_out = "corpus_clean"
 
             # write lines to temporary directory
-            cs.write_to_disk(
-                folder=temp_dir_path, prefix=tmp_prefix_in, write_detok_lines=False
-            )
+            cs.write_to_disk(folder=temp_dir_path, prefix=tmp_prefix_in)
 
             src_input_file = temp_dir_path / f"{tmp_prefix_in}.{src_lang}"
             tgt_input_file = temp_dir_path / f"{tmp_prefix_in}.{tgt_lang}"

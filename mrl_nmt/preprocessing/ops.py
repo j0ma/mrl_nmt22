@@ -5,6 +5,7 @@ from typing import Union, Iterable, Optional, Dict, Any
 import math
 import itertools as it
 
+from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 from tqdm import tqdm
 
@@ -214,6 +215,8 @@ def process_download(
     tgt_output_level="word",
     sentencepiece_config=None,
     kind="mtdata",
+    write_detokenized=False,
+    detokenized_output_path="",
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
@@ -247,6 +250,20 @@ def process_download(
     )
 
     out = crp.CorpusSplit.from_src_tgt(f_src, f_tgt, split=split)
+
+    if write_detokenized:
+        moses = MosesDetokenizer()
+
+        for f, lang in [(f_src, src_lang), (f_tgt, tgt_lang)]:
+            output_path = Path(
+                f"{detokenized_output_path}/{src_lang}-{tgt_lang}.{split}.detok.{lang}"
+            )
+            if not output_path.parent.exists():
+                output_path.parent.mkdir(exist_ok=True, parents=True)
+            u.write_lines(
+                path=output_path,
+                lines=(moses.detokenize(l.split(" ")) for l in f.stream_lines),
+            )
 
     out = process_subwords(
         out=out,
@@ -285,6 +302,7 @@ def process_tr(
     en_output_level="word",
     sentencepiece_config=None,
     prefix="",
+    detokenized_output_path="",
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -296,6 +314,8 @@ def process_tr(
         tgt_output_level=tr_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="til",
+        write_detokenized=True,
+        detokenized_output_path=detokenized_output_path,
     )
 
 
@@ -306,6 +326,7 @@ def process_uz(
     en_output_level="word",
     sentencepiece_config=None,
     prefix="",
+    detokenized_output_path="",
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -317,6 +338,8 @@ def process_uz(
         tgt_output_level=uz_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="til",
+        write_detokenized=True,
+        detokenized_output_path=detokenized_output_path,
     )
 
 
@@ -469,9 +492,7 @@ def duplicate_lines(
     )
 
 
-def convert_to_chars(
-    corpus: crp.CorpusSplit, side: str, with_detok_lines: bool = True
-) -> crp.CorpusSplit:
+def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
     """Converts one side of corpus to characters."""
 
     def to_char_level(s: str, space_symbol: str = SPACE_SYMBOL) -> str:
@@ -481,29 +502,18 @@ def convert_to_chars(
         line_dict: Dict[str, Optional[Dict[str, str]]], side: str
     ) -> Dict[str, Optional[Dict[str, str]]]:
 
-        new_ld = copy.deepcopy(line_dict)
+        new_ld = line_dict.copy()
 
         new_ld[side]["text"] = to_char_level(new_ld[side]["text"])
 
         return new_ld
 
-    ## TODO: find a way to get around this loading to RAM
-
-    if corpus.detok_lines:
-        detok_lines = corpus.detok_lines
-        orig_lines = corpus.lines
-    else:
-        detok_lines = list(corpus.lines)
-        orig_lines = list(detok_lines)
-    char_lines = [lines_as_chars(ld, side=side) for ld in orig_lines]
-
     return crp.CorpusSplit(
-        lines=char_lines,
+        lines=(lines_as_chars(ld, side=side) for ld in corpus.lines),
         split=corpus.split,
         src_lang=corpus.src_lang,
         tgt_lang=corpus.tgt_lang,
         verbose=corpus.verbose,
-        detok_lines=detok_lines,
     )
 
 
@@ -527,25 +537,7 @@ def process_with_sentencepiece(
     """
     model_file_is_correct = bool(str(model_file))
 
-    # load lines to RAM (sad)
     other_side = "src" if side == "tgt" else "tgt"
-    lines = []
-    lines_str = []
-    other_side_lines = []
-    detok_line_dicts = []
-    line_count = 0
-
-    for ld, dtld in it.zip_longest(corpus.lines, corpus.detok_lines):
-        detok_line_dicts.append(dtld or ld)
-        side_ld = ld[side]
-        lines.append(side_ld)
-        lines_str.append(side_ld["text"])
-        other_side_lines.append(ld[other_side])
-        line_count += 1
-
-    assert len(lines) == len(
-        other_side_lines
-    ), f"Line length mismatch: {len(lines)} ({side}) != {len(other_side_lines)} ({other_side})"
 
     model_file = (Path(model_base_path) / Path(model_file)).expanduser()
 
@@ -558,7 +550,21 @@ def process_with_sentencepiece(
         print(f"Applying SP model from {model_file}...")
         sp = spm.SentencePieceProcessor(model_file=model_file)
 
+        # Don't load to RAM if don't have to
+        lines = corpus.lines
+
     else:
+
+        # This loading to RAM is minimal since SP training needs it
+        lines_str = []
+        lines = []
+        line_count = 0
+
+        for ld in corpus.lines:
+            side_ld = ld[side]
+            lines.append(ld)
+            lines_str.append(side_ld["text"])
+            line_count += 1
 
         # create a BytesIO object to hold the model
         model = io.BytesIO()
@@ -584,29 +590,21 @@ def process_with_sentencepiece(
         # apply the model to text
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
-    def final_lines(sp, lines, other_side_lines, line_count):
+    def final_lines(sp, lines):
         print(f"[process_with_sentencepiece] Outputting final lines...")
 
-        for side_line_dict, other_line_dict in tqdm(
-            zip(lines, other_side_lines), total=line_count
-        ):
+        for line_dict in tqdm(lines):
+            side_line_dict = line_dict[side]
 
+            # TODO: can this be changed to calling sp.encode with an iterable?
             new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
+
             sld = side_line_dict.copy()
             sld["text"] = new_line
 
-            yield {side: sld, other_side: other_line_dict}
+            yield {side: sld, other_side: line_dict[other_side]}
 
-    output = list(final_lines(sp, lines, other_side_lines, line_count))
-
-    if corpus.detok_lines:
-        detok_lines = corpus.detok_lines
-    else:
-        detok_lines = detok_line_dicts
-
-    assert (
-        len(output) == len(lines) == line_count
-    ), "Line length mismatch: {len(lines)} (before) != {len(output)} (after)"
+    output = final_lines(sp, lines)
 
     return crp.CorpusSplit(
         lines=output,
@@ -614,5 +612,4 @@ def process_with_sentencepiece(
         tgt_lang=corpus.tgt_lang,
         split=corpus.split,
         verbose=corpus.verbose,
-        detok_lines=detok_line_dicts,
     )
