@@ -275,6 +275,29 @@ def process_download(
     return out
 
 
+def process_vi(
+    input_base_folder,
+    split="train",
+    vi_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+    detokenized_output_path="",
+) -> crp.CorpusSplit:
+
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="vi",
+        src_output_level=en_output_level,
+        tgt_output_level=vi_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+        write_detokenized=True,
+        detokenized_output_path=detokenized_output_path,
+    )
+
+
 def process_cs(
     input_base_folder,
     split="train",
