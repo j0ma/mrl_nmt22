@@ -206,8 +206,11 @@ class Postprocessor:
     def sp_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
-        tokens = [t for t in s.split(" ")]
-        out = "".join(tokens).replace(u.SP_BOW_SYMBOL, " ").lstrip()
+        if not s:
+            out = ""
+        else:
+            tokens = [t for t in s.split(" ")]
+            out = "".join(tokens).replace(u.SP_BOW_SYMBOL, " ").lstrip()
 
         if self.verbose:
             print(f"Post-processed: {out}")
@@ -217,7 +220,10 @@ class Postprocessor:
     def chars_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
-        out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
+        if not s:
+            out = ""
+        else:
+            out = s.replace(" ", "").replace(u.SPACE_SYMBOL, " ")
 
         if self.verbose:
             print(f"Post-processed: {out}")

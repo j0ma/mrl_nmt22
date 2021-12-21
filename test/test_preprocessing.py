@@ -878,6 +878,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     en_output_level=src_lvl,
                     tr_output_level=tgt_lvl,
                     sentencepiece_config=sp_conf,
+                    detokenized_output_path="/tmp/tr_detok_test/",
                 )
                 line_count = 0
                 for _ in tqdm(en_tr_corpus.lines):
@@ -893,6 +894,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                         en_output_level=src_lvl,
                         tr_output_level=tgt_lvl,
                         sentencepiece_config=sp_conf,
+                        detokenized_output_path="/tmp/tr_detok_test/",
                     )
 
     @unittest.skipIf(
@@ -973,6 +975,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     en_output_level=src_lvl,
                     uz_output_level=tgt_lvl,
                     sentencepiece_config=sp_conf,
+                    detokenized_output_path="/tmp/uz_detok_test/",
                 )
                 line_count = 0
                 for _ in tqdm(en_uz_corpus.lines):
@@ -988,6 +991,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                         en_output_level=src_lvl,
                         uz_output_level=tgt_lvl,
                         sentencepiece_config=sp_conf,
+                        detokenized_output_path="/tmp/uz_detok_test/",
                     )
 
 

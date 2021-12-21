@@ -8,6 +8,7 @@ import unicodedata as ud
 import csv
 
 import attr
+from tqdm import tqdm
 import pycountry
 import toml
 
@@ -171,7 +172,7 @@ def write_lines(
     should_strip: bool = False,
 ) -> None:
     with open(path, mode="w", encoding="utf-8") as fout:
-        for line in lines:
+        for line in tqdm(lines):
             if should_strip:
                 line = line.strip()
             if not check_empty or line.strip():

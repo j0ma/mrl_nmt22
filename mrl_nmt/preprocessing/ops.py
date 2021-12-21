@@ -242,29 +242,37 @@ def process_download(
     else:
         raise ValueError(f"Expected kind=mtdata or til but got {kind}")
 
+    print(f"Loading src text file from {src_path}")
     f_src = crp.LoadedTextFile(
         path=src_path, side="src", load_to_memory=False, language=src_lang
     )
+    print(f"Loading tgt text file from {src_path}")
     f_tgt = crp.LoadedTextFile(
         path=tgt_path, side="tgt", load_to_memory=False, language=tgt_lang
     )
 
-    out = crp.CorpusSplit.from_src_tgt(f_src, f_tgt, split=split)
+    print("Creating corpus split...")
+    out = crp.CorpusSplit.from_src_tgt(f_src, f_tgt, split=split, verbose=True)
 
     if write_detokenized:
         moses = MosesDetokenizer()
 
+        detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
+        if not detokenized_output_path.exists():
+            print(f"Creating folder: {detokenized_output_path}")
+            detokenized_output_path.mkdir(exist_ok=True, parents=True)
+
         for f, lang in [(f_src, src_lang), (f_tgt, tgt_lang)]:
-            output_path = Path(
-                f"{detokenized_output_path}/{src_lang}-{tgt_lang}.{split}.detok.{lang}"
+            output_path = (
+                detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{lang}"
             )
-            if not output_path.parent.exists():
-                output_path.parent.mkdir(exist_ok=True, parents=True)
+            print(f"Writing detokenized lines to {output_path}")
             u.write_lines(
                 path=output_path,
                 lines=(moses.detokenize(l.split(" ")) for l in f.stream_lines),
             )
 
+    print("Processing subwords...")
     out = process_subwords(
         out=out,
         src_output_lvl=src_output_level,
