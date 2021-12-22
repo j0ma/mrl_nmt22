@@ -44,6 +44,8 @@ RAW_DATA_FOLDER="${EXPERIMENT_FOLDER}/raw_data"
 RAW_GOLD_DEFAULT="${RAW_DATA_FOLDER}/${SRC_LANG}-${TGT_LANG}.${MODE}.detok.${TGT_LANG}"
 RAW_GOLD=${17:-$RAW_GOLD_DEFAULT}
 
+USE_CPU=${18}
+
 echo "DATA_BIN_FOLDER=${DATA_BIN_FOLDER}"
 echo "CHECKPOINT_FOLDER=${CHECKPOINT_FOLDER}"
 echo "MODE=${MODE}"
@@ -99,6 +101,8 @@ evaluate() {
 	shift
 	local -r DETOKENIZE_REFCLEAN="$1"
 	shift
+	local -r USE_CPU="$1"
+	shift
 
 	echo "seed = ${SEED}"
 
@@ -110,7 +114,12 @@ evaluate() {
 		echo "Changed checkpoint file to: ${CHECKPOINT_FILE}"
 	fi
 
-
+    # Check for CPU usage
+    if [[ -z "${USE_CPU}" ]]; then
+        CPU_FLAG=""
+    else
+        CPU_FLAG="--cpu"
+    fi
 
 	# Fairseq insists on calling the dev-set "valid"; hack around this.
 	local -r FAIRSEQ_MODE="${MODE/dev/valid}"
@@ -136,6 +145,7 @@ evaluate() {
 	# Make raw predictions
 	CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
 		"${DATA_BIN_FOLDER}" \
+        ${CPU_FLAG} \
 		--source-lang="${SRC_LANG}" \
 		--target-lang="${TGT_LANG}" \
 		--path="${CHECKPOINT_FILE}" \
@@ -189,4 +199,4 @@ evaluate() {
 	cat "${SCORE}"
 }
 
-evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING_SRC}" "${REMOVE_PREPROCESSING_HYP}" "${REMOVE_PREPROCESSING_REF}" "${REMOVE_PREPROCESSING_REFCLEAN}" "${DETOKENIZE_SRC}" "${DETOKENIZE_HYP}" "${DETOKENIZE_REF}" "${DETOKENIZE_REFCLEAN}"
+evaluate "${DATA_BIN_FOLDER}" "${EXPERIMENT_FOLDER}" "${CHECKPOINT_FOLDER}" "${MODE}" "${BEAM}" "${SEED}"  "${SRC_LANG}" "${TGT_LANG}" "${RAW_GOLD}" "${REMOVE_PREPROCESSING_SRC}" "${REMOVE_PREPROCESSING_HYP}" "${REMOVE_PREPROCESSING_REF}" "${REMOVE_PREPROCESSING_REFCLEAN}" "${DETOKENIZE_SRC}" "${DETOKENIZE_HYP}" "${DETOKENIZE_REF}" "${DETOKENIZE_REFCLEAN}" "${USE_CPU}"
