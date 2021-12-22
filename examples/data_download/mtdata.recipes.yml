@@ -102,7 +102,6 @@
     - Statmt-europarl-9-fin-eng
     - ParaCrawl-paracrawl-9-eng-fin
     - Tilde-rapid-2016-eng-fin
-    - Statmt-wiki_titles-1-fin-eng
   dev:
     - Statmt-newsdev_enfi-2015-eng-fin
     - Statmt-newsdev_fien-2015-fin-eng
