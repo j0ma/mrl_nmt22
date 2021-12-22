@@ -208,6 +208,17 @@
 # Transformer ops
 - model: nmt
   operations:
+    remove_experiment:
+      description: "Remove an experiment by deleting its corresponding folder in experiments/ and checkpoints/"
+      exec: "bash scripts/remove_experiment.sh ${experiment_name}"
+      flags:
+        experiment_name:
+          type: string
+          required: true
+      requires:
+        - file: checkpoints
+        - file: experiments
+        - file: scripts
     prep_experiment:
       description: "Prepares an experiment folder for an MT experiment"
       exec: "bash scripts/prep_experiment.sh ${experiment_name} ${raw_data_folder} ${bin_data_folder} ${model_name}"

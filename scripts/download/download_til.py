@@ -44,7 +44,7 @@ def download_url(url, save_path):
     try:
         os.system(f"gsutil -m cp -r {url} {save_path}")
     except CommandException as e:
-        print("Requested test files are not found!")
+        raise IOError("Requested test files are not found!")
 
 
 def unzip(path_to_zip_file, directory_to_extract_to):
