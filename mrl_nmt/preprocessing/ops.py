@@ -9,11 +9,13 @@ from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 from tqdm import tqdm
 
+import mrl_nmt.preprocessing as pp
 import mrl_nmt.preprocessing.corpora as crp
 import mrl_nmt.utils as u
 from mrl_nmt.utils import SPACE_SYMBOL
 
-OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char"}
+OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char", "bpe"}
+MOSES_DEFAULTS = {"min_len": 1, "max_len": 80, "ratio": 9}
 
 #### Language pair/dataset specific ops
 
@@ -189,7 +191,7 @@ def process_subwords(
             f'[process_subwords] Processing {side} side into output level "{output_level}"'
         )
 
-        if output_level == "sentencepiece":
+        if output_level in ["sentencepiece", "bpe"]:
             if not sentencepiece_config or side not in sentencepiece_config:
                 raise ValueError(
                     "SentencePiece requires a config dictionary with src and tgt as the top level keys. "
@@ -217,8 +219,13 @@ def process_download(
     kind="mtdata",
     write_detokenized=False,
     detokenized_output_path="",
+    use_clean_corpus_n_perl=False,
+    moses_config=None,
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
+
+    if not use_clean_corpus_n_perl and not moses_config:
+        moses_config = MOSES_DEFAULTS
 
     downloads = Path(input_base_folder) / "download"
 
@@ -242,13 +249,31 @@ def process_download(
     else:
         raise ValueError(f"Expected kind=mtdata or til but got {kind}")
 
+    if use_clean_corpus_n_perl:
+        cleaner = pp.MosesCleanCorpusNProcessor(**moses_config)
+
+        src_path_clean = f"{src_path}.clean"
+        tgt_path_clean = f"{tgt_path}.clean"
+        print("[process_download] Cleaning corpus using clean-corpus-n.perl...")
+
+        cleaner.process_files(
+            src_input_file=src_path,
+            tgt_input_file=tgt_path,
+            src_output_file=src_path_clean,
+            tgt_output_file=tgt_path_clean,
+        )
+
+        p_src, p_tgt = src_path_clean, tgt_path_clean
+    else:
+        p_src, p_tgt = src_path, tgt_path
+
     print(f"Loading src text file from {src_path}")
     f_src = crp.LoadedTextFile(
-        path=src_path, side="src", load_to_memory=False, language=src_lang
+        path=p_src, side="src", load_to_memory=False, language=src_lang
     )
     print(f"Loading tgt text file from {src_path}")
     f_tgt = crp.LoadedTextFile(
-        path=tgt_path, side="tgt", load_to_memory=False, language=tgt_lang
+        path=p_tgt, side="tgt", load_to_memory=False, language=tgt_lang
     )
 
     print("Creating corpus split...")
@@ -557,6 +582,7 @@ def process_with_sentencepiece(
     model_base_path: Union[str, Path] = "/tmp",
     input_sentence_size: int = 0,
     shuffle_input_sentence: bool = False,
+    model_type: str = "unigram",
 ) -> crp.CorpusSplit:
     """Process one side of a CorpusSplit with SentencePiece
 
@@ -608,6 +634,7 @@ def process_with_sentencepiece(
             shuffle_input_sentence=shuffle_input_sentence,
             remove_extra_whitespaces=False,
             normalization_rule_name="identity",
+            model_type=model_type,
         )
 
         if model_file_is_correct:

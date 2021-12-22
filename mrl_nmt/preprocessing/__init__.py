@@ -264,8 +264,17 @@ class MosesCleanCorpusNProcessor:
 
         self.cmd = str(self.moses_scripts_path / "training/clean-corpus-n.perl")
 
-    def process_corpus_split(self, cs: CorpusSplit) -> CorpusSplit:
-        """Filter lines in a CorpusSplit object."""
+    def process_corpus_split(
+        self, cs: CorpusSplit, load_to_memory: bool = False
+    ) -> CorpusSplit:
+        """Filter lines in a CorpusSplit object.
+
+        Note: this method handles the general case where the Moses script is applied
+        to a CorpusSplit at an arbitrary point in a processing pipeline. Instead of
+        loading a CorpusSplit from disk and calling this right after, consider simply
+        processing the files first and then creating a CorpusSplit object.
+        """
+
         split = cs.split
         src_lang = cs.src_lang
         tgt_lang = cs.tgt_lang
@@ -296,13 +305,13 @@ class MosesCleanCorpusNProcessor:
                 path=src_output_file,
                 side="src",
                 language=src_lang,
-                load_to_memory=True,
+                load_to_memory=load_to_memory,
             )
             tgt_clean = LoadedTextFile(
                 path=tgt_output_file,
                 side="tgt",
                 language=tgt_lang,
-                load_to_memory=True,
+                load_to_memory=load_to_memory,
             )
             new_cs = CorpusSplit.from_src_tgt(
                 src=src_clean, tgt=tgt_clean, split=split, verbose=verbose
