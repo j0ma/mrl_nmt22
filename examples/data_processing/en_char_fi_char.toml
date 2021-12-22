@@ -1,0 +1,32 @@
+same = "en_char_fi_char"
+lang_pairs = [ "en-fi",]
+
+[en-fi]
+src = "en"
+tgt = "fi"
+output_base_path = "~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char"
+data_bin_folder = "./data-bin/en-fi/en_char_fi_char"
+splits = [ "train", "dev",]
+
+[en-fi.train]
+input_base_path = "~/datasets/mrl_nmt22/fi/en-fi"
+
+[[en-fi.train.preprocessing_steps]]
+name = "process_fi"
+
+    [en-fi.train.preprocessing_steps.options]
+    split = "train"
+    en_output_level = "char"
+    fi_output_level = "char"
+
+
+[en-fi.dev]
+input_base_path = "~/datasets/mrl_nmt22/fi/en-fi"
+
+[[en-fi.dev.preprocessing_steps]]
+name = "process_fi"
+
+    [en-fi.dev.preprocessing_steps.options]
+    split = "dev"
+    en_output_level = "char"
+    fi_output_level = "char"
