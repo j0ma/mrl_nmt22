@@ -2,7 +2,17 @@ import itertools
 import subprocess
 import sys
 from io import StringIO
-from typing import Union, Iterable, Dict, Any, Sequence, Generator, TextIO
+from typing import (
+    Union,
+    Iterable,
+    Dict,
+    Any,
+    Sequence,
+    Generator,
+    TextIO,
+    Callable,
+    Hashable,
+)
 from pathlib import Path
 import unicodedata as ud
 import csv
@@ -10,6 +20,7 @@ import csv
 import attr
 from tqdm import tqdm
 import pycountry
+import yaml
 import toml
 
 SPACE_SYMBOL = "﹏"
@@ -28,6 +39,7 @@ class CustomDictReader:
 
     def process_line(self, line: str, it=None) -> Dict[str, str]:
         out = {}
+
         for fn, item in itertools.zip_longest(
             self.field_names, line.split(self.delimiter)
         ):
@@ -103,6 +115,7 @@ def read_tsv_dict_ram(
         else:
             reader = csv.DictReader(f=fin, fieldnames=field_names, delimiter=delimiter)
         lines = [ld for ld in reader]
+
         return lines[1:] if skip_header else lines
 
 
@@ -123,6 +136,7 @@ def read_tsv_dict_stream(
 
         if skip_header:
             next(reader, None)
+
         for line in reader:
             yield line
 
@@ -151,6 +165,7 @@ def read_tsv_list_ram(
     with open(path, encoding="utf-8") as fin:
         r = csv.reader(fin, delimiter=delimiter)
         lines = [ld for ld in r]
+
         return lines[1:] if skip_header else lines
 
 
@@ -161,6 +176,7 @@ def read_tsv_list_stream(
 ) -> Iterable[Sequence[str]]:
     with open(path, encoding="utf-8") as fin:
         r = csv.reader(fin, delimiter=delimiter)
+
         for line in r:
             yield line
 
@@ -175,23 +191,9 @@ def write_lines(
         for line in tqdm(lines):
             if should_strip:
                 line = line.strip()
+
             if not check_empty or line.strip():
                 fout.write(f"{line}\n")
-
-
-@attr.s(auto_attribs=True)
-class TOMLConfigReader:
-    def __call__(self, toml_path: Union[str, Path]) -> Dict[str, Any]:
-        config_dict = toml.load(toml_path)
-
-        if not self.validate_schema(config_dict):
-            raise ValueError("Invalid TOML config!")
-
-        return config_dict
-
-    # TODO: maybe implement this?
-    def validate_schema(self, d: dict) -> bool:
-        return True
 
 
 def print_a_few_lines(
@@ -253,9 +255,11 @@ def get_long_lang_name(language: str) -> str:
 
 def recursively_delete(path: Union[str, Path]):
     path = Path(path)
+
     for child in path.glob("*"):
 
         # case 1/3: symlink
+
         if child.is_symlink():
             recursively_delete(child)
 
@@ -270,9 +274,11 @@ def recursively_delete(path: Union[str, Path]):
             raise ValueError(f"Unknown file: child={child}")
 
     # case 1: symlink
+
     if path.is_symlink():
 
         path = path.resolve()
+
         if path.is_dir():
             recursively_delete(path)
         elif path.is_file() or path.is_symlink():
@@ -289,3 +295,8 @@ def recursively_delete(path: Union[str, Path]):
     # case 4: ???
     else:
         raise ValueError(f"Unknown file: path={path}")
+
+
+def read_yaml(p: Union[str, Path]) -> Dict[Any, Any]:
+    with open(p, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)

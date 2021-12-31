@@ -13,6 +13,7 @@ import tempfile as tf
 import multiprocessing
 import subprocess
 
+import toml
 import attr
 import mrl_nmt.preprocessing.ops as ops
 from mrl_nmt import utils as u
@@ -113,8 +114,15 @@ class ExperimentPreprocessingPipeline:
     def from_toml(
         cls, toml_path: Union[str, Path], verbose: bool = False
     ) -> "ExperimentPreprocessingPipeline":
-        toml_reader = u.TOMLConfigReader()
-        config_dict = toml_reader(toml_path)
+        config_dict = toml.load(toml_path)
+
+        return cls(config=config_dict, verbose=verbose)
+
+    @classmethod
+    def from_yaml(
+        cls, yaml_path: Union[str, Path], verbose: bool = False
+    ) -> "ExperimentPreprocessingPipeline":
+        config_dict = u.read_yaml(yaml_path)
 
         return cls(config=config_dict, verbose=verbose)
 
@@ -196,8 +204,10 @@ class Postprocessor:
 
     def postprocess(self, s: str) -> str:
         out = self._postprocess(s)
+
         if self.detokenize:
             out = self.moses.detokenize(out.split(" "))
+
         return out
 
     def __call__(self, s: str) -> str:
@@ -206,6 +216,7 @@ class Postprocessor:
     def sp_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
+
         if not s:
             out = ""
         else:
@@ -220,6 +231,7 @@ class Postprocessor:
     def chars_to_words(self, s: str) -> str:
         if self.verbose:
             print(f"Original: {s}")
+
         if not s:
             out = ""
         else:

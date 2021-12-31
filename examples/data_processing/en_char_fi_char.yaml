@@ -1,0 +1,27 @@
+en-fi:
+  data_bin_folder: ./data-bin/en-fi/en_char_fi_char
+  dev:
+    input_base_path: ~/datasets/mrl_nmt22/fi/en-fi
+    preprocessing_steps:
+    - name: process_fi
+      options:
+        en_output_level: char
+        fi_output_level: char
+        split: dev
+  output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char
+  splits:
+  - train
+  - dev
+  src: en
+  tgt: fi
+  train:
+    input_base_path: ~/datasets/mrl_nmt22/fi/en-fi
+    preprocessing_steps:
+    - name: process_fi
+      options:
+        en_output_level: char
+        fi_output_level: char
+        split: train
+lang_pairs:
+- en-fi
+same: en_char_fi_char

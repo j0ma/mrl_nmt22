@@ -1,0 +1,51 @@
+en-iu:
+  data_bin_folder: ./data-bin/en-iu/en_sp1k_iu_sp5k
+  dev:
+    input_base_path: ~/datasets/mrl_nmt22/iu/en-iu
+    preprocessing_steps:
+    - name: process_iu
+      options:
+        en_output_level: sentencepiece
+        iu_output_level: sentencepiece
+        sentencepiece_config:
+          src:
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp5k
+            model_file: en_sp1k.bin
+            use_pretrained_model: true
+          tgt:
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp5k
+            model_file: iu_sp5k.bin
+            use_pretrained_model: true
+        split: dev
+  output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp5k
+  splits:
+  - train
+  - dev
+  src: en
+  tgt: iu
+  train:
+    input_base_path: ~/datasets/mrl_nmt22/iu/en-iu
+    preprocessing_steps:
+    - name: process_iu
+      options:
+        en_output_level: sentencepiece
+        iu_output_level: sentencepiece
+        sentencepiece_config:
+          src:
+            input_sentence_size: 5000000
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp5k
+            model_file: en_sp1k.bin
+            shuffle_input_sentence: true
+            use_pretrained_model: false
+            vocab_size: 1000
+          tgt:
+            input_sentence_size: 5000000
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp5k
+            model_file: iu_sp5k.bin
+            shuffle_input_sentence: true
+            use_pretrained_model: false
+            vocab_size: 5000
+        split: train
+lang_pairs:
+- en-iu
+same: en_sp1k_iu_sp5k

@@ -1,0 +1,27 @@
+en-uz:
+  data_bin_folder: ./data-bin/en-uz/char
+  dev:
+    input_base_path: ~/datasets/flores-101/dev
+    preprocessing_steps:
+    - name: process_uz
+      options:
+        en_output_level: char
+        split: dev
+        uz_output_level: char
+  output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/char
+  splits:
+  - train
+  - dev
+  src: en
+  tgt: uz
+  train:
+    input_base_path: ~/datasets/mrl_nmt22/uz/en-uz
+    preprocessing_steps:
+    - name: process_uz
+      options:
+        en_output_level: char
+        split: train
+        uz_output_level: char
+lang_pairs:
+- en-uz
+name: en_char_uz_char
