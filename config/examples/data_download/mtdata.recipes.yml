@@ -1,5 +1,5 @@
 # Czech
-- id: mrl-en-cs
+- id: mrl-en-cs-default-train
   langs: eng-ces
   desc: "English - Czech, mimics WMT 2020 News Task"
   train:
@@ -30,7 +30,7 @@
     - Statmt-newstest_encs-2019-eng-ces
 
 # German
-- id: mrl-en-de
+- id: mrl-en-de-default-train
   langs: eng-deu
   desc: "English - German, mimics WMT 2020 News Task"
   train:
@@ -64,7 +64,7 @@
     - Statmt-newstest_deen-2019-deu-eng
 
 # Russian
-- id: mrl-en-ru
+- id: mrl-en-ru-default-train
   langs: eng-rus
   desc: "English - Russian, mimics WMT 2020 News Task"
   train:
@@ -95,30 +95,41 @@
       #  TODO: Yandex corpus
 
 # Finnish
-- id: mrl-en-fi
+- id: mrl-en-fi-newstest-2019
+  langs: eng-fin
+  desc: "English -> Finnish, newstest-2019"
+  train:
+  dev:
+  test:
+    # only use eng-fin
+    - Statmt-newstest_enfi-2019-eng-fin
+
+- id: mrl-en-fi-newstest-2018
+  langs: eng-fin
+  desc: "English -> Finnish, newstest-2018"
+  train:
+  dev:
+  test:
+    # only use eng-fin
+    - Statmt-newstest_enfi-2018-eng-fin
+
+- id: mrl-en-fi-default-train
   langs: eng-fin
   desc: "English - Finnish, mimics WMT 2019 News Task"
   train:
-    - Statmt-europarl-9-fin-eng
-    - ParaCrawl-paracrawl-9-eng-fin
+    #- Statmt-europarl-9-fin-eng
+    #- ParaCrawl-paracrawl-9-eng-fin
     - Tilde-rapid-2016-eng-fin
   dev:
+    # eval on eng-fin newsdev/test 2015-2017
     - Statmt-newsdev_enfi-2015-eng-fin
-    - Statmt-newsdev_fien-2015-fin-eng
-    - Statmt-newstest_fien-2017-fin-eng
     - Statmt-newstest_enfi-2017-eng-fin
-    - Statmt-newstest_fien-2016-fin-eng
     - Statmt-newstest_enfi-2016-eng-fin
     - Statmt-newstest_enfi-2015-eng-fin
-    - Statmt-newstest_fien-2015-fin-eng
   test:
-    - Statmt-newstest_fien-2019-fin-eng
-    - Statmt-newstest_enfi-2019-eng-fin
-    - Statmt-newstest_fien-2018-fin-eng
-    - Statmt-newstest_enfi-2018-eng-fin
 
 # Estonian
-- id: mrl-en-et
+- id: mrl-en-et-default-train
   langs: eng-est
   desc: "English - Estonian, mimics WMT 2018 News Task"
   train:
@@ -134,7 +145,7 @@
     - Statmt-newstest_eten-2018-est-eng
 
 # Inuktitut
-- id: mrl-en-iu
+- id: mrl-en-iu-default-train
   langs: eng-iku
   desc: "English - Inuktitut, Hansard corpus + WMT dev/test sets from 2020"
   train:
@@ -150,7 +161,7 @@
     - Statmt-newstest_eniu-2020-eng-iku
 
 # Vietnamese
-- id: mrl-en-vi
+- id: mrl-en-vi-default-train
   langs: eng-vie
   desc: "English - Vietnamese, misc"
   train:
