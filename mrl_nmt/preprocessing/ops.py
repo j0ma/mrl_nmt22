@@ -14,7 +14,7 @@ import mrl_nmt.preprocessing.corpora as crp
 import mrl_nmt.utils as u
 from mrl_nmt.utils import SPACE_SYMBOL
 
-OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char", "bpe"}
+OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char", "bpe", "none"}
 MOSES_DEFAULTS = {"min_len": 1, "max_len": 80, "ratio": 9}
 
 #### Language pair/dataset specific ops
@@ -280,6 +280,7 @@ def process_download(
     out = crp.CorpusSplit.from_src_tgt(f_src, f_tgt, split=split, verbose=True)
 
     if write_detokenized:
+        assert detokenized_output_path, "Unset argument: detokenized_output_path"
         moses = MosesDetokenizer()
 
         detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
@@ -382,6 +383,7 @@ def process_uz(
     en_output_level="word",
     sentencepiece_config=None,
     prefix="",
+    write_detokenized=True,
     detokenized_output_path="",
 ) -> crp.CorpusSplit:
 
@@ -394,7 +396,7 @@ def process_uz(
         tgt_output_level=uz_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="til",
-        write_detokenized=True,
+        write_detokenized=write_detokenized,
         detokenized_output_path=detokenized_output_path,
     )
 
