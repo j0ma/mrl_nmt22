@@ -1,31 +1,35 @@
 name: en_char_uz_char
 lang_pairs:
-- en-uz
+  - en-uz
+
 en-uz:
+  corpora:
+    - default-train
   src: en
   tgt: uz
-  splits:
-  - train
-  - dev
-  output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char
-  data_bin_folder: ./data-bin/en-uz/en_char_uz_char
-  train:
-    input_base_path: ~/datasets/mrl_nmt22/uz/en-uz
-    preprocessing_steps:
-    - name: process_uz
-      options:
-        write_detokenized: true
-        detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char
-        en_output_level: char
-        uz_output_level: char
-        split: train
-  dev:
-    input_base_path: ~/datasets/mrl_nmt22/uz/en-uz
-    preprocessing_steps:
-    - name: process_uz
-      options:
-        write_detokenized: true
-        detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char_
-        en_output_level: char
-        uz_output_level: char
-        split: dev
+  default-train:
+    data_bin_folder: ./data-bin/en-uz/en_char_uz_char/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char/default-train
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/uz/en-uz/default-train
+      preprocessing_steps:
+      - name: process_uz
+        options:
+          write_detokenized: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char/default-train
+          en_output_level: char
+          uz_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/uz/en-uz/default-train
+      preprocessing_steps:
+      - name: process_uz
+        options:
+          write_detokenized: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_char_uz_char/default-train
+          en_output_level: char
+          uz_output_level: char
+          split: dev

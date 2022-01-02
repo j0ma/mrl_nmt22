@@ -6,8 +6,24 @@ tgt_lang=$2
 data_folder=$3
 data_bin_folder=$4
 
-default_n_cpus=$(nproc)
-n_workers=${5:-$default_n_cpus}
+src_dict=$5
+tgt_dict=$6
+
+# need these to be able to reuse token-to-ix mappings
+if [ -z "${src_dict}" ]; then
+    src_dict_flag=""
+else
+    src_dict_flag="--srcdict=${src_dict}"
+fi
+if [ -z "${tgt_dict}" ]; then
+    tgt_dict_flag=""
+else
+    tgt_dict_flag="--tgtdict=${tgt_dict}"
+fi
+
+# disabled for now since never used
+#default_n_cpus=$(nproc)
+#n_workers=${5:-$default_n_cpus}
 #gpu_id=${5:-0}
 
 train_prefix="${data_folder}/${src_lang}-${tgt_lang}.train"
@@ -23,7 +39,8 @@ fairseq-preprocess \
     --trainpref "${train_prefix}" \
     --validpref "${dev_prefix}" \
     --destdir "${data_bin_folder}" \
-    --cpu --workers "${n_workers}"
+    --cpu --workers "$(nproc)" \
+    ${src_dict_flag} ${tgt_dict_flag}
 
     # test sets disabled for now
     #--testpref "${test_prefix}" \

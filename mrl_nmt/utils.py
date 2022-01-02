@@ -301,5 +301,6 @@ def read_yaml(p: Union[str, Path]) -> Dict[Any, Any]:
     with open(p, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
+
 def str_to_path(path_as_str: str) -> Path:
     return Path(path_as_str)

@@ -25,7 +25,7 @@ import sentencepiece as spm
 CPU_COUNT = multiprocessing.cpu_count()
 
 # keep list of types of supported subword processing
-PROCESSING_TYPES = ["sentencepiece", "characters", "morph", "none"]
+PROCESSING_TYPES = ops.OUTPUT_LEVELS
 
 
 @attr.s(auto_attribs=True)
@@ -34,6 +34,8 @@ class FairseqPreprocessor:
     tgt_lang: str
     data_folder: str
     data_bin_folder: str
+    src_dict: str = ""
+    tgt_dict: str = ""
     n_workers: int = attr.ib(default=CPU_COUNT)
     verbose: bool = attr.ib(default=False)
 
@@ -46,6 +48,8 @@ class FairseqPreprocessor:
             self.tgt_lang,
             self.data_folder,
             self.data_bin_folder,
+            self.src_dict or "",
+            self.tgt_dict or "",
         ]
 
         if self.n_workers > 0:
@@ -134,14 +138,14 @@ class ExperimentPreprocessingPipeline:
             self.process_lang_pair(lang_pair)
 
     def process_lang_pair(self, lang_pair: str) -> None:
-        """Processes raw language pair data into format usable by NMT toolkit.
+        """Processes raw language pair data into format usable by an NMT toolkit.
 
         This processing can include
         - Parsing various formats (XML, CSV) into one-sentence-per-line format
         - Converting between various formats (char, token, subword) per line
         """
         config = self.config[lang_pair]
-        splits = config["splits"]
+        corpus_names = config["corpora"]
         src, tgt = config["src"], config["tgt"]
         lines: DefaultDict[Dict[str, CorpusSplit]] = defaultdict(dict)
 
@@ -149,33 +153,50 @@ class ExperimentPreprocessingPipeline:
 
         preprocessor = Preprocessor(verbose=self.verbose)
 
-        for split in splits:
-            split_config = config[split]
-            input_base_path = Path(split_config["input_base_path"]).expanduser()
-            lines[split] = preprocessor(
-                initial_input=input_base_path,
-                ops=split_config["preprocessing_steps"],
-            )
+        for corpus_name in corpus_names:
+            corpus_config = config[corpus_name]
+            splits = corpus_config["splits"]
+            for split in splits:
+                split_config = corpus_config[split]
+                input_base_path = Path(split_config["input_base_path"]).expanduser()
+                lines[corpus_name][split] = preprocessor(
+                    initial_input=input_base_path,
+                    ops=split_config["preprocessing_steps"],
+                )
 
         # Finally write all the data out
-        output_folder = Path(config["output_base_path"]).expanduser()
-        output_folder.mkdir(parents=True, exist_ok=True)
 
-        for split, corpus_split in lines.items():
-            corpus_split.write_to_disk(folder=output_folder)
+        for corpus_name, split_dict in lines.items():
+            corpus_config = config[corpus_name]
+            output_folder = Path(corpus_config["output_base_path"]).expanduser()
+            for split, corpus_split in split_dict.items():
 
-        # Finally binarize using fairseq if needed
+                output_folder.mkdir(parents=True, exist_ok=True)
+                corpus_split.write_to_disk(folder=output_folder)
 
-        if self.use_fairseq:
-            data_bin_folder = Path(config["data_bin_folder"]).expanduser()
-            data_bin_folder.mkdir(parents=True, exist_ok=True)
-            fairseq = FairseqPreprocessor(
-                src_lang=src,
-                tgt_lang=tgt,
-                data_folder=str(output_folder),
-                data_bin_folder=str(data_bin_folder),
-            )
-            fairseq.process()
+            # Finally binarize using fairseq if needed
+            if self.use_fairseq:
+                src_dict = str(
+                    Path(corpus_config["src_dict"]).expanduser()
+                    if "fairseq_src_dict" in corpus_config
+                    else ""
+                )
+                tgt_dict = str(
+                    Path(corpus_config["tgt_dict"]).expanduser()
+                    if "fairseq_tgt_dict" in corpus_config
+                    else ""
+                )
+                data_bin_folder = Path(corpus_config["data_bin_folder"]).expanduser()
+                data_bin_folder.mkdir(parents=True, exist_ok=True)
+                fairseq = FairseqPreprocessor(
+                    src_lang=src,
+                    tgt_lang=tgt,
+                    data_folder=str(output_folder),
+                    data_bin_folder=str(data_bin_folder),
+                    src_dict=src_dict,
+                    tgt_dict=tgt_dict,
+                )
+                fairseq.process()
 
 
 @attr.s(auto_attribs=True)
