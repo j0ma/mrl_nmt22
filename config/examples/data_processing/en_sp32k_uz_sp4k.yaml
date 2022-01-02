@@ -1,33 +1,24 @@
+name: en_sp32k_uz_sp4k
+lang_pairs:
+- en-uz
+
 en-uz:
-  data_bin_folder: ./data-bin/en-uz/en_sp32k_uz_sp4k
-  dev:
-    input_base_path: ~/datasets/flores-101/dev
-    preprocessing_steps:
-    - name: process_uz
-      options:
-        en_output_level: sentencepiece
-        sentencepiece_config:
-          src:
-            model_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
-            model_file: en_sp32k.bin
-            use_pretrained_model: true
-          tgt:
-            model_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
-            model_file: uz_sp4k.bin
-            use_pretrained_model: true
-        split: dev
-        uz_output_level: sentencepiece
   output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
+  data_bin_folder: ./data-bin/en-uz/en_sp32k_uz_sp4k
+  src: en
+  tgt: uz
   splits:
   - train
   - dev
-  src: en
-  tgt: uz
   train:
     input_base_path: ~/datasets/mrl_nmt22/uz/en-uz
     preprocessing_steps:
     - name: process_uz
       options:
+        split: train
+        write_detokenized: true
+        detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
+        uz_output_level: sentencepiece
         en_output_level: sentencepiece
         sentencepiece_config:
           src:
@@ -43,8 +34,22 @@ en-uz:
             shuffle_input_sentence: true
             use_pretrained_model: false
             vocab_size: 4000
-        split: train
+  dev:
+    input_base_path: ~/datasets/mrl_nmt22/uz/en-uz
+    preprocessing_steps:
+    - name: process_uz
+      options:
+        write_detokenized: true
+        detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
+        en_output_level: sentencepiece
+        sentencepiece_config:
+          src:
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
+            model_file: en_sp32k.bin
+            use_pretrained_model: true
+          tgt:
+            model_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp4k
+            model_file: uz_sp4k.bin
+            use_pretrained_model: true
+        split: dev
         uz_output_level: sentencepiece
-lang_pairs:
-- en-uz
-name: en_sp32k_uz_sp4k

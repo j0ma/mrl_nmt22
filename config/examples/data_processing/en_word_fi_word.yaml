@@ -1,0 +1,39 @@
+name: en_word_fi_word
+lang_pairs:
+- en-fi
+splits:
+- train
+- dev
+- newstest-2018
+- newstest-2019
+en-fi:
+  src: en
+  tgt: fi
+  output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_word_fi_word
+  train:
+    input_base_path: ~/datasets/mrl_nmt22/fi/en-fi
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word
+    preprocessing_steps:
+    - name: process_fi
+      options:
+        en_output_level: word
+        fi_output_level: word
+        split: train
+  dev:
+    input_base_path: ~/datasets/mrl_nmt22/fi/en-fi
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word
+    preprocessing_steps:
+    - name: process_fi
+      options:
+        en_output_level: word
+        fi_output_level: word
+        split: dev
+  newstest-2018:
+    input_base_path: ~/datasets/mrl_nmt22/fi/en-fi
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word
+    preprocessing_steps:
+    - name: process_fi
+      options:
+        en_output_level: word
+        fi_output_level: word
+        split: dev
