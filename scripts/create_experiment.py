@@ -11,9 +11,9 @@ import attr
 import mrl_nmt.utils as u
 
 EXISTING_FOLDER_OR_FILE = click.Path(
-    exists=True, dir_okay=True, file_okay=False, path_type=Path
+    exists=True, dir_okay=True, file_okay=False, path_type=str
 )
-EXISTING_FILE = click.Path(exists=True, dir_okay=False, file_okay=True, path_type=Path)
+EXISTING_FILE = click.Path(exists=True, dir_okay=False, file_okay=True, path_type=str)
 PATH_OR_STR = Union[Path, str]
 
 default_experiment_path = Path("./experiments")
@@ -22,8 +22,6 @@ default_checkpoint_path = Path("./checkpoints")
 
 @attr.s()
 class ExperimentFolder:
-
-    _tmp_prefix = "/tmp/__mrl"
 
     experiment_name: str = attr.ib()
 
@@ -62,12 +60,16 @@ class ExperimentFolder:
         clean_references_file: Path,
         bin_data_folder: Path,
         raw_data_folder: Path,
+        require_checkpoint_exists: bool,
     ) -> Path:
 
         # we need everything to exist for this eval to work
 
-        for path in checkpoint, clean_references_file, bin_data_folder:
+        for path in clean_references_file, bin_data_folder:
             assert path.exists(), f"Path {path} does not exist!"
+
+        if require_checkpoint_exists:
+            assert checkpoint.exists(), f"Checkpoint {checkpoint} does not exist!"
 
         eval_folder = self.eval_path / eval_name
 
@@ -103,7 +105,7 @@ class ExperimentFolder:
         raw_data_folder: Path,
         bin_data_folder: Path,
         clean_references_file: Path,
-        add_new_eval: bool = False,
+        add_new_eval: bool = True,
     ) -> Path:
 
         # we need everything to exist for this eval to work
@@ -152,8 +154,8 @@ class ExperimentFolder:
                 )
 
         except (FileNotFoundError, OSError):
-            self.tear_down_folder(path=train_folder)
             self.tear_down_folder(path=self.checkpoint_folder)
+            self.teardown()
 
         return train_folder
 
@@ -226,7 +228,7 @@ class ExperimentFolder:
         bin_data_folder: Path,
         clean_references_file: Path,
     ):
-        for path in checkpoint, raw_data_folder, bin_data_folder, clean_references_file:
+        for path in raw_data_folder, bin_data_folder, clean_references_file:
             assert path.exists(), f"Path {path} does not exist!"
 
         eval_folder_path = self.create_eval(
@@ -235,6 +237,7 @@ class ExperimentFolder:
             clean_references_file=clean_references_file,
             bin_data_folder=bin_data_folder,
             raw_data_folder=raw_data_folder,
+            require_checkpoint_exists=False,
         )
         u.create_symlink(
             link_path=(self.train_path / model_name / eval_name),
@@ -252,7 +255,7 @@ class ExperimentFolder:
 @click.option("--legacy-mode", is_flag=True)
 @click.option("--experiment-name", required=True)
 @click.option("--raw-data-folder", type=EXISTING_FOLDER_OR_FILE)
-@click.option("--references-file", "--refs", type=EXISTING_FOLDER_OR_FILE)
+@click.option("--references-file", "--refs", type=EXISTING_FILE)
 @click.option(
     "--bin-data-folder",
     type=EXISTING_FOLDER_OR_FILE,
@@ -265,14 +268,14 @@ class ExperimentFolder:
     type=EXISTING_FOLDER_OR_FILE,
 )
 @click.option(
-    "--checkpoint-prefix",
+    "--checkpoints-prefix",
     help="Folder to create checkpoints in",
     default="./checkpoints",
     type=EXISTING_FOLDER_OR_FILE,
 )
 @click.option("--eval-only", is_flag=True, help="Do not create a train/ subdirectory")
 @click.option("--eval-name", help="What to call the eval run")
-@click.option("--eval-model-checkpoint", default=EXISTING_FILE)
+@click.option("--eval-model-checkpoint", type=EXISTING_FILE)
 def main(
     legacy_mode,
     experiment_name,
@@ -280,40 +283,41 @@ def main(
     bin_data_folder,
     references_file,
     model_name,
-    experiment_prefix,
-    checkpoint_prefix,
+    experiments_prefix,
+    checkpoints_prefix,
     eval_only,
     eval_name,
     eval_model_checkpoint,
 ):
 
     ef = ExperimentFolder(
-        experiment_name=experiment_name, checkpoint_prefix=checkpoint_prefix
+        experiment_name=experiment_name,
+        checkpoint_prefix=checkpoints_prefix,
+        prefix=experiments_prefix,
     )
 
     if legacy_mode:
         ef.create_legacy_experiment(
             model_name=model_name,
-            checkpoint=eval_model_checkpoint,
-            raw_data_folder=raw_data_folder,
-            bin_data_folder=bin_data_folder,
-            clean_references_file=references_file,
+            checkpoint=Path(eval_model_checkpoint),
+            raw_data_folder=Path(raw_data_folder),
+            bin_data_folder=Path(bin_data_folder),
+            clean_references_file=Path(references_file),
         )
     elif eval_only:
         ef.create_eval(
             eval_name=eval_name,
-            checkpoint=eval_model_checkpoint,
-            raw_data_folder=raw_data_folder,
-            bin_data_folder=bin_data_folder,
-            clean_references_file=references_file,
+            checkpoint=Path(eval_model_checkpoint),
+            raw_data_folder=Path(raw_data_folder),
+            bin_data_folder=Path(bin_data_folder),
+            clean_references_file=Path(references_file),
         )
     else:
         ef.create_train(
             model_name=model_name,
-            checkpoint=eval_model_checkpoint,
-            raw_data_folder=raw_data_folder,
-            bin_data_folder=bin_data_folder,
-            clean_references_file=references_file,
+            raw_data_folder=Path(raw_data_folder),
+            bin_data_folder=Path(bin_data_folder),
+            clean_references_file=Path(references_file),
         )
 
 
