@@ -8,7 +8,9 @@ import click
 @click.option("--verbose", is_flag=True)
 def main(toml_config, yaml_config, verbose):
 
-    assert toml_config ^ yaml_config, "Can only read TOML or YAML, not both."
+    assert bool(toml_config) ^ bool(
+        yaml_config
+    ), "Can only read TOML or YAML, not both."
 
     if toml_config:
         pipeline = pp.ExperimentPreprocessingPipeline.from_toml(
