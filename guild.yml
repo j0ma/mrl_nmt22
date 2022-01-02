@@ -153,23 +153,26 @@
           type: string
           required: true
       steps:
-        - run: "download_til source_language=en target_language=tr download_folder=${download_folder}/${target_language}"
-        - run: "download_til source_language=en target_language=uz download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=cs download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=de download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=ru download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=fi download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=et download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=iu download_folder=${download_folder}/${target_language}"
-        - run: "download_mtdata source_language=en target_language=vi download_folder=${download_folder}/${target_language}"
+        - run: "download_til corpus_name=default-train source_language=en target_language=tr download_folder=${download_folder}/${target_language}"
+        - run: "download_til corpus_name=default-train source_language=en target_language=uz download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=cs download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=de download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=ru download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=fi download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=et download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=iu download_folder=${download_folder}/${target_language}"
+        - run: "download_mtdata corpus_name=default-train source_language=en target_language=vi download_folder=${download_folder}/${target_language}"
       requires:
         - file: scripts
-        - file: examples
+        - file: config
 
     download_mtdata:
       description: "Download corpora using MTData"
-      exec: "bash scripts/download/download_mtdata.sh ${source_language} ${target_language} ${download_folder}"
+      exec: "bash scripts/download/download_mtdata.sh ${corpus_name} ${source_language} ${target_language} ${download_folder}"
       flags:
+        corpus_name:
+          type: string
+          required: true
         download_folder:
           type: string
           required: true
@@ -181,11 +184,14 @@
           required: true
       requires:
         - file: scripts
-        - file: examples
+        - file: config
     download_til:
       description: "Download Turkic Interlingua corpus"
       main: scripts.download.download_til
       flags:
+        corpus_name:
+          type: string
+          required: true
         download_folder:
           type: string
           required: true
@@ -206,7 +212,7 @@
             - all
       requires:
         - file: scripts
-        - file: examples
+        - file: config
 
 # Transformer ops
 - model: nmt
