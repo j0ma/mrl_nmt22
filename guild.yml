@@ -240,9 +240,25 @@
         - file: scripts
     train_transformer:
       description: "Train transformer model"
-      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_updates} ${save_interval_updates} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name} ${max_tokens}"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_updates} ${save_interval_updates} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name} ${max_tokens} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${eval_bleu_detok}"
       flags:
         $include: ["basic-flags", "transformer-flags"]
+        remove_preprocessing_source:
+          type: string
+          default: "none"
+        remove_preprocessing_hypotheses:
+          type: string
+          default: "none"
+        remove_preprocessing_references:
+          type: string
+          default: "none"
+        eval_bleu_detok:
+          type: string
+          default: "space"
+          choices:
+            - moses
+            - spm
+            - space
       requires:
         - file: data-bin
         - file: scripts

@@ -62,6 +62,18 @@ readonly MODEL_NAME="${30}"
 
 readonly MAX_TOKENS="${31}"
 
+
+readonly REMOVE_PREPROCESSING_SOURCE="${31}"
+readonly REMOVE_PREPROCESSING_HYPS="${32}"
+readonly REMOVE_PREPROCESSING_REFS="${33}"
+
+
+# TODO: extend this so these can be specified separately for src/tgt
+readonly REMOVE_PREPROCESSING_TYPE=$REMOVE_PREPROCESSING_HYPS
+
+EVAL_BLEU_DETOK=${34:-moses}
+
+
 # Derive some paths based on the above
 readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
 readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
@@ -114,6 +126,7 @@ train() {
         --batch-size="${BATCH_SIZE}" \
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
+        --eval-bleu --eval-bleu-print-samples --eval-bleu-remove-bpe ${REMOVE_PREPROCESSING_TYPE} --eval-bleu-detok ${EVAL_BLEU_DETOK} \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
