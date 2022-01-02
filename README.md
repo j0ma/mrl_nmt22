@@ -5,23 +5,6 @@
 - Run `git submodule update --init --recursive`
     - This will clone the Moses SMT toolkit (needed for scripts)
 
-## Notes on requirements
-- uralicNLP
-- pycountry
-- sacremoses
-- toml
-- attrs
-- sentencepiece
-- fairseq
-- click
-- lxml
-- mtdata
-- tqdm
-- psutil
-- sacrebleu
-    - install from master branch to get SPM tokenizer support
-- gsutil
-
 ## Notes on languages
 - Czech
 - German
