@@ -266,9 +266,12 @@
         - file: experiments
     evaluate_transformer:
       description: "Evaluate transformer model"
-      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${remove_preprocessing_references_clean} ${detokenize_source} ${detokenize_hypotheses} ${detokenize_references} ${detokenize_references_clean} ${references_clean_file} ${use_cpu_for_eval}"
+      exec: "bash scripts/evaluate_transformer ${experiment_name} ${mode} ${beam_size} ${seed} ${gpu_device} ${model_name} ${src_lang} ${tgt_lang} ${eval_name} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${remove_preprocessing_references_clean} ${detokenize_source} ${detokenize_hypotheses} ${detokenize_references} ${detokenize_references_clean} ${references_clean_file} ${use_cpu_for_eval}"
       flags:
         $include: ["basic-flags", "evaluate-flags"]
+        eval_name:
+          type: string
+          default: "eval_${model_name}"
       output-scalars:
         - 'EVAL_SCALAR: (\key)\t(\value)'
       requires:

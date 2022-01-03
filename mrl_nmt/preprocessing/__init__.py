@@ -39,7 +39,10 @@ class FairseqPreprocessor:
     train_prefix: str = ""
     dev_prefix: str = ""
     test_prefix: str = ""
-    splits: Iterable[str] = ("train", "dev")
+    splits: Iterable[str] = ("train", "valid")
+
+    gpu_devices: str = ""
+    use_gpu: bool = False
 
     n_workers: int = attr.ib(default=CPU_COUNT)
     verbose: bool = attr.ib(default=False)
@@ -57,21 +60,42 @@ class FairseqPreprocessor:
             "test": self.test_prefix,
             "valid": self.dev_prefix,
         }
+        if self.use_gpu:
+            assert (
+                self.gpu_devices
+            ), f"Unset GPUs! Got self.gpu_devices={self.gpu_devices}"
 
     def process(self) -> None:
 
-        popen_args = [
-            self.fairseq_cmd,
-            f"--source-lang {self.src_lang}",
-            f"--target-lang {self.tgt_lang}",
-            f"--destdir {self.data_bin_folder}",
-        ] + [f"--{spl}pref {self.prefixes[spl]}" for spl in self.splits]
+        popen_args = [f"CUDA_VISIBLE_DEVICES={self.gpu_devices}"] if self.use_gpu else []
 
+        popen_args.extend(
+            [
+                self.fairseq_cmd,
+                f"--source-lang {self.src_lang}",
+                f"--target-lang {self.tgt_lang}",
+                f"--destdir {self.data_bin_folder}",
+            ]
+        )
+
+        dicts_used = False
         for side, dict_path in zip(("src", "tgt"), (self.src_dict, self.tgt_dict)):
             if dict_path:
                 popen_args.append(f"--{side}dict {dict_path}")
+                dicts_used = True
 
-        popen_args.extend(["--cpu", f"--workers {self.n_workers}"])
+        if not dicts_used:
+            popen_args.extend(
+                [
+                    f"--{spl if spl != 'dev' else 'valid'}pref {self.prefixes[spl]}"
+                    for spl in self.splits
+                ]
+            )
+
+        if not self.use_gpu:
+            popen_args.extend(["--cpu"])
+
+        popen_args.append(f"--workers {self.n_workers}")
 
         popen_args = " ".join([a for a in popen_args if len(a)])
 
@@ -117,6 +141,8 @@ class ExperimentPreprocessingPipeline:
 
     config: dict = attr.ib()
     verbose: bool = attr.ib(default=False)
+    use_gpu: bool = attr.ib(default=False)
+    gpu_devices: str = attr.ib(default="")
 
     def __attrs_post_init__(self):
         self.lang_pairs = self.config["lang_pairs"]
@@ -137,19 +163,37 @@ class ExperimentPreprocessingPipeline:
 
     @classmethod
     def from_toml(
-        cls, toml_path: Union[str, Path], verbose: bool = False
+        cls,
+        toml_path: Union[str, Path],
+        verbose: bool = False,
+        use_gpu: bool = False,
+        gpu_devices: str = "",
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = toml.load(toml_path)
 
-        return cls(config=config_dict, verbose=verbose)
+        return cls(
+            config=config_dict,
+            verbose=verbose,
+            use_gpu=use_gpu,
+            gpu_devices=gpu_devices,
+        )
 
     @classmethod
     def from_yaml(
-        cls, yaml_path: Union[str, Path], verbose: bool = False
+        cls,
+        yaml_path: Union[str, Path],
+        verbose: bool = False,
+        use_gpu: bool = False,
+        gpu_devices: str = "",
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = u.read_yaml(yaml_path)
 
-        return cls(config=config_dict, verbose=verbose)
+        return cls(
+            config=config_dict,
+            verbose=verbose,
+            use_gpu=use_gpu,
+            gpu_devices=gpu_devices,
+        )
 
     def process(self):
         for lang_pair in self.lang_pairs:
@@ -220,6 +264,8 @@ class ExperimentPreprocessingPipeline:
                     src_dict=src_dict,
                     tgt_dict=tgt_dict,
                     splits=corpus_config["splits"],
+                    use_gpu=self.use_gpu, 
+                    gpu_devices=self.gpu_devices
                 )
                 fairseq.process()
 

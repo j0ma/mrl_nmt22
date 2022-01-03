@@ -14,6 +14,7 @@ EXISTING_FOLDER_OR_FILE = click.Path(
     exists=True, dir_okay=True, file_okay=False, path_type=str
 )
 EXISTING_FILE = click.Path(exists=True, dir_okay=False, file_okay=True, path_type=str)
+FILE = click.Path(dir_okay=False, file_okay=True, path_type=str)
 PATH_OR_STR = Union[Path, str]
 
 default_experiment_path = Path("./experiments")
@@ -275,7 +276,7 @@ class ExperimentFolder:
 )
 @click.option("--eval-only", is_flag=True, help="Do not create a train/ subdirectory")
 @click.option("--eval-name", help="What to call the eval run")
-@click.option("--eval-model-checkpoint", type=EXISTING_FILE)
+@click.option("--eval-model-checkpoint", type=FILE)
 def main(
     legacy_mode,
     experiment_name,
@@ -305,12 +306,14 @@ def main(
             clean_references_file=Path(references_file),
         )
     elif eval_only:
+        assert eval_name, f"Need eval_name, got: {eval_name}"
         ef.create_eval(
             eval_name=eval_name,
             checkpoint=Path(eval_model_checkpoint),
             raw_data_folder=Path(raw_data_folder),
             bin_data_folder=Path(bin_data_folder),
             clean_references_file=Path(references_file),
+            require_checkpoint_exists=False
         )
     else:
         ef.create_train(

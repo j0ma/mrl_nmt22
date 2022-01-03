@@ -63,23 +63,27 @@ readonly MODEL_NAME="${30}"
 readonly MAX_TOKENS="${31}"
 
 
-readonly REMOVE_PREPROCESSING_SOURCE="${31}"
-readonly REMOVE_PREPROCESSING_HYPS="${32}"
-readonly REMOVE_PREPROCESSING_REFS="${33}"
+readonly REMOVE_PREPROCESSING_SOURCE="${32}"
+readonly REMOVE_PREPROCESSING_HYPS="${33}"
+readonly REMOVE_PREPROCESSING_REFS="${34}"
 
 
 # TODO: extend this so these can be specified separately for src/tgt
 readonly REMOVE_PREPROCESSING_TYPE=$REMOVE_PREPROCESSING_HYPS
 
-EVAL_BLEU_DETOK=${34:-moses}
+if [ "" = "none" ]; then
+    EVAL_BLEU_REMOVE_BPE_FLAG=""
+else
+    EVAL_BLEU_REMOVE_BPE_FLAG="--eval-bleu-remove-bpe ${REMOVE_PREPROCESSING_TYPE}"
+fi
+
+EVAL_BLEU_DETOK=${35:-moses}
 
 
 # Derive some paths based on the above
 readonly EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
-readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/binarized_data"
-readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}/checkpoints"
-
-mkdir -vp ${EXPERIMENT_FOLDER}/${MODEL_NAME}
+readonly DATA_BIN_PATH="${EXPERIMENT_FOLDER}/train/${MODEL_NAME}/binarized_data"
+readonly CHECKPOINT_FOLDER="${EXPERIMENT_FOLDER}/train/${MODEL_NAME}/checkpoints"
 
 get_max_flag() {
     if [ "${MAX_UPDATE}" = "0" ]
@@ -126,7 +130,7 @@ train() {
         --batch-size="${BATCH_SIZE}" \
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
-        --eval-bleu --eval-bleu-print-samples --eval-bleu-remove-bpe ${REMOVE_PREPROCESSING_TYPE} --eval-bleu-detok ${EVAL_BLEU_DETOK} \
+        --eval-bleu --eval-bleu-print-samples ${EVAL_BLEU_REMOVE_BPE_FLAG} --eval-bleu-detok ${EVAL_BLEU_DETOK} \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
@@ -140,5 +144,5 @@ echo "Encoder hidden size: ${EHS}"
 echo "Decoder embedding dim: ${DED}"
 echo "Decoder hidden size: ${DHS}"
 
-echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log"
-train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/${MODEL_NAME}/train_log"
+echo "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/train/${MODEL_NAME}/train_log"
+train "${CHECKPOINT_FOLDER}" | tee --append "${EXPERIMENT_FOLDER}/train/${MODEL_NAME}/train_log"
