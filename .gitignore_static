@@ -3,6 +3,7 @@ checkpoints/
 experiments/
 data-bin/
 log/
+raw_data
 
 *.idea/
 
