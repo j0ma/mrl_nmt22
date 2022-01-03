@@ -36,30 +36,51 @@ class FairseqPreprocessor:
     data_bin_folder: str
     src_dict: str = ""
     tgt_dict: str = ""
+    train_prefix: str = ""
+    dev_prefix: str = ""
+    test_prefix: str = ""
+    splits: Iterable[str] = ("train", "dev")
+
     n_workers: int = attr.ib(default=CPU_COUNT)
     verbose: bool = attr.ib(default=False)
 
-    fairseq_cmd: str = "scripts/text_processing/preprocess_with_fairseq.sh"
+    fairseq_cmd: str = "fairseq-preprocess"
+
+    def __attrs_post_init__(self):
+
+        self.train_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.train"
+        self.dev_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.dev"
+        self.test_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.test"
+        self.prefixes = {
+            "train": self.train_prefix,
+            "dev": self.dev_prefix,
+            "test": self.test_prefix,
+            "valid": self.dev_prefix,
+        }
 
     def process(self) -> None:
+
         popen_args = [
             self.fairseq_cmd,
-            self.src_lang,
-            self.tgt_lang,
-            self.data_folder,
-            self.data_bin_folder,
-            self.src_dict or "",
-            self.tgt_dict or "",
-        ]
+            f"--source-lang {self.src_lang}",
+            f"--target-lang {self.tgt_lang}",
+            f"--destdir {self.data_bin_folder}",
+        ] + [f"--{spl}pref {self.prefixes[spl]}" for spl in self.splits]
 
-        if self.n_workers > 0:
-            popen_args.append(str(self.n_workers))
+        for side, dict_path in zip(("src", "tgt"), (self.src_dict, self.tgt_dict)):
+            if dict_path:
+                popen_args.append(f"--{side}dict {dict_path}")
+
+        popen_args.extend(["--cpu", f"--workers {self.n_workers}"])
+
+        popen_args = " ".join([a for a in popen_args if len(a)])
 
         subprocess.run(
-            popen_args,
+            args=popen_args,
             capture_output=False,
             encoding="utf-8",
             text=True,
+            shell=True,
         )
 
 
@@ -156,6 +177,7 @@ class ExperimentPreprocessingPipeline:
         for corpus_name in corpus_names:
             corpus_config = config[corpus_name]
             splits = corpus_config["splits"]
+
             for split in splits:
                 split_config = corpus_config[split]
                 input_base_path = Path(split_config["input_base_path"]).expanduser()
@@ -169,20 +191,22 @@ class ExperimentPreprocessingPipeline:
         for corpus_name, split_dict in lines.items():
             corpus_config = config[corpus_name]
             output_folder = Path(corpus_config["output_base_path"]).expanduser()
+
             for split, corpus_split in split_dict.items():
 
                 output_folder.mkdir(parents=True, exist_ok=True)
                 corpus_split.write_to_disk(folder=output_folder)
 
             # Finally binarize using fairseq if needed
+
             if self.use_fairseq:
                 src_dict = str(
-                    Path(corpus_config["src_dict"]).expanduser()
+                    Path(corpus_config["fairseq_src_dict"]).expanduser()
                     if "fairseq_src_dict" in corpus_config
                     else ""
                 )
                 tgt_dict = str(
-                    Path(corpus_config["tgt_dict"]).expanduser()
+                    Path(corpus_config["fairseq_tgt_dict"]).expanduser()
                     if "fairseq_tgt_dict" in corpus_config
                     else ""
                 )
@@ -195,6 +219,7 @@ class ExperimentPreprocessingPipeline:
                     data_bin_folder=str(data_bin_folder),
                     src_dict=src_dict,
                     tgt_dict=tgt_dict,
+                    splits=corpus_config["splits"],
                 )
                 fairseq.process()
 

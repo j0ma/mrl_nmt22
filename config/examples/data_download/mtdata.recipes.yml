@@ -99,19 +99,19 @@
   langs: eng-fin
   desc: "English -> Finnish, newstest-2019"
   train:
-  dev:
-  test:
     # only use eng-fin
     - Statmt-newstest_enfi-2019-eng-fin
+  dev:
+  test:
 
 - id: mrl-en-fi-newstest-2018
   langs: eng-fin
   desc: "English -> Finnish, newstest-2018"
   train:
+    # only use eng-fin
+    - Statmt-newstest_enfi-2019-eng-fin
   dev:
   test:
-    # only use eng-fin
-    - Statmt-newstest_enfi-2018-eng-fin
 
 - id: mrl-en-fi-default-train
   langs: eng-fin
