@@ -1,0 +1,61 @@
+name: en_word_fi_word
+lang_pairs:
+- en-fi
+
+en-fi:
+  src: en
+  tgt: fi
+  corpora:
+    - newstest-2018
+    - newstest-2019
+    #- default-train
+  default-train:
+    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/default-train
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/default-train
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          en_output_level: word
+          fi_output_level: word
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          en_output_level: word
+          fi_output_level: word
+          split: dev
+  newstest-2018:
+    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/newstest-2018
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/newstest-2018
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2018
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          en_output_level: word
+          fi_output_level: word
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
+  newstest-2019:
+    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/newstest-2019
+    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/newstest-2019
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2019
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          en_output_level: word
+          fi_output_level: word
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
