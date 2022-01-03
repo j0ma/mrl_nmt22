@@ -117,8 +117,8 @@
   langs: eng-fin
   desc: "English - Finnish, mimics WMT 2019 News Task"
   train:
-    #- Statmt-europarl-9-fin-eng
-    #- ParaCrawl-paracrawl-9-eng-fin
+    - Statmt-europarl-9-fin-eng
+    - ParaCrawl-paracrawl-9-eng-fin
     - Tilde-rapid-2016-eng-fin
   dev:
     # eval on eng-fin newsdev/test 2015-2017

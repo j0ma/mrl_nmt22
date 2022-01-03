@@ -1,4 +1,4 @@
-name: en_word_fi_word
+name: en_char_fi_char
 lang_pairs:
 - en-fi
 
@@ -6,12 +6,12 @@ en-fi:
   src: en
   tgt: fi
   corpora:
+    - default-train
     - newstest-2018
     - newstest-2019
-    #- default-train
   default-train:
-    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/default-train
-    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train
+    data_bin_folder: ./data-bin/en-fi/en_char_fi_char/default-train
     splits:
     - train
     - dev
@@ -20,20 +20,22 @@ en-fi:
       preprocessing_steps:
       - name: process_fi
         options:
-          en_output_level: word
-          fi_output_level: word
+          en_output_level: char
+          fi_output_level: char
           split: train
     dev:
       input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
       preprocessing_steps:
       - name: process_fi
         options:
-          en_output_level: word
-          fi_output_level: word
+          en_output_level: char
+          fi_output_level: char
           split: dev
   newstest-2018:
-    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/newstest-2018
-    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/newstest-2018
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2018
+    data_bin_folder: ./data-bin/en-fi/en_char_fi_char/newstest-2018
+    fairseq_src_dict: ./data-bin/en-fi/en_char_fi_char/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/en-fi/en_char_fi_char/default-train/dict.fi.txt
     splits:
     - train
     train:
@@ -41,13 +43,15 @@ en-fi:
       preprocessing_steps:
       - name: process_fi
         options:
-          en_output_level: word
-          fi_output_level: word
+          en_output_level: char
+          fi_output_level: char
           split: train  # this "hack" is necessary since
                         # the downloaded files are train.{eng,fin}
   newstest-2019:
-    output_base_path: /tmp/multiple-dataset-test/processed/en-fi/newstest-2019
-    data_bin_folder: ./data-bin/en-fi/en_word_fi_word/newstest-2019
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2019
+    data_bin_folder: ./data-bin/en-fi/en_char_fi_char/newstest-2019
+    fairseq_src_dict: ./data-bin/en-fi/en_char_fi_char/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/en-fi/en_char_fi_char/default-train/dict.fi.txt
     splits:
     - train
     train:
@@ -55,7 +59,7 @@ en-fi:
       preprocessing_steps:
       - name: process_fi
         options:
-          en_output_level: word
-          fi_output_level: word
+          en_output_level: char
+          fi_output_level: char
           split: train  # this "hack" is necessary since
                         # the downloaded files are train.{eng,fin}
