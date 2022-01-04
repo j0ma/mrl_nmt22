@@ -130,10 +130,14 @@ train() {
         --batch-size="${BATCH_SIZE}" \
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
-        --eval-bleu --eval-bleu-print-samples ${EVAL_BLEU_REMOVE_BPE_FLAG} --eval-bleu-detok ${EVAL_BLEU_DETOK} \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
+        
+        # Re-enable these later if fairseq fixed
+        #--eval-bleu ${EVAL_BLEU_REMOVE_BPE_FLAG} \
+        #--eval-bleu-detok ${EVAL_BLEU_DETOK} \
+
 
 }
 
