@@ -18,3 +18,4 @@ tqdm
 psutil
 guildai
 nltk
+git+https://github.com/cthoyt/p_tqdm@patch-1
