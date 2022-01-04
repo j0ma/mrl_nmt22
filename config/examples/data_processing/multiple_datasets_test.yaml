@@ -21,7 +21,7 @@ en-fi:
       - name: process_fi
         options:
           write_detokenized: true
-          detokenized_link_only: true
+          detokenized_link_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train
           en_output_level: char
           fi_output_level: char
@@ -32,7 +32,7 @@ en-fi:
       - name: process_fi
         options:
           write_detokenized: true
-          detokenized_link_only: true
+          detokenized_link_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train
           en_output_level: char
           fi_output_level: char
@@ -50,7 +50,7 @@ en-fi:
       - name: process_fi
         options:
           write_detokenized: true
-          detokenized_link_only: true
+          detokenized_link_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2018
           en_output_level: char
           fi_output_level: char
@@ -69,7 +69,7 @@ en-fi:
       - name: process_fi
         options:
           write_detokenized: true
-          detokenized_link_only: true
+          detokenized_link_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2019
           en_output_level: char
           fi_output_level: char

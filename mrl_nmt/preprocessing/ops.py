@@ -1,20 +1,22 @@
 import io
 import os
 from pathlib import Path
+import multiprocessing as mp
 from typing import Union, Iterable, Optional, Dict, Any
-import math
 import itertools as it
+import math
+import time
 
 from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 from tqdm import tqdm
-from p_tqdm import p_map
 import shutil
 
 import mrl_nmt.preprocessing as pp
 import mrl_nmt.preprocessing.corpora as crp
 import mrl_nmt.utils as u
 from mrl_nmt.utils import SPACE_SYMBOL
+
 
 OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char", "bpe", "none"}
 MOSES_DEFAULTS = {"min_len": 1, "max_len": 80, "ratio": 9}
@@ -214,20 +216,6 @@ def _detok(l):
     return MosesDetokenizer().detokenize(l.split(" "))
 
 
-def __detokenize_and_write(f, output_path, n_workers):
-    print(f"Writing detokenized lines to {output_path} using {n_workers} cores")
-
-    detok_lines = p_map(
-        _detok,
-        f.stream_lines,
-        num_cpus=n_workers,
-    )
-    u.write_lines(
-        path=output_path,
-        lines=detok_lines,
-    )
-
-
 def process_download(
     input_base_folder,
     src_lang,
@@ -244,6 +232,7 @@ def process_download(
     use_clean_corpus_n_perl=False,
     moses_config=None,
     n_workers=(os.cpu_count() - 4),
+    chunksize=10000,
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
@@ -251,9 +240,6 @@ def process_download(
         moses_config = MOSES_DEFAULTS
 
     downloads = Path(input_base_folder) / "download"
-
-    if split == "test":
-        raise NotImplementedError("TODO: implement loading of several test sets")
 
     if kind == "til":
         pair = f"{src_lang}-{tgt_lang}"
@@ -331,9 +317,33 @@ def process_download(
         else:
             # As a last resort, we can write the data out using Moses detokenizer
             for f, output_path in [(f_tgt, src_output_path), (f_tgt, tgt_output_path)]:
-                __detokenize_and_write(
-                    f=f, output_path=output_path, n_workers=n_workers
-                ),
+
+                p_tqdm_mode = False
+                if p_tqdm_mode:
+                    import functools
+                    import p_tqdm.p_tqdm as p_tqdm
+                    from p_tqdm import p_map
+
+                    def monkeypatch() -> None:
+                        p_tqdm.Pool.map = functools.partial(p_tqdm.Pool.map, chunksize=chunksize)
+
+                    monkeypatch()
+                    detok_lines = p_map(_detok, f.stream_lines)
+
+                else:
+                    with mp.Pool(n_workers) as pool:
+                        print(
+                            f"Detokenizing using {n_workers} cores and chunksize {chunksize}"
+                        )
+                        t_start = time.time()
+                        detok_lines = pool.map(_detok, f.stream_lines, chunksize=chunksize)
+                        t_end = time.time()
+                        print(f"Time elapsed: {round(t_end - t_start, 3)}s")
+                        print(f"Writing detokenized lines to {output_path}")
+                        u.write_lines(
+                            path=output_path,
+                            lines=detok_lines,
+                        )
 
     print("Processing subwords...")
     out = process_subwords(
@@ -422,6 +432,8 @@ def process_uz(
     prefix="",
     write_detokenized=True,
     detokenized_output_path="",
+    *args,
+    **kwargs,
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -435,6 +447,8 @@ def process_uz(
         kind="til",
         write_detokenized=write_detokenized,
         detokenized_output_path=detokenized_output_path,
+        *args,
+        **kwargs,
     )
 
 
