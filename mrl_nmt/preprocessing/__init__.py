@@ -67,30 +67,25 @@ class FairseqPreprocessor:
 
     def process(self) -> None:
 
-        popen_args = [f"CUDA_VISIBLE_DEVICES={self.gpu_devices}"] if self.use_gpu else []
+        popen_args = [
+            f"CUDA_VISIBLE_DEVICES={self.gpu_devices} && {self.fairseq_cmd}"
+            if self.use_gpu
+            else self.fairseq_cmd,
+            f"--source-lang {self.src_lang}",
+            f"--target-lang {self.tgt_lang}",
+            f"--destdir {self.data_bin_folder}",
+        ]
 
-        popen_args.extend(
-            [
-                self.fairseq_cmd,
-                f"--source-lang {self.src_lang}",
-                f"--target-lang {self.tgt_lang}",
-                f"--destdir {self.data_bin_folder}",
-            ]
-        )
-
-        dicts_used = False
         for side, dict_path in zip(("src", "tgt"), (self.src_dict, self.tgt_dict)):
             if dict_path:
                 popen_args.append(f"--{side}dict {dict_path}")
-                dicts_used = True
 
-        if not dicts_used:
-            popen_args.extend(
-                [
-                    f"--{spl if spl != 'dev' else 'valid'}pref {self.prefixes[spl]}"
-                    for spl in self.splits
-                ]
-            )
+        popen_args.extend(
+            [
+                f"--{spl if spl != 'dev' else 'valid'}pref {self.prefixes[spl]}"
+                for spl in self.splits
+            ]
+        )
 
         if not self.use_gpu:
             popen_args.extend(["--cpu"])
@@ -264,8 +259,8 @@ class ExperimentPreprocessingPipeline:
                     src_dict=src_dict,
                     tgt_dict=tgt_dict,
                     splits=corpus_config["splits"],
-                    use_gpu=self.use_gpu, 
-                    gpu_devices=self.gpu_devices
+                    use_gpu=self.use_gpu,
+                    gpu_devices=self.gpu_devices,
                 )
                 fairseq.process()
 

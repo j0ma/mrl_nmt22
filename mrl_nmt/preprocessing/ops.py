@@ -1,5 +1,5 @@
-import copy
 import io
+import os
 from pathlib import Path
 from typing import Union, Iterable, Optional, Dict, Any
 import math
@@ -8,6 +8,8 @@ import itertools as it
 from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 from tqdm import tqdm
+from p_tqdm import p_map
+import shutil
 
 import mrl_nmt.preprocessing as pp
 import mrl_nmt.preprocessing.corpora as crp
@@ -208,6 +210,24 @@ def process_subwords(
     return out
 
 
+def _detok(l):
+    return MosesDetokenizer().detokenize(l.split(" "))
+
+
+def __detokenize_and_write(f, output_path, n_workers):
+    print(f"Writing detokenized lines to {output_path} using {n_workers} cores")
+
+    detok_lines = p_map(
+        _detok,
+        f.stream_lines,
+        num_cpus=n_workers,
+    )
+    u.write_lines(
+        path=output_path,
+        lines=detok_lines,
+    )
+
+
 def process_download(
     input_base_folder,
     src_lang,
@@ -219,8 +239,11 @@ def process_download(
     kind="mtdata",
     write_detokenized=False,
     detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
     use_clean_corpus_n_perl=False,
     moses_config=None,
+    n_workers=(os.cpu_count() - 4),
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
@@ -239,9 +262,10 @@ def process_download(
             downloads / split / pair / f"{pair}.{tgt_lang}",
         )
     elif kind == "mtdata":
-        src_lang_long, tgt_lang_long = u.get_long_lang_name(
-            src_lang
-        ), u.get_long_lang_name(tgt_lang)
+        src_lang_long, tgt_lang_long = (
+            u.get_long_lang_name(src_lang),
+            u.get_long_lang_name(tgt_lang),
+        )
         src_path, tgt_path = (
             downloads / f"{split}.{src_lang_long}",
             downloads / f"{split}.{tgt_lang_long}",
@@ -281,22 +305,35 @@ def process_download(
 
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
-        moses = MosesDetokenizer()
 
         detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
         if not detokenized_output_path.exists():
             print(f"Creating folder: {detokenized_output_path}")
             detokenized_output_path.mkdir(exist_ok=True, parents=True)
 
-        for f, lang in [(f_src, src_lang), (f_tgt, tgt_lang)]:
-            output_path = (
-                detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{lang}"
-            )
-            print(f"Writing detokenized lines to {output_path}")
-            u.write_lines(
-                path=output_path,
-                lines=(moses.detokenize(l.split(" ")) for l in f.stream_lines),
-            )
+        src_output_path = (
+            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
+        )
+        tgt_output_path = (
+            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
+        )
+
+        if detokenized_copy_only:
+            # This can be useful when we only need to copy a single file per side
+            for p, output_path in [(p_src, src_output_path), (p_tgt, tgt_output_path)]:
+                shutil.copy(src=p, dst=output_path)
+
+        elif detokenized_link_only:
+            # Alternatively we can just create symlinks to the raw data if it's not pretokenized
+            for p, output_path in [(p_src, src_output_path), (p_tgt, tgt_output_path)]:
+                u.create_symlink(link_path=output_path, dest_path=p)
+
+        else:
+            # As a last resort, we can write the data out using Moses detokenizer
+            for f, output_path in [(f_tgt, src_output_path), (f_tgt, tgt_output_path)]:
+                __detokenize_and_write(
+                    f=f, output_path=output_path, n_workers=n_workers
+                ),
 
     print("Processing subwords...")
     out = process_subwords(
@@ -426,7 +463,13 @@ def process_fi(
     fi_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
 ):
+
     return process_download(
         input_base_folder,
         split=split,
@@ -436,6 +479,10 @@ def process_fi(
         tgt_output_level=fi_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="mtdata",
+        write_detokenized=write_detokenized,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only,
     )
 
 
