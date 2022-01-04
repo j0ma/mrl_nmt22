@@ -20,12 +20,13 @@ fi
 
 EXPERIMENT_FOLDER="$(pwd)/experiments/${EXPERIMENT_NAME}"
 MODEL_FOLDER="${EXPERIMENT_FOLDER}/${MODEL_NAME}"
-EVAL_OUTPUT_FOLDER="${EXPERIMENT_FOLDER}/eval/${EVAL_NAME}"
-DATA_BIN_FOLDER="${EVAL_OUTPUT_FOLDER}/binarized_data"
-EVAL_CHECKPOINT="${EVAL_OUTPUT_FOLDER}/checkpoint"
 
 DEFAULT_EVAL_NAME="eval_${MODEL_NAME}"
 EVAL_NAME=${9:-$DEFAULT_EVAL_NAME}
+
+EVAL_OUTPUT_FOLDER="${EXPERIMENT_FOLDER}/eval/${EVAL_NAME}"
+DATA_BIN_FOLDER="${EVAL_OUTPUT_FOLDER}/binarized_data"
+EVAL_CHECKPOINT="${EVAL_OUTPUT_FOLDER}/checkpoint"
 
 if [[ -z $BEAM ]]; then
 	readonly BEAM=5
@@ -136,16 +137,16 @@ evaluate() {
 	echo "Evaluating into ${OUT}"
 
 	# Make raw predictions
-	CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
-		"${DATA_BIN_FOLDER}" \
+    CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
+        "${DATA_BIN_FOLDER}" \
         ${CPU_FLAG} \
-		--source-lang="${SRC_LANG}" \
-		--target-lang="${TGT_LANG}" \
-		--path="${EVAL_CHECKPOINT}" \
-		--seed="${SEED}" \
-		--gen-subset="${FAIRSEQ_MODE}" \
-		--beam="${BEAM_SIZE}" \
-		--no-progress-bar | tee "${OUT}"
+        --source-lang="${SRC_LANG}" \
+        --target-lang="${TGT_LANG}" \
+        --path="${EVAL_CHECKPOINT}" \
+        --seed="${SEED}" \
+        --gen-subset="${FAIRSEQ_MODE}" \
+        --beam="${BEAM_SIZE}" \
+        --no-progress-bar | tee "${OUT}"
 
 
 	# Separate gold/system output/source into separate text files

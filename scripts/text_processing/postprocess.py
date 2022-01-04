@@ -162,7 +162,6 @@ def main(
     ), f"Need all output paths, got: {output_paths}"
 
     print("[postprocess] Outputting lines:")
-    # import ipdb; ipdb.set_trace()
     for side, output_path in zip(sides, output_paths):
         print(f"[postprocess] Writing: {side} to {output_path}")
         u.write_lines(path=Path(output_path), lines=outputs[side], should_strip=True)

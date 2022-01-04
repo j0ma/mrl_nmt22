@@ -335,7 +335,7 @@ class Postprocessor:
     ):
         return cls(
             remove_sentencepiece=processing_to_remove == "sentencepiece",
-            remove_char=processing_to_remove == "characters",
+            remove_char=processing_to_remove in ["characters", "char", "chars"],
             detokenize=detokenize,
             verbose=verbose,
         )
