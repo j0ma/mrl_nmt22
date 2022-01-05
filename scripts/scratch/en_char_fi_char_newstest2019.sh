@@ -6,6 +6,8 @@ module load anaconda
 # Script that bundles together experiment creation, 
 # training and evaluation for English - Finnish
 
+# Meant to be used in lieu of a Guild pipeline
+
 # Parse arguments
 experiment_name=$1
 model_name=$2
