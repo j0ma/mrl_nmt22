@@ -1,0 +1,52 @@
+name: en_char_tr_char
+lang_pairs:
+  - en-tr
+
+en-tr:
+  corpora:
+    - default-train
+  src: en
+  tgt: tr
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-tr/en_char_tr_char/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-tr/en_char_tr_char/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-tr/en_char_tr_char/default-train
+          en_output_level: char
+          tr_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-tr/en_char_tr_char/default-train
+          en_output_level: char
+          tr_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-tr/en_char_tr_char/default-train
+          en_output_level: char
+          tr_output_level: char
+          split: test

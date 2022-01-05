@@ -407,6 +407,9 @@ def process_tr(
     sentencepiece_config=None,
     prefix="",
     detokenized_output_path="",
+    write_detokenized=True,
+    *args,
+    **kwargs,
 ) -> crp.CorpusSplit:
 
     return process_download(
