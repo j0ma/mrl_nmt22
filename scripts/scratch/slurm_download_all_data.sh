@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-#SBATCH --ncpus-per-task=64
-#SBATCH --mem-per-task=64G
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=64G
 #SBATCH --ntasks=1
 #SBATCH --job-name=download_all_data
 #SBATCH --output=/scratch0/jonnesaleva/download_all_training_data.out
