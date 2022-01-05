@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Script that bundles together experiment creation, 
+# training and evaluation for English - Finnish
+
 # Parse arguments
 experiment_name=$1
 model_name=$2
@@ -10,6 +13,7 @@ bin_data_folder_default_train=$5
 references_newstest2019=$6
 raw_data_folder_newstest2019=$7
 bin_data_folder_newstest2019=$8
+gpu="${9:-$CUDA_VISIBLE_DEVICES}"
 
 usage () {
     echo """
@@ -57,7 +61,8 @@ guild run nmt:train_transformer -y \
     model_name=$model_name \
     src_lang=en tgt_lang=fi  \
     max_tokens=4096 max_updates=100  \
-    gpu_device="0,1" validate_interval_updates=50
+    gpu_device="${gpu}" \
+    validate_interval_updates=50
 
 guild run nmt:evaluate_transformer -y \
     experiment_name=$experiment_name \
@@ -68,4 +73,4 @@ guild run nmt:evaluate_transformer -y \
     remove_preprocessing_references=char  \
     remove_preprocessing_source=char \
     remove_preprocessing_references_clean=none \
-    gpu_device="0,1" mode=train
+    gpu_device="${gpu}" mode=train
