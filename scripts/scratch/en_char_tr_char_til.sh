@@ -3,8 +3,8 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=64G
 #SBATCH --ntasks=1
-#SBATCH --job-name=uz
-#SBATCH --output=/scratch0/jonnesaleva/en_char_uz_char_til.out
+#SBATCH --job-name=tr
+#SBATCH --output=/scratch0/jonnesaleva/en_char_tr_char_til.out
 #SBATCH --account=guest
 #SBATCH --partition=guest-gpu
 #SBATCH --qos=low-gpu
@@ -55,17 +55,19 @@ train () {
     guild run nmt:train_transformer -y \
         experiment_name=$experiment_name \
         model_name=$model_name \
-        src_lang=en tgt_lang=uz  \
-        max_tokens=10000 batch_size=96 max_updates=1500000  \
+        src_lang=en tgt_lang=tr  \
+        max_tokens=10000 batch_size=96 max_updates=450000  \
         gpu_device="${gpu}" \
         validate_interval_updates=25000
-        save_interval_updates=500000
+        save_interval_updates=50000
+        encoder_embedding_dim=512
+        decoder_embedding_dim=512
 }
 
 evaluate () {
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
-        src_lang=en tgt_lang=uz \
+        src_lang=en tgt_lang=tr \
         model_name=$model_name eval_name="eval-${model_name}" \
         references_clean_file=$references_file \
         remove_preprocessing_hypotheses=char \

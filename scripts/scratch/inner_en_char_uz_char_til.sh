@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
-#
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=64G
-#SBATCH --ntasks=1
-#SBATCH --job-name=uz
-#SBATCH --output=/scratch0/jonnesaleva/en_char_uz_char_til.out
-#SBATCH --account=guest
-#SBATCH --partition=guest-gpu
-#SBATCH --qos=low-gpu
-#SBATCH --export=ALL
+
+set -euo pipefail
 
 # Script that bundles together experiment creation, training and evaluation 
 
@@ -22,16 +14,6 @@ conda_env_name="${MRL_NMT_ENV_NAME}"
 experiments_prefix="${MRL_NMT_EXPERIMENTS_FOLDER}"
 checkpoints_prefix="${MRL_NMT_CHECKPOINTS_FOLDER}"
 gpu="$CUDA_VISIBLE_DEVICES"
-
-echo $experiment_name
-echo $model_name
-echo $references_file
-echo $raw_data_folder
-echo $bin_data_folder
-echo $conda_env_name
-echo $experiments_prefix
-echo $checkpoints_prefix
-echo $gpu
 
 # Set up Conda environment
 source /home/$(whoami)/miniconda3/etc/profile.d/conda.sh
@@ -49,20 +31,25 @@ python scripts/create_experiment.py \
     --experiments-prefix $experiments_prefix \
     --checkpoints-prefix $checkpoints_prefix
 
-# Train + eval using Guild
+which python
+conda info
+pwd
 
+# Train + eval using Guild
 train () {
+    echo "TRAINING"
     guild run nmt:train_transformer -y \
-        experiment_name=$experiment_name \
-        model_name=$model_name \
-        src_lang=en tgt_lang=uz  \
-        max_tokens=10000 batch_size=96 max_updates=1500000  \
-        gpu_device="${gpu}" \
-        validate_interval_updates=25000
-        save_interval_updates=500000
+    experiment_name=$experiment_name \
+    model_name=$model_name \
+    src_lang=en tgt_lang=uz  \
+    max_tokens=10000 batch_size=96 max_updates=1500000  \
+    gpu_device="${gpu}" \
+    validate_interval_updates=25000
+    save_interval_updates=500000
 }
 
 evaluate () {
+    echo "EVALUATION"
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
         src_lang=en tgt_lang=uz \

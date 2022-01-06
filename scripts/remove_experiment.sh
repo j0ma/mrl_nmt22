@@ -7,4 +7,4 @@ set -euo pipefail
 
 experiment_name=$1
 
-rm -vir {experiments,checkpoints}/*${experiment_name}*
+rm -vrf {experiments,checkpoints}/*${experiment_name}*

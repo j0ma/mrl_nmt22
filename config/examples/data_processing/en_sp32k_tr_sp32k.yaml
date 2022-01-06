@@ -75,3 +75,12 @@ en-tr:
           en_output_level: sentencepiece
           tr_output_level: sentencepiece
           split: test
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-tr/en_sp32k_tr_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-tr/en_sp32k_tr_sp32k
+              model_file: tr_sp32k.bin
+              use_pretrained_model: true

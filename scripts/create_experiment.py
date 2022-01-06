@@ -96,6 +96,7 @@ class ExperimentFolder:
             )
 
         except (FileNotFoundError, OSError):
+            raise
             self.tear_down_folder(path=eval_folder)
 
         return eval_folder
@@ -155,6 +156,7 @@ class ExperimentFolder:
                 )
 
         except (FileNotFoundError, OSError):
+            raise
             self.tear_down_folder(path=self.checkpoint_folder)
             self.teardown()
 
@@ -203,6 +205,7 @@ class ExperimentFolder:
             )
 
         except (FileNotFoundError, OSError):
+            raise
             self.tear_down_folder(path=eval_folder)
             self.tear_down_folder(path=self.checkpoint_folder)
 
@@ -216,6 +219,7 @@ class ExperimentFolder:
         try:
             full_cpt_path.mkdir(parents=True, exist_ok=True)
         except (FileNotFoundError, OSError):
+            raise
             self.tear_down_folder(full_cpt_path)
 
         return full_cpt_path

@@ -102,6 +102,7 @@ train() {
     
     CUDA_VISIBLE_DEVICES=${GPU_DEVICE} fairseq-train \
         "${DATA_BIN_PATH}" \
+        --task translation \
         --save-dir="${CP}" \
         --source-lang="${SRC_LANG}" \
         --target-lang="${TGT_LANG}" \
@@ -131,6 +132,7 @@ train() {
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
+        --max-source-positions=2500 --max-target-positions=2500 \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
         
