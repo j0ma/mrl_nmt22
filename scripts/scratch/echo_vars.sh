@@ -10,5 +10,18 @@
 #SBATCH --qos=low
 #SBATCH --export=TEST_ASDF,TEST_FDSA
 
+# Set up Conda environment
+source /home/$(whoami)/miniconda3/etc/profile.d/conda.sh
+conda activate fairseq-py3.8
+
+guild run slurm:echo_something msg=henlo -y
+guild operations
+
+opsnames=$(guild operations)
+
+echo "Guild ops: ${opsnames}"
+
 echo "TEST_ASDF = ${TEST_ASDF}"
 echo "TEST_FDSA = ${TEST_FDSA}"
+
+ls -l .

@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=64G
 #SBATCH --ntasks=1
-#SBATCH --job-name=tr
+#SBATCH --job-name=tr32
 #SBATCH --output=/scratch0/jonnesaleva/en_sp32k_tr_sp32k_til.out
 #SBATCH --account=guest
 #SBATCH --partition=guest-gpu
@@ -40,7 +40,7 @@ conda activate $conda_env_name
 # Experiment folder creation
 
 ### Create experiment folder & train/eval folders for default corpus
-preprocess () {
+prep () {
     python scripts/create_experiment.py \
         --experiment-name $experiment_name \
         --references-file $references_file \
@@ -58,19 +58,22 @@ train () {
         experiment_name=$experiment_name \
         model_name=$model_name \
         src_lang=en tgt_lang=tr  \
-        max_tokens=10000 batch_size=96 max_updates=1100000  \
+        max_tokens=10000 batch_size=96 max_updates=450000  \
         gpu_device="${gpu}" \
-        validate_interval_updates=25000
-        save_interval_updates=50000
-        encoder_embedding_dim=512
-        decoder_embedding_dim=512
+        validate_interval_updates=10000 \
+        save_interval_updates=50000 \
+        encoder_embedding_dim=512 \
+        decoder_embedding_dim=512 \
+        lr=0.0003 p_dropout=0.2 \
+        encoder_layers=6 encoder_attention_heads=8 encoder_hidden_size=2048 \
+        decoder_layers=6 decoder_attention_heads=8 decoder_hidden_size=2048 
 }
 
 evaluate () {
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
         src_lang=en tgt_lang=tr \
-        model_name=$model_name eval_name="eval-${model_name}" \
+        model_name=$model_name eval_name="eval_${model_name}" \
         references_clean_file=$references_file \
         remove_preprocessing_hypotheses=sentencepiece \
         remove_preprocessing_references=sentencepiece  \
@@ -83,4 +86,4 @@ evaluate () {
         gpu_device="${gpu}" mode="test"
 }
 
-preprocess && train && evaluate
+prep && train #&& evaluate

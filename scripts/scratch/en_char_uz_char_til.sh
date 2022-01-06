@@ -66,7 +66,7 @@ evaluate () {
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
         src_lang=en tgt_lang=uz \
-        model_name=$model_name eval_name="eval-${model_name}" \
+        model_name=$model_name eval_name="eval_${model_name}" \
         references_clean_file=$references_file \
         remove_preprocessing_hypotheses=char \
         remove_preprocessing_references=char  \

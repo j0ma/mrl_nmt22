@@ -133,6 +133,7 @@ train() {
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
         --max-source-positions=2500 --max-target-positions=2500 \
+        --skip-invalid-size-inputs-valid-test \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
         
