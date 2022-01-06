@@ -10,7 +10,7 @@
 #SBATCH --qos=low-gpu
 #SBATCH --gres=gpu:V100:10   # Request V100 GPUs
 
-bash scripts/scratch/en_char_fi_char_newstest2019.sh \
+bash scripts/slurm/en_char_fi_char_newstest2019.sh \
     en_char_fi_char_slurm slurmformer \
     /home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train/en-fi.dev.detok.fi \
     /home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train \

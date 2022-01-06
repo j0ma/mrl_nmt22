@@ -1,45 +1,9 @@
-#!/usr/bin/env bash
-#
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=64G
-#SBATCH --ntasks=1
-#SBATCH --job-name=uz32
-#SBATCH --output=/scratch0/jonnesaleva/en_sp32k_uz_sp32k_til.out
-#SBATCH --account=guest
-#SBATCH --partition=guest-gpu
-#SBATCH --qos=low-gpu
-#SBATCH --export=ALL
+activate_conda_env () {
+    local conda_env_name=${1:-fairseq-py3.8}
+    source /home/$(whoami)/miniconda3/etc/profile.d/conda.sh
+    conda activate $conda_env_name
+}
 
-# Script that bundles together experiment creation, training and evaluation 
-
-# Parse arguments from environment (passed by Guild)
-experiment_name="${MRL_NMT_EXPERIMENT_NAME}"
-model_name="${MRL_NMT_MODEL_NAME}"
-references_file="${MRL_NMT_REFERENCES_FILE}"
-raw_data_folder="${MRL_NMT_RAW_DATA_FOLDER}"
-bin_data_folder="${MRL_NMT_BIN_DATA_FOLDER}"
-conda_env_name="${MRL_NMT_ENV_NAME}"
-experiments_prefix="${MRL_NMT_EXPERIMENTS_FOLDER}"
-checkpoints_prefix="${MRL_NMT_CHECKPOINTS_FOLDER}"
-gpu="$CUDA_VISIBLE_DEVICES"
-
-echo $experiment_name
-echo $model_name
-echo $references_file
-echo $raw_data_folder
-echo $bin_data_folder
-echo $conda_env_name
-echo $experiments_prefix
-echo $checkpoints_prefix
-echo $gpu
-
-# Set up Conda environment
-source /home/$(whoami)/miniconda3/etc/profile.d/conda.sh
-conda activate $conda_env_name
-
-# Experiment folder creation
-
-### Create experiment folder & train/eval folders for default corpus
 prep () {
     python scripts/create_experiment.py \
         --experiment-name $experiment_name \
@@ -51,7 +15,6 @@ prep () {
         --checkpoints-prefix $checkpoints_prefix
 }
 
-# Train + eval using Guild
 
 train () {
     guild run nmt:train_transformer -y \
@@ -85,5 +48,3 @@ evaluate () {
         detokenize_references_clean=no \
         gpu_device="${gpu}" mode="test"
 }
-
-prep && train #&& evaluate

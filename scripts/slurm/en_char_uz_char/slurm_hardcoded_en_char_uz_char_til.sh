@@ -19,4 +19,4 @@ export MRL_NMT_ENV_NAME=fairseq-py3.8
 export MRL_NMT_EXPERIMENTS_FOLDER=/home/jonnesaleva/mrl_nmt22/experiments
 export MRL_NMT_CHECKPOINTS_FOLDER=/home/jonnesaleva/mrl_nmt22/checkpoints
 
-bash scripts/scratch/inner_en_char_uz_char_til.sh
+bash scripts/slurm/inner_en_char_uz_char_til.sh
