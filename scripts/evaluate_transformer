@@ -140,12 +140,11 @@ evaluate() {
     CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
         "${DATA_BIN_FOLDER}" \
         ${CPU_FLAG} \
-        --task=translation \
+        --task=translation --truncate-source \
         --source-lang="${SRC_LANG}" \
         --target-lang="${TGT_LANG}" \
         --path="${EVAL_CHECKPOINT}" \
         --seed="${SEED}" \
-        --max-source-positions 5000 --max-target-positions 5000 \
         --gen-subset="${FAIRSEQ_MODE}" \
         --beam="${BEAM_SIZE}" \
         --no-progress-bar | tee "${OUT}"
