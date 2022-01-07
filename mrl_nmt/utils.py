@@ -226,10 +226,17 @@ def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
 
 
-def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path]) -> None:
-    Path(link_path).expanduser().absolute().symlink_to(
-        target=Path(dest_path).expanduser().absolute()
-    )
+def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path], exists_ok: bool = True) -> None:
+    try:
+        Path(link_path).expanduser().absolute().symlink_to(
+            target=Path(dest_path).expanduser().absolute()
+        )
+    except FileExistsError:
+        if exists_ok:
+            print(f"Existing link found at {link_path}! Skipping...")
+        else:
+            raise
+
 
 
 def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
