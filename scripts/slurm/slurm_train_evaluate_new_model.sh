@@ -9,6 +9,7 @@
 #SBATCH --export=ALL
 
 # Script that bundles together experiment creation, training and evaluation 
+set -euxo pipefail
 
 # Parse arguments from environment (passed by Guild)
 batch_size="${MRL_NMT_BATCH_SIZE}"
@@ -52,6 +53,8 @@ source scripts/slurm/slurm_functions.sh
 
 # Set up Conda environment
 activate_conda_env $conda_env_name
+python --version
+which python
 
 _prep_train () {
     prep_train \
@@ -89,7 +92,7 @@ _train () {
 }
 
 _evaluate () {
-    evaluate
+    evaluate \
         $experiment_name \
         $src_lang \
         $tgt_lang \
