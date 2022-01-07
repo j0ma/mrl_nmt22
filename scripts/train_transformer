@@ -125,6 +125,7 @@ train() {
         --criterion="${CRITERION}" \
         --label-smoothing="${LABEL_SMOOTHING}" \
         --optimizer="${OPTIMIZER}" \
+        --adam-betas '(0.9, 0.98)' \
         --lr="${LR}" \
         --lr-scheduler="${LR_SCHEDULER}" \
         --clip-norm="${CLIP_NORM}" \
@@ -132,6 +133,7 @@ train() {
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
+        --no-epoch-checkpoints \
         --max-source-positions=2500 --max-target-positions=2500 \
         --skip-invalid-size-inputs-valid-test \
         --fp16 \
