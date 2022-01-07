@@ -40,6 +40,7 @@ prep_eval () {
         --experiment-name $experiment_name \
         --model-name $model_name \
         --eval-name $eval_name \
+        --eval-only \
         --eval-model-checkpoint $eval_model_checkpoint \
         --references-file $references_clean_file \
         --raw-data-folder $raw_data_folder \
@@ -70,6 +71,7 @@ train () {
 	local decoder_layers=${17}
 	local decoder_attention_heads=${18}
 	local decoder_hidden_size=${19}
+    local p_dropout=${20}
 
     guild run nmt:train_transformer -y \
         experiment_name=$experiment_name \
@@ -84,7 +86,7 @@ train () {
         save_interval_updates=$save_interval_updates \
         encoder_embedding_dim=$encoder_embedding_dim \
         decoder_embedding_dim=$decoder_embedding_dim \
-        lr=$lr \
+        lr=$lr p_dropout=$p_dropout \
         encoder_layers=$encoder_layers \
         encoder_attention_heads=$encoder_attention_heads \
         encoder_hidden_size=$encoder_hidden_size \
@@ -110,13 +112,14 @@ evaluate () {
 	local detokenize_references_clean=${13}
 	local gpu_device=${14}
     local mode=${15}
+    local eval_name=${16}
 
 
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
         src_lang=$src_lang tgt_lang=$tgt_lang \
-        model_name=$model_name eval_name="eval_${model_name}" \
-        references_clean_file=$references_file \
+        model_name=$model_name eval_name=$eval_name \
+        references_clean_file=$references_clean_file \
         remove_preprocessing_hypotheses=$remove_preprocessing_hypotheses \
         remove_preprocessing_references=$remove_preprocessing_references  \
         remove_preprocessing_source=$remove_preprocessing_source \

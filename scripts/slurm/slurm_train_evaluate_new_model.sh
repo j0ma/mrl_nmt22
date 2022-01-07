@@ -3,8 +3,6 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=64G
 #SBATCH --ntasks=1
-#SBATCH --job-name=uz-char
-#SBATCH --output=/scratch0/jonnesaleva/en_char_uz_char_til.out
 #SBATCH --account=guest
 #SBATCH --partition=guest-gpu
 #SBATCH --qos=low-gpu

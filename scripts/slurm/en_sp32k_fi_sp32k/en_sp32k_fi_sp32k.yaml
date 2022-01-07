@@ -1,0 +1,123 @@
+name: en_sp32k_fi_sp32k
+lang_pairs:
+  - en-fi
+
+en-fi:
+  corpora:
+    #- default-train
+    - newstest-2019
+    - newstest-2018
+  src: en
+  tgt: fi
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              input_sentence_size: 5000000
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: en_sp32k.bin
+              shuffle_input_sentence: true
+              use_pretrained_model: false
+              vocab_size: 32000
+            tgt:
+              input_sentence_size: 5000000
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k 
+              model_file: fi_sp32k.bin
+              shuffle_input_sentence: true
+              use_pretrained_model: false
+              vocab_size: 32000
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: fi_sp32k.bin
+              use_pretrained_model: true
+
+  newstest-2018:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2018
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2018
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: fi_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
+  newstest-2019:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2019
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2019
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k
+              model_file: fi_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}

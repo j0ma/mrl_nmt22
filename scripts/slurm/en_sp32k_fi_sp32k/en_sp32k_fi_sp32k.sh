@@ -3,8 +3,8 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=64G
 #SBATCH --ntasks=1
-#SBATCH --job-name=tr32
-#SBATCH --output=/scratch0/jonnesaleva/en_sp32k_tr_sp32k_til.out
+#SBATCH --job-name=fi32
+#SBATCH --output=/scratch0/jonnesaleva/en_sp32k_fi_sp32k_til.out
 #SBATCH --account=guest
 #SBATCH --partition=guest-gpu
 #SBATCH --qos=low-gpu
@@ -57,7 +57,7 @@ train () {
     guild run nmt:train_transformer -y \
         experiment_name=$experiment_name \
         model_name=$model_name \
-        src_lang=en tgt_lang=tr  \
+        src_lang=en tgt_lang=fi  \
         max_tokens=5000 batch_size=96 max_updates=150000  \
         gpu_device="${gpu}" \
         validate_interval_updates=10000 \
@@ -69,21 +69,5 @@ train () {
         decoder_layers=6 decoder_attention_heads=8 decoder_hidden_size=2048 
 }
 
-evaluate () {
-    guild run nmt:evaluate_transformer -y \
-        experiment_name=$experiment_name \
-        src_lang=en tgt_lang=tr \
-        model_name=$model_name eval_name="eval_${model_name}" \
-        references_clean_file=$references_file \
-        remove_preprocessing_hypotheses=sentencepiece \
-        remove_preprocessing_references=sentencepiece  \
-        remove_preprocessing_source=sentencepiece \
-        remove_preprocessing_references_clean=none \
-        detokenize_hypotheses=no \
-        detokenize_references=no  \
-        detokenize_source=no \
-        detokenize_references_clean=no \
-        gpu_device="${gpu}" mode="test"
-}
 
-prep && train #&& evaluate
+prep && train 
