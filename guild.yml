@@ -84,7 +84,7 @@
       default: 0.00000001
     clip_norm:
       type: float
-      default: 1.0
+      default: 0.1
     save_interval_updates:
       type: int
       default: 25000
