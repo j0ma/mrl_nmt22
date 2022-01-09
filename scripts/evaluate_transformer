@@ -140,7 +140,7 @@ evaluate() {
     CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
         "${DATA_BIN_FOLDER}" \
         ${CPU_FLAG} \
-        --task=translation --truncate-source \
+        --task=translation --truncate-source --truncate-target \
         --source-lang="${SRC_LANG}" \
         --target-lang="${TGT_LANG}" \
         --path="${EVAL_CHECKPOINT}" \
