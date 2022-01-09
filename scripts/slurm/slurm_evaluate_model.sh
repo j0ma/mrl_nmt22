@@ -7,7 +7,7 @@
 #SBATCH --partition=guest-gpu
 #SBATCH --qos=low-gpu
 #SBATCH --export=ALL
-#SBATCH --output=/scratch0/eval.out
+#SBATCH --output=/scratch0/jonnesaleva/eval.out
 
 set -euo pipefail
 
