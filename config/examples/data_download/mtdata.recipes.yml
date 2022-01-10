@@ -109,7 +109,7 @@
   desc: "English -> Finnish, newstest-2018"
   train:
     # only use eng-fin
-    - Statmt-newstest_enfi-2019-eng-fin
+    - Statmt-newstest_enfi-2018-eng-fin
   dev:
   test:
 
