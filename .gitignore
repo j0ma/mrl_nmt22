@@ -3,9 +3,16 @@ checkpoints/
 experiments/
 data-bin/
 log/
+scratch/
 raw_data
 
 *.idea/
+
+# Also ignore the symlink versions
+checkpoints
+experiments
+data-bin
+scratch
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -3,7 +3,14 @@ checkpoints/
 experiments/
 data-bin/
 log/
+scratch/
 raw_data
+
+# Also ignore the symlink versions
+checkpoints
+experiments
+data-bin
+scratch
 
 *.idea/
 
