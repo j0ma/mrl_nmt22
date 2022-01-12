@@ -670,21 +670,15 @@ class TestPreprocessingOps(unittest.TestCase):
             mrl_nmt.preprocessing.CorpusSplit.from_text_file(
                 text_file=self.eng, split="train"
             ),
-            4,
+            2,
         )
         multi_corpus = mrl_nmt.preprocessing.CorpusSplit.stack_text_files(
-            text_files=[self.fin, self.swe, self.fin, self.swe], split="train"
+            text_files=[self.fin, self.swe], split="train"
         )
 
         combined_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
             src=multi_corpus, tgt=en_corpus, split="train"
         )
-
-        line_count = 0
-        for _ in combined_corpus.lines:
-            line_count += 1
-
-        print(f"\n\n[test_create_multilingual_corpus] Multilingual corpus: {line_count} lines")
 
     @unittest.skip("Deprecated in favor of MTData")
     def test_load_commoncrawl(self):

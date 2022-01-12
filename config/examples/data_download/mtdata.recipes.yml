@@ -10,24 +10,32 @@
     - Tilde-rapid-2019-ces-eng
     - OPUS-wikimatrix-1-ces-eng
   dev:
-    - Statmt-newstest_csen-2018-ces-eng
-    - Statmt-newstest_encs-2018-eng-ces
-    - Statmt-newstest_encs-2017-eng-ces
-    - Statmt-newstest_csen-2017-ces-eng
-    - Statmt-newstest_encs-2016-eng-ces
-    - Statmt-newstest_csen-2016-ces-eng
-    - Statmt-newstest_csen-2015-ces-eng
-    - Statmt-newstest_encs-2015-eng-ces
-    - Statmt-newstest_csen-2014-ces-eng
-    - Statmt-newstest-2013-eng-ces
-    - Statmt-newstest-2012-eng-ces
-    - Statmt-newstest-2011-eng-ces
-    - Statmt-newstest-2010-eng-ces
-    - Statmt-newstest-2009-eng-ces
+    - Statmt-newstest_encs-2019-eng-ces
   test:
     - Statmt-newstest_encs-2020-eng-ces
-    - Statmt-newstest_csen-2020-ces-eng
-    - Statmt-newstest_encs-2019-eng-ces
+
+- id: mrl-en-cs-wmt-late
+  langs: eng-ces
+  desc: "English - Czech, later WMT corpora"
+  train:
+    - Statmt-newstest_encs-2015-eng-ces
+    - Statmt-newstest_encs-2016-eng-ces
+  dev:
+    - Statmt-newstest_encs-2017-eng-ces
+    - Statmt-newstest_encs-2018-eng-ces
+  test:
+
+- id: mrl-en-cs-wmt-early
+  langs: eng-ces
+  desc: "English - Czech, earlier WMT corpora"
+  train:
+    - Statmt-newstest-2009-eng-ces
+    - Statmt-newstest-2010-eng-ces
+  dev:
+    - Statmt-newstest-2011-eng-ces
+    - Statmt-newstest-2012-eng-ces
+    - Statmt-newstest-2013-eng-ces
+  test:
 
 # German
 - id: mrl-en-de-default-train
@@ -41,27 +49,32 @@
     - Tilde-rapid-2019-deu-eng
     - OPUS-wikimatrix-1-deu-eng
   dev:
-    - Statmt-newstest_deen-2018-deu-eng
-    - Statmt-newstest_ende-2018-eng-deu
-    - Statmt-newstest_deen-2017-deu-eng
-    - Statmt-newstest_ende-2017-eng-deu
-    - Statmt-newstest_ende-2016-eng-deu
-    - Statmt-newstest_deen-2016-deu-eng
-    - Statmt-newstest_deen-2015-deu-eng
-    - Statmt-newstest_ende-2015-eng-deu
-    - Statmt-newstest_deen-2014-deu-eng
-    - Statmt-newstest-2013-eng-deu
-    - Statmt-newstest-2012-eng-deu
-    - Statmt-newstest-2011-eng-deu
-    - Statmt-newstest-2010-eng-deu
-    - Statmt-newstest-2009-eng-deu
-  test:
-    - Statmt-newstestb_ende-2020-eng-deu
-    - Statmt-newstestb_deen-2020-deu-eng
-    - Statmt-newstest_ende-2020-eng-deu
-    - Statmt-newstest_deen-2020-deu-eng
     - Statmt-newstest_ende-2019-eng-deu
-    - Statmt-newstest_deen-2019-deu-eng
+  test:
+    - Statmt-newstest_ende-2020-eng-deu
+
+- id: mrl-en-de-wmt-early
+  langs: eng-deu
+  desc: "English - German, mimics WMT 2020 News Task"
+  train:
+    - Statmt-newstest-2009-eng-deu
+    - Statmt-newstest-2010-eng-deu
+  dev:
+    - Statmt-newstest-2011-eng-deu
+    - Statmt-newstest-2012-eng-deu
+  test:
+    - Statmt-newstest-2013-eng-deu
+
+- id: mrl-en-de-wmt-late
+  langs: eng-deu
+  desc: "English - German, mimics WMT 2020 News Task"
+  train:
+    - Statmt-newstest_ende-2015-eng-deu
+    - Statmt-newstest_ende-2016-eng-deu
+  dev:
+    - Statmt-newstest_ende-2017-eng-deu
+  test:
+    - Statmt-newstest_ende-2018-eng-deu
 
 # Russian
 - id: mrl-en-ru-default-train
@@ -145,20 +158,25 @@
     - Statmt-newstest_eten-2018-est-eng
 
 # Inuktitut
-- id: mrl-en-iu-default-train
+- id: mrl-en-iu-hansard
   langs: eng-iku
-  desc: "English - Inuktitut, Hansard corpus + WMT dev/test sets from 2020"
+  desc: "English -> Inuktitut, Hansard corpus"
   train:
     - NRC_CA-nunavut_hansard_train-3-iku-eng
   dev:
-    - NRC_CA-nunavut_hansard_dev-3-iku-eng
     - NRC_CA-nunavut_hansard_devtest-3-iku-eng
-    - Statmt-newsdev_iuen-2020-iku-eng
-    - Statmt-newsdev_eniu-2020-eng-iku
   test:
     - NRC_CA-nunavut_hansard_test-3-iku-eng
-    - Statmt-newstest_iuen-2020-iku-eng
+
+
+- id: mrl-en-iu-wmt20
+  langs: eng-iku
+  desc: "English - Inuktitut, WMT dev/test sets from 2020"
+  train:
+    - Statmt-newsdev_eniu-2020-eng-iku
+  dev:
     - Statmt-newstest_eniu-2020-eng-iku
+  test:
 
 # Vietnamese
 - id: mrl-en-vi-default-train

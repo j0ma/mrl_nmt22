@@ -252,9 +252,11 @@ def process_download(
             u.get_long_lang_name(src_lang),
             u.get_long_lang_name(tgt_lang),
         )
+        # mtdata doesn't merge test files when handling recipes, work around this
+        _split = split if split != "test" else "test1"
         src_path, tgt_path = (
-            downloads / f"{split}.{src_lang_long}",
-            downloads / f"{split}.{tgt_lang_long}",
+            downloads / f"{_split}.{src_lang_long}",
+            downloads / f"{_split}.{tgt_lang_long}",
         )
     else:
         raise ValueError(f"Expected kind=mtdata or til but got {kind}")
@@ -362,7 +364,12 @@ def process_vi(
     vi_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
     detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -376,6 +383,8 @@ def process_vi(
         kind="mtdata",
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only
     )
 
 
@@ -385,6 +394,12 @@ def process_cs(
     cs_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -423,6 +438,7 @@ def process_tr(
         kind="til",
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
+        *args, **kwargs
     )
 
 
@@ -461,6 +477,12 @@ def process_de(
     de_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
 ):
     return process_download(
         input_base_folder,
@@ -471,6 +493,11 @@ def process_de(
         tgt_output_level=de_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="mtdata",
+        write_detokenized=write_detokenized,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only,
+        *args, **kwargs
     )
 
 
@@ -485,6 +512,7 @@ def process_fi(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
+    *args, **kwargs
 ):
 
     return process_download(
@@ -500,6 +528,7 @@ def process_fi(
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
         detokenized_link_only=detokenized_link_only,
+        *args, **kwargs
     )
 
 
@@ -509,6 +538,12 @@ def process_iu(
     iu_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
 ):
     return process_download(
         input_base_folder,
@@ -519,6 +554,11 @@ def process_iu(
         tgt_output_level=iu_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="mtdata",
+        write_detokenized=write_detokenized,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only,
+        *args, **kwargs
     )
 
 
@@ -528,6 +568,12 @@ def process_ru(
     ru_output_level="word",
     en_output_level="word",
     sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
 ):
     return process_download(
         input_base_folder,
@@ -538,6 +584,11 @@ def process_ru(
         tgt_output_level=ru_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="mtdata",
+        write_detokenized=write_detokenized,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only,
+        *args, **kwargs
     )
 
 
