@@ -133,7 +133,7 @@ train() {
         --max-tokens="${MAX_TOKENS}" \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
         --validate-interval-updates="${VALIDATE_INTERVAL_UPDATES}" \
-        --no-epoch-checkpoints \
+        --no-epoch-checkpoints --keep-best-checkpoints 10 \
         --max-source-positions=2500 --max-target-positions=2500 \
         --skip-invalid-size-inputs-valid-test \
         --fp16 \
