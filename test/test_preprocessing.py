@@ -41,11 +41,13 @@ FULL_DATA_PATH = Path(local_development_path).expanduser()
 
 # Case: server development
 server_development_path = "~/datasets/mrl_nmt22/"
+
 if not FULL_DATA_PATH.exists():
     print(f"FULL_DATA_PATH not found under {local_development_path}")
     FULL_DATA_PATH = Path(server_development_path).expanduser()
 
 # Fallback: try to pick from environment
+
 if not FULL_DATA_PATH.exists():
     print(f"FULL_DATA_PATH not found under {server_development_path}")
     try:
@@ -72,6 +74,7 @@ N_LINES_EN_UZ_TRAIN = 529574
 # Set SKIP_LARGE_TESTS=True to always enable large tests
 RAM_GB_THRESHOLD = 30
 giga_ram = psu.virtual_memory().total // 10 ** 9
+
 if giga_ram <= RAM_GB_THRESHOLD:
     SKIP_LARGE_TESTS = True
     print(
@@ -83,6 +86,7 @@ else:
 
 def get_moses_path():
     _prefix = Path("..") if str(Path.cwd()).endswith("/test") else Path(".")
+
     return Path(f"{_prefix}/moses/scripts")
 
 
@@ -121,6 +125,7 @@ class TestTextUtils(unittest.TestCase):
 
         # the stream should consist of 3 lines
         line_count = 0
+
         for _ in sample_tsv:
             line_count += 1
         self.assertEqual(3, line_count)
@@ -251,6 +256,7 @@ class TestLoadedTextFileRAM(unittest.TestCase):
             msg="Here area few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
+
                 for first, second in enumerate(
                     zip(self.swe_in_ram_src.lines, self.swe_in_ram_src.lines[1:])
                 )
@@ -319,6 +325,7 @@ class TestLoadedTextFileStream(unittest.TestCase):
             msg="Here are a few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
+
                 for first, second in enumerate(zip(first_iter, second_iter))
             ),
         )
@@ -676,8 +683,17 @@ class TestPreprocessingOps(unittest.TestCase):
             text_files=[self.fin, self.swe], split="train"
         )
 
-        combined_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
-            src=multi_corpus, tgt=en_corpus, split="train"
+        combined_corpus = ops.add_lang_token(
+            mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
+                src=multi_corpus, tgt=en_corpus, split="train"
+            ),
+            side="src",
+        )
+
+        u.print_a_few_lines(
+            combined_corpus.lines,
+            msg="[test_create_multilingual_corpus] Multilingual corpus lines:",
+            n_lines=10
         )
 
     @unittest.skip("Deprecated in favor of MTData")
@@ -687,6 +703,7 @@ class TestPreprocessingOps(unittest.TestCase):
         )
 
         cnt = 0
+
         for line in tqdm(cc.lines):
             cnt += 1
 
@@ -746,6 +763,7 @@ class TestPreprocessingOps(unittest.TestCase):
 
         u.print_a_few_lines(
             "Source: {}\nTarget: {}".format(d["tgt"]["text"], d["src"]["text"])
+
             for d in corpus.lines
         )
 
@@ -755,6 +773,7 @@ class TestPreprocessingOps(unittest.TestCase):
             folder=FULL_EN_CS_PATH, foreign_language="cs"
         )
         line_count = 0
+
         for line in pc.lines:
             if line_count < 5:
                 print(line)
@@ -777,6 +796,7 @@ class TestPreprocessingOps(unittest.TestCase):
                 tgt_language="en",
                 split=split,
             )
+
             return news_commentary_train, rapid_train
 
         input_base_folder = FULL_DATA_PATH / "cs" / "en-cs"
@@ -829,6 +849,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     detokenized_output_path="/tmp/tr_detok_test/",
                 )
                 line_count = 0
+
                 for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
@@ -871,6 +892,7 @@ class TestParallelCorpusStats(unittest.TestCase):
         for src_lvl, tgt_lvl in zip(levels, levels):
             print(f"\n[src_output_level]: {src_lvl}")
             print(f"[tgt_output_level]: {tgt_lvl}")
+
             if src_lvl != "morph" and tgt_lvl != "morph":
                 en_tr_corpus = ops.process_tr(
                     input_base_folder=FULL_EN_TR_PATH,
@@ -881,6 +903,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     detokenized_output_path="/tmp/tr_detok_test/",
                 )
                 line_count = 0
+
                 for _ in tqdm(en_tr_corpus.lines):
                     line_count += 1
 
@@ -928,6 +951,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     detokenized_output_path="/tmp/uz_detok_test/",
                 )
                 line_count = 0
+
                 for _ in tqdm(en_uz_corpus.lines):
                     line_count += 1
 
@@ -978,6 +1002,7 @@ class TestParallelCorpusStats(unittest.TestCase):
                     detokenized_output_path="/tmp/uz_detok_test/",
                 )
                 line_count = 0
+
                 for _ in tqdm(en_uz_corpus.lines):
                     line_count += 1
 
