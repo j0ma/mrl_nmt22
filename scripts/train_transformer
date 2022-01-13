@@ -129,7 +129,6 @@ train() {
         --lr="${LR}" \
         --lr-scheduler="${LR_SCHEDULER}" \
         --clip-norm="${CLIP_NORM}" \
-        --batch-size="${BATCH_SIZE}" \
         --max-tokens="${MAX_TOKENS}" \
         --update-freq=16 \
         --save-interval-updates="${SAVE_INTERVAL_UPDATES}" \
@@ -139,6 +138,9 @@ train() {
         --skip-invalid-size-inputs-valid-test \
         --fp16 \
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
+        
+        # Disable batch size in favor of max-tokens 
+        #--batch-size="${BATCH_SIZE}" \
         
         # Re-enable these later if fairseq fixed
         #--eval-bleu ${EVAL_BLEU_REMOVE_BPE_FLAG} \
