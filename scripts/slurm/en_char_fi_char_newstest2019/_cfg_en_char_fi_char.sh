@@ -13,12 +13,12 @@ export MRL_NMT_DETOKENIZE_SOURCE=yes
 export MRL_NMT_ENCODER_HIDDEN_SIZE=2048
 export MRL_NMT_ENCODER_LAYERS=6
 export MRL_NMT_ENV_NAME=fairseq-py3.8
-export MRL_NMT_EXPERIMENT_NAME=en_char_fi_char_slurm_test16x
+export MRL_NMT_EXPERIMENT_NAME=en_char_fi_char_slurm_test16x_10kupdates
 export MRL_NMT_EXPERIMENTS_FOLDER=/home/jonnesaleva/mrl_nmt22/experiments
-export MRL_NMT_LEARNING_RATE=0.05 # larger LR
+export MRL_NMT_LEARNING_RATE=0.001 # larger LR
 export MRL_NMT_MAX_TOKENS=8192
-export MRL_NMT_MAX_UPDATES=50000
-export MRL_NMT_MODEL_NAME=slurmformer_clipnorm0.1_50k_lr0.05
+export MRL_NMT_MAX_UPDATES=10000
+export MRL_NMT_MODEL_NAME=slurmformer_clipnorm0.1_10k_lr0.001_sqrt
 export MRL_NMT_P_DROPOUT=0.2
 export MRL_NMT_REMOVE_PREPROCESSING_HYPOTHESES=char
 export MRL_NMT_REMOVE_PREPROCESSING_REFERENCES_CLEAN=none
@@ -27,20 +27,21 @@ export MRL_NMT_REMOVE_PREPROCESSING_SOURCE=char
 export MRL_NMT_SAVE_INTERVAL_UPDATES=50000
 export MRL_NMT_SRC_LANG=en
 export MRL_NMT_TGT_LANG=fi
-export MRL_NMT_VALIDATE_INTERVAL_UPDATES=10000
+export MRL_NMT_VALIDATE_INTERVAL_UPDATES=500 # validate more often
+export MRL_NMT_PATIENCE=3
 
 # corpus: default-train
 export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_char_fi_char/default-train/
 export MRL_NMT_EVAL_MODE="dev"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_char_fi_char_slurm_test16x/eval/eval_slurmformer_clipnorm0.1_50k_lr0.05/checkpoint"
-export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_50k_lr0.05"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_char_fi_char_slurm_test16x_10kupdates/eval/eval_slurmformer_clipnorm0.1_10k_lr0.001_sqrt/checkpoint"
+export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_10k_lr0.001_sqrt"
 export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train
 export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/default-train/en-fi.dev.detok.fi
 
 # uncomment to evaluate on newstest-2019
 #export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_char_fi_char/newstest-2019/
 #export MRL_NMT_EVAL_MODE="train"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_char_fi_char_slurm_test16x/eval/eval_slurmformer_clipnorm0.1_50k_lr0.05/checkpoint"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_char_fi_char_slurm_test16x/eval/eval_slurmformer_clipnorm0.1_10k_lr0.001_sqrt/checkpoint"
 #export MRL_NMT_EVAL_NAME="newstest-2019"
 #export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2019
 #export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_char_fi_char/newstest-2019/en-fi.train.detok.fi

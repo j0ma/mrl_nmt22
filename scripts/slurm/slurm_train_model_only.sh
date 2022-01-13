@@ -45,6 +45,7 @@ src_lang="${MRL_NMT_SRC_LANG}"
 tgt_lang="${MRL_NMT_TGT_LANG}"
 validate_interval_updates="${MRL_NMT_VALIDATE_INTERVAL_UPDATES}"
 p_dropout="${MRL_NMT_P_DROPOUT}"
+patience="${MRL_NMT_PATIENCE}"
 
 source scripts/slurm/slurm_functions.sh
 
@@ -72,7 +73,7 @@ _train () {
         $decoder_layers \
         $decoder_attention_heads \
         $decoder_hidden_size \
-        $p_dropout
+        $p_dropout $patience
 }
 
 

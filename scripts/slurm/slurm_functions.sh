@@ -72,6 +72,7 @@ train () {
 	local decoder_attention_heads=${18}
 	local decoder_hidden_size=${19}
     local p_dropout=${20}
+    local patience=${21:-3}
 
     guild run nmt:train_transformer -y \
         experiment_name=$experiment_name \
@@ -92,7 +93,8 @@ train () {
         encoder_hidden_size=$encoder_hidden_size \
         decoder_layers=$decoder_layers \
         decoder_attention_heads=$decoder_attention_heads \
-        decoder_hidden_size=$decoder_hidden_size
+        decoder_hidden_size=$decoder_hidden_size \
+        patience=${patience}
     }
 
 evaluate () {

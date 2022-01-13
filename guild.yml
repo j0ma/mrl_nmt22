@@ -70,6 +70,9 @@
     criterion:
       type: string
       default: "label_smoothed_cross_entropy"
+    patience:
+      type: int
+      default: 3
     label_smoothing:
       type: float
       default: 0.1
@@ -141,7 +144,7 @@
       default: 5000
     warmup_updates:
       type: int
-      default: 4000
+      default: 1000
 
 # Data download ops
 - model: data
@@ -334,7 +337,7 @@
         - file: scripts
     train_transformer:
       description: "Train transformer model"
-      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_updates} ${save_interval_updates} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name} ${max_tokens} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${eval_bleu_detok}"
+      exec: "bash scripts/train_transformer ${seed} ${criterion} ${label_smoothing} ${optimizer} ${lr} ${lr_scheduler} ${warmup_init_lr} ${warmup_updates} ${clip_norm} ${max_updates} ${save_interval_updates} ${encoder_layers} ${encoder_attention_heads} ${decoder_layers} ${decoder_attention_heads} ${activation_fn} ${batch_size} ${p_dropout} ${decoder_embedding_dim} ${decoder_hidden_size} ${encoder_embedding_dim} ${encoder_hidden_size} ${experiment_name} ${gpu_device} ${validate_interval} ${validate_interval_updates} ${src_lang} ${tgt_lang} ${max_epoch} ${model_name} ${max_tokens} ${remove_preprocessing_source} ${remove_preprocessing_hypotheses} ${remove_preprocessing_references} ${eval_bleu_detok} ${patience}"
       flags:
         $include: ["basic-flags", "transformer-flags"]
         remove_preprocessing_source:

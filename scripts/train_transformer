@@ -78,6 +78,7 @@ else
 fi
 
 EVAL_BLEU_DETOK=${35:-moses}
+PATIENCE=${36:-3}
 
 
 # Derive some paths based on the above
@@ -136,7 +137,7 @@ train() {
         --no-epoch-checkpoints --keep-best-checkpoints 10 \
         --max-source-positions=2500 --max-target-positions=2500 \
         --skip-invalid-size-inputs-valid-test \
-        --fp16 \
+        --fp16 --patience ${PATIENCE}\
         ${MAX_UPDATE_FLAG} ${WARMUP_UPDATES_FLAG} ${WARMUP_INIT_LR_FLAG}
         
         # Disable batch size in favor of max-tokens 
