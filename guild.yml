@@ -78,10 +78,10 @@
       default: 0.0003
     lr_scheduler:
       type: string
-      default: "fixed"
+      default: "inverse_sqrt"
     warmup_init_lr:
       type: float
-      default: 0.00000001
+      default: 0.0000001
     clip_norm:
       type: float
       default: 0.1
@@ -141,7 +141,7 @@
       default: 5000
     warmup_updates:
       type: int
-      default: 10000
+      default: 4000
 
 # Data download ops
 - model: data
