@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=32G
 #SBATCH --ntasks=1
 #SBATCH --account=guest
 #SBATCH --partition=guest-gpu
