@@ -7,6 +7,8 @@ scratch/
 raw_data
 
 *.idea/
+# Slurm output files
+**/slurm*.out
 
 # Also ignore the symlink versions
 checkpoints
