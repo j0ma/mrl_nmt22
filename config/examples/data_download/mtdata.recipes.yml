@@ -43,7 +43,7 @@
   desc: "English - German, mimics WMT 2020 News Task"
   train:
     - Statmt-europarl-10-deu-eng
-    - ParaCrawl-paracrawl-9-eng-deu
+    #- ParaCrawl-paracrawl-9-eng-deu
     - Statmt-commoncrawl_wmt13-1-deu-eng
     - Statmt-news_commentary-15-deu-eng
     - Tilde-rapid-2019-deu-eng
