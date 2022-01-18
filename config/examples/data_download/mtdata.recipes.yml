@@ -43,11 +43,11 @@
   desc: "English - German, mimics WMT 2020 News Task"
   train:
     - Statmt-europarl-10-deu-eng
-    #- ParaCrawl-paracrawl-9-eng-deu
     - Statmt-commoncrawl_wmt13-1-deu-eng
     - Statmt-news_commentary-15-deu-eng
     - Tilde-rapid-2019-deu-eng
     - OPUS-wikimatrix-1-deu-eng
+    #- ParaCrawl-paracrawl-9-eng-deu
   dev:
     - Statmt-newstest_ende-2019-eng-deu
   test:
@@ -76,36 +76,6 @@
   test:
     - Statmt-newstest_ende-2018-eng-deu
 
-# Russian
-- id: mrl-en-ru-default-train
-  langs: eng-rus
-  desc: "English - Russian, mimics WMT 2020 News Task"
-  train:
-    - OPUS-paracrawl-7.1-eng-rus
-    - Statmt-ccaligned-1-eng-rus_RU
-    - Statmt-commoncrawl_wmt13-1-rus-eng
-    - Statmt-news_commentary-15-eng-rus
-    - OPUS-wikimatrix-1-eng-rus
-  test:
-    - Statmt-newstestb_ruen-2020-rus-eng
-    - Statmt-newstest_ruen-2020-rus-eng
-    - Statmt-newstest_enru-2020-eng-rus
-    - Statmt-newstest_enru-2019-eng-rus
-    - Statmt-newstest_ruen-2019-rus-eng
-  dev:
-    - Statmt-newstest_enru-2018-eng-rus
-    - Statmt-newstest_ruen-2018-rus-eng
-    - Statmt-newstest_enru-2017-eng-rus
-    - Statmt-newstest_ruen-2017-rus-eng
-    - Statmt-newstest_enru-2016-eng-rus
-    - Statmt-newstest_ruen-2016-rus-eng
-    - Statmt-newstest_ruen-2015-rus-eng
-    - Statmt-newstest_enru-2015-eng-rus
-    - Statmt-newstest_ruen-2014-rus-eng
-    - Statmt-newstest-2013-eng-rus
-    - Statmt-newstest-2012-eng-rus
-
-      #  TODO: Yandex corpus
 
 # Finnish
 - id: mrl-en-fi-newstest-2019
@@ -141,21 +111,6 @@
     - Statmt-newstest_enfi-2015-eng-fin
   test:
 
-# Estonian
-- id: mrl-en-et-default-train
-  langs: eng-est
-  desc: "English - Estonian, mimics WMT 2018 News Task"
-  train:
-    - ParaCrawl-paracrawl-9-eng-est
-    - Statmt-ccaligned-1-eng-est_EE
-    - Statmt-europarl-7-est-eng
-    - Tilde-rapid-2016-eng-est
-  dev:
-    - Statmt-newsdev_enet-2018-eng-est
-    - Statmt-newsdev_eten-2018-est-eng
-  test:
-    - Statmt-newstest_enet-2018-eng-est
-    - Statmt-newstest_eten-2018-est-eng
 
 # Inuktitut
 - id: mrl-en-iu-hansard
@@ -178,6 +133,20 @@
     - Statmt-newstest_eniu-2020-eng-iku
   test:
 
+# Estonian
+- id: mrl-en-et-default-train
+  langs: eng-est
+  desc: "English - Estonian, mimics WMT 2018 News Task"
+  train:
+    - ParaCrawl-paracrawl-9-eng-est
+    - Statmt-ccaligned-1-eng-est_EE
+    - Statmt-europarl-7-est-eng
+    - Tilde-rapid-2016-eng-est
+  dev:
+    - Statmt-newsdev_enet-2018-eng-est
+  test:
+    - Statmt-newstest_enet-2018-eng-est
+
 # Vietnamese
 - id: mrl-en-vi-default-train
   langs: eng-vie
@@ -190,3 +159,48 @@
     - Neulab-tedtalks_dev-1-eng-vie
   test:
     - Neulab-tedtalks_test-1-eng-vie
+
+- id: mrl-en-vi-opus-100
+  langs: eng-vie
+  desc: "English - Vietnamese, OPUS-100"
+  train:
+    - OPUS-opus100_train-1-eng-vie
+  dev:
+    - OPUS-opus100_dev-1-eng-vie
+  test:
+    - OPUS-opus100_test-1-eng-vie
+
+# Russian
+- id: mrl-en-ru-default-train
+  langs: eng-rus
+  desc: "English - Russian, mimics WMT 2020 News Task"
+  train:
+    - OPUS-paracrawl-7.1-eng-rus
+    - Statmt-ccaligned-1-eng-rus_RU
+    - Statmt-commoncrawl_wmt13-1-rus-eng
+    - Statmt-news_commentary-15-eng-rus
+    - OPUS-wikimatrix-1-eng-rus
+  test:
+    - Statmt-newstest_enru-2020-eng-rus
+    - Statmt-newstest_enru-2019-eng-rus
+  dev:
+
+- id: mrl-en-ru-wmt-early
+  langs: eng-rus
+  desc: "English - Russian, earlier WMT corpora"
+  train:
+    - Statmt-newstest-2012-eng-rus
+  dev:
+    - Statmt-newstest-2013-eng-rus
+  test:
+    - Statmt-newstest_enru-2015-eng-rus
+
+- id: mrl-en-ru-wmt-late
+  langs: eng-rus
+  desc: "English - Russian, later WMT corpora"
+  train:
+    - Statmt-newstest_enru-2016-eng-rus
+  dev:
+    - Statmt-newstest_enru-2017-eng-rus
+  test:
+    - Statmt-newstest_enru-2018-eng-rus
