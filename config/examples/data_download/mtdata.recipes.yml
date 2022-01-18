@@ -180,10 +180,10 @@
     - Statmt-commoncrawl_wmt13-1-rus-eng
     - Statmt-news_commentary-15-eng-rus
     - OPUS-wikimatrix-1-eng-rus
+  dev:
+    - Statmt-newstest_enru-2019-eng-rus
   test:
     - Statmt-newstest_enru-2020-eng-rus
-    - Statmt-newstest_enru-2019-eng-rus
-  dev:
 
 - id: mrl-en-ru-wmt-early
   langs: eng-rus
