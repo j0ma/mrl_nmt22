@@ -6,11 +6,9 @@
 #SBATCH --job-name=preprocess_yaml_config
 #SBATCH --output=/scratch0/jonnesaleva/preprocess_yaml_config_%j.out
 #SBATCH --account=guest
-#SBATCH --partition=guest-gpu
-#SBATCH --qos=low-gpu
-#SBATCH --gres=low-gpu
+#SBATCH --partition=guest-compute
+#SBATCH --qos=low
 #SBATCH --export=ALL,MRL_NMT_YAML_CONFIG,MRL_NMT_ENV_NAME
-#SBATCH --gres=gpu:V100:1   # Request V100 GPUs
 
 set -euo pipefail
 
@@ -34,6 +32,4 @@ conda info
 python -m pip --version
 
 # Do actual run
-python scripts/text_processing/preprocess.py \
-    --yaml-config ${MRL_NMT_YAML_CONFIG} \
-    --use-gpu --gpu-devices "${CUDA_VISIBLE_DEVICES}"
+python scripts/text_processing/preprocess.py --yaml-config ${MRL_NMT_YAML_CONFIG}

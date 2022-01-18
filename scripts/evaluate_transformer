@@ -1,7 +1,7 @@
 #!/bin/bash
 # Evaluates data
 
-set -euo pipefail
+set -eo pipefail
 
 # Command line arguments & defaults.
 EXPERIMENT_NAME=$1
@@ -136,9 +136,16 @@ evaluate() {
 
 	echo "Evaluating into ${OUT}"
 
+    # Figure out GPUs
+    GPUS="${CUDA_VISIBLE_DEVICES:-}"
+    if [[ -z "${GPUS}" ]]; then
+        CMD="fairseq-generate"
+    else
+        CMD="CUDA_VISIBLE_DEVICES=\"${GPU_DEVICE}\" fairseq-generate"
+    fi
+
 	# Make raw predictions
-    CUDA_VISIBLE_DEVICES=$GPU_DEVICE fairseq-generate \
-        "${DATA_BIN_FOLDER}" \
+    ${CMD} "${DATA_BIN_FOLDER}" \
         ${CPU_FLAG} \
         --task=translation --truncate-source --truncate-target \
         --source-lang="${SRC_LANG}" \

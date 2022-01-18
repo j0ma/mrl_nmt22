@@ -23,7 +23,7 @@ en-cs:
         options:
           split: train
           write_detokenized: true
-          detokenized_link_only: false
+          detokenized_link_only: true
           detokenized_copy_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train
           en_output_level: sentencepiece
@@ -102,6 +102,7 @@ en-cs:
         options:
           write_detokenized: true
           detokenized_link_only: true
+          detokenized_copy_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-early
           sentencepiece_config:
             src:
@@ -122,6 +123,7 @@ en-cs:
         options:
           write_detokenized: true
           detokenized_link_only: true
+          detokenized_copy_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-early
           sentencepiece_config:
             src:
@@ -151,6 +153,7 @@ en-cs:
         options:
           write_detokenized: true
           detokenized_link_only: true
+          detokenized_copy_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
           sentencepiece_config:
             src:
@@ -171,6 +174,7 @@ en-cs:
         options:
           write_detokenized: true
           detokenized_link_only: true
+          detokenized_copy_only: false
           detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
           sentencepiece_config:
             src:

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #
+#SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=15G
+#SBATCH --mem=32G
 #SBATCH --ntasks=1
 #SBATCH --account=guest
-#SBATCH --partition=guest-gpu
-#SBATCH --qos=low-gpu
 #SBATCH --export=ALL
 #SBATCH --output=/scratch0/jonnesaleva/eval.out
 
@@ -26,7 +25,7 @@ bin_data_folder="${MRL_NMT_BIN_DATA_FOLDER}"
 conda_env_name="${MRL_NMT_ENV_NAME}"
 experiments_prefix="${MRL_NMT_EXPERIMENTS_FOLDER}"
 checkpoints_prefix="${MRL_NMT_CHECKPOINTS_FOLDER}"
-gpu="$CUDA_VISIBLE_DEVICES"
+gpu="${CUDA_VISIBLE_DEVICES:-0}"
 eval_mode="${MRL_NMT_EVAL_MODE}"
 remove_preprocessing_hypotheses="${MRL_NMT_REMOVE_PREPROCESSING_HYPOTHESES}"
 remove_preprocessing_references="${MRL_NMT_REMOVE_PREPROCESSING_REFERENCES}"
@@ -68,6 +67,6 @@ evaluate \
     $detokenize_references \
     $detokenize_source \
     $detokenize_references_clean \
-    "${CUDA_VISIBLE_DEVICES}" \
+    "${gpu}" \
     $eval_mode \
     $eval_name

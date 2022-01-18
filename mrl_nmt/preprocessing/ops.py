@@ -411,6 +411,10 @@ def process_cs(
         tgt_output_level=cs_output_level,
         sentencepiece_config=sentencepiece_config,
         kind="mtdata",
+        write_detokenized=True,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only
     )
 
 
