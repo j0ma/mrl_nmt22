@@ -387,6 +387,35 @@ def process_vi(
         detokenized_link_only=detokenized_link_only
     )
 
+def process_et(
+    input_base_folder,
+    split="train",
+    et_output_level="word",
+    en_output_level="word",
+    sentencepiece_config=None,
+    prefix="",
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    *args, **kwargs
+) -> crp.CorpusSplit:
+
+    return process_download(
+        input_base_folder,
+        split=split,
+        src_lang="en",
+        tgt_lang="et",
+        src_output_level=en_output_level,
+        tgt_output_level=et_output_level,
+        sentencepiece_config=sentencepiece_config,
+        kind="mtdata",
+        write_detokenized=True,
+        detokenized_output_path=detokenized_output_path,
+        detokenized_copy_only=detokenized_copy_only,
+        detokenized_link_only=detokenized_link_only
+    )
+
 
 def process_cs(
     input_base_folder,

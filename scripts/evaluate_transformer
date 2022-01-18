@@ -139,13 +139,15 @@ evaluate() {
     # Figure out GPUs
     GPUS="${CUDA_VISIBLE_DEVICES:-}"
     if [[ -z "${GPUS}" ]]; then
-        CMD="fairseq-generate"
+        echo "No GPUs found. (CUDA_VISIBLE_DEVICES=${GPUS})"
     else
-        CMD="CUDA_VISIBLE_DEVICES=\"${GPU_DEVICE}\" fairseq-generate"
+        echo "Found GPUs: ${GPUS}"
+        echo "Using: ${GPU_DEVICE}"
+        export CUDA_VISIBLE_DEVICES="${GPU_DEVICE}"
     fi
 
 	# Make raw predictions
-    ${CMD} "${DATA_BIN_FOLDER}" \
+    fairseq-generate "${DATA_BIN_FOLDER}" \
         ${CPU_FLAG} \
         --task=translation --truncate-source --truncate-target \
         --source-lang="${SRC_LANG}" \
