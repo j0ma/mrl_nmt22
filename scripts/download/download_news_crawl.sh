@@ -34,7 +34,7 @@ main () {
     get_newscrawl_urls "${language}" | parallel -t wget -O - {} "|" gunzip -c ">>" "${output_file}"
 
     echo "Lines written:"
-    sed ':a;s/\B[0-9]\{3\}\>/,&/;ta' < "${output_file}"
+    wc -l "${output_file}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
 
 }
 
