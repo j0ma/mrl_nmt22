@@ -15,11 +15,16 @@
 - Turkish
 - Uzbek
 
-## Notes on installation
+## Notes on installation and dependencies
+
+Shell scripts make use of:
+
+- GNU parallel (`parallel`)
+- Ripgrep (`rg`)
 
 ### uralicNLP
 
-`uralicNLP` installs [`argparse`](https://pypi.org/project/argparse/) which disallows `allow_abbrev` and will cause fairseq to crash. 
+`uralicNLP` installs [`argparse`](https://pypi.org/project/argparse/) which disallows `allow_abbrev` and will cause fairseq to crash.
 
 To get around this, Uninstall `argparse` manually after installing everything else from `requirements.txt`:
 
