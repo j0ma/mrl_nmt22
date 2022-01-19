@@ -27,7 +27,7 @@ def main(input_file):
         sent_json["tokens"] = []
         sent_json["lemmas"] = []
         sent_json["msd"] = []
-        sent_json["tokens_msd"] = []
+        sent_json["lemma_msd"] = []
 
         for token in sent:
             _token = token.form
@@ -43,9 +43,9 @@ def main(input_file):
             sent_json["msd"].append(_msd)
 
             if _msd:
-                sent_json["tokens_msd"].append(f"{token.form}-{_msd}")
+                sent_json["lemma_msd"].append(f"{_lemma}-{_msd}")
             else:
-                sent_json["tokens_msd"].append("")
+                sent_json["lemma_msd"].append("")
 
         print(orjson.dumps(sent_json).decode("utf-8"))
 

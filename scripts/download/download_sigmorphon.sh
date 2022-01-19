@@ -3,15 +3,18 @@
 # Utility script to download Newscrawl data using GNU parallel
 
 set -exuo pipefail
+declare -A available_languages
 
 [ "$#" -lt "1" ] && echo "Error: Must specify output folder!" && exit 1
 
 output_folder=$1
 
+conllu_to_json=$(pwd)/scripts/download/conllu_to_json.py
+
 available_languages=(
-    "Czech" "German" "Finnish"
-    "Russian" "Turkish" "Estonian"
-    "Vietnamese"    
+    [cs]="Czech" [de]="German" [fi]="Finnish"
+    [ru]="Russian" [tr]="Turkish" [et]="Estonian"
+    [vi]="Vietnamese"    
 )
 
 main () {
@@ -23,13 +26,20 @@ main () {
 
    cd $staging/sigmorphon/task2
     
-   for lang in "${available_languages[@]}"
+   for lang_code in "${!available_languages[@]}"
    do
-       output_folder_lang="${output_folder}/${language}/sigmorphon"
+       lang="${available_languages[$lang_code]}"
+       output_folder_lang="${output_folder}/${lang_code}/sigmorphon"
        mkdir -p $output_folder_lang
-       ls ./*$lang*/*.conllu | parallel -t python -i {} "|" jq -c ">>" "${output_folder_lang}/${language}_sigmorphon.jsonl"
-   done
+       for split in "train" "dev" "test"
+       do
+           ls ./*$lang*/*.conllu \
+               | rg -v "covered" | rg "${split}" \
+               | parallel -t python $conllu_to_json -i {} "|" jq -c ">>" "${output_folder_lang}/${lang_code}_sigmorphon_${split}.jsonl"
+       done
+   done || rm -rf $staging
 
+   rm -rf $staging
 }
 
 main $output_folder
