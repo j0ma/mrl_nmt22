@@ -9,14 +9,14 @@ set -euo pipefail
 LANGUAGE=$1
 OUTPUT_FOLDER=$2
 DEFAULT_FNAME="${LANGUAGE}_mono"
-OUTPUT_FILE=${3:-$DEFAULT_FNAME}
+OUTPUT_FILE="${OUTPUT_FOLDER}/${3:-$DEFAULT_FNAME}"
 
 get_newscrawl_urls () {
 
     local language=$1
     temp_file=$(mktemp)
 
-    wget -k -l 0 -O $temp_file \
+    wget --quiet -k -l 0 -O $temp_file \
         "http://data.statmt.org/news-crawl/${language}/" \
         2>/dev/null
 
@@ -32,6 +32,9 @@ main () {
     mkdir -vp $(dirname $output_file)
 
     get_newscrawl_urls "${language}" | parallel -t wget -O - {} "|" gunzip -c ">>" "${output_file}"
+
+    echo "Lines written:"
+    sed ':a;s/\B[0-9]\{3\}\>/,&/;ta' < "${output_file}"
 
 }
 
