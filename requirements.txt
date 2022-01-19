@@ -2,7 +2,7 @@
 git+https://github.com/mjpost/sacrebleu.git@65a8a9eeccd8c0c7875e875e12edf10db33ab0ba
 
 # Custom fork of fairseq v0.10.2
-git+https://github.com/j0ma/fairseq_fork.git
+# git+https://github.com/j0ma/fairseq_fork.git
 
 # Standard packages
 uralicNLP
