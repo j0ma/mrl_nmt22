@@ -6,8 +6,8 @@ en-cs:
   src: en
   tgt: cs
   corpora:
-    - default-train
-    - wmt-early
+    #- default-train
+    #- wmt-early
     - wmt-late
   default-train:
     data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train
@@ -146,6 +146,7 @@ en-cs:
     splits:
     - train
     - dev
+    - test
     train:
       input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
       preprocessing_steps:
@@ -188,3 +189,24 @@ en-cs:
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
           split: dev  
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: test  

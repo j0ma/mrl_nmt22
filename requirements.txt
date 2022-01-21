@@ -5,7 +5,7 @@ git+https://github.com/mjpost/sacrebleu.git@65a8a9eeccd8c0c7875e875e12edf10db33a
 # git+https://github.com/j0ma/fairseq_fork.git
 
 # Standard packages
-uralicNLP
+#uralicNLP
 pycountry
 sacremoses
 pyyaml

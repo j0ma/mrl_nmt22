@@ -31,17 +31,17 @@ export MRL_NMT_TGT_LANG=iu
 export MRL_NMT_VALIDATE_INTERVAL_UPDATES=500 
 
 # corpus: hansard
-export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-iu/en_sp32k_iu_sp32k/hansard/
-export MRL_NMT_EVAL_MODE="dev"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_iu_sp32k_slurm/eval/eval_slurmformer_clipnorm0.1_20k_lr0.001/checkpoint"
-export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
-export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/hansard
-export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/hansard/en-iu.dev.detok.iu
+#export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-iu/en_sp32k_iu_sp32k/hansard/
+#export MRL_NMT_EVAL_MODE="dev"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_iu_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+#export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
+#export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/hansard
+#export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/hansard/en-iu.dev.detok.iu
 
 # uncomment to evaluate on WMT2020
-#export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-iu/en_sp32k_iu_sp32k/wmt2019/
-#export MRL_NMT_EVAL_MODE="train"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_iu_sp32k_slurm/eval/wmt2019/checkpoint"
-#export MRL_NMT_EVAL_NAME="wmt2019"
-#export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/wmt2019
-#export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/wmt2019/en-iu.train.detok.iu
+export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-iu/en_sp32k_iu_sp32k/wmt20/
+export MRL_NMT_EVAL_MODE="dev"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_iu_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+export MRL_NMT_EVAL_NAME="wmt20"
+export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/wmt20
+export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/wmt20/en-iu.dev.detok.iu

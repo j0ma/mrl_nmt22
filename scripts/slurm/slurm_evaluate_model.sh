@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=8G
 #SBATCH --ntasks=1
 #SBATCH --account=guest
 #SBATCH --export=ALL
-#SBATCH --output=/scratch0/jonnesaleva/eval.out
+#SBATCH --output=/scratch0/jonnesaleva/eval_%j.out
 
 set -euo pipefail
 

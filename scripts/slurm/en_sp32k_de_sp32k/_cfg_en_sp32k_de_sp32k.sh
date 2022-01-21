@@ -31,12 +31,12 @@ export MRL_NMT_TGT_LANG=de
 export MRL_NMT_VALIDATE_INTERVAL_UPDATES=500 
 
 # corpus: default-train
-export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/default-train/
-export MRL_NMT_EVAL_MODE="test"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_de_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
-export MRL_NMT_EVAL_NAME="newstest2020"
-export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/default-train
-export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/default-train/en-de.test.detok.de
+#export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/default-train/
+#export MRL_NMT_EVAL_MODE="test"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_de_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+#export MRL_NMT_EVAL_NAME="newstest2020"
+#export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/default-train
+#export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/default-train/en-de.test.detok.de
 
 # uncomment to evaluate on WMT-early
 #export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/wmt-early/
@@ -46,10 +46,10 @@ export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en
 #export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-early
 #export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-early/en-de.train.detok.de
 
-# uncomment to evaluate on WMT-late
-#export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/wmt-late/
-#export MRL_NMT_EVAL_MODE="train"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_de_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
-#export MRL_NMT_EVAL_NAME="wmt-late"
-#export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-late
-#export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-late/en-de.train.detok.de
+# uncomment to evaluate on WMT-late test, i.e. newstest18
+export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/wmt-late/
+export MRL_NMT_EVAL_MODE="test"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_de_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+export MRL_NMT_EVAL_NAME="newstest2018"
+export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-late
+export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/wmt-late/en-de.test.detok.de

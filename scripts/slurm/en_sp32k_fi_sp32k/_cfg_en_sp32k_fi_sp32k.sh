@@ -31,12 +31,12 @@ export MRL_NMT_VALIDATE_INTERVAL_UPDATES=10000
 export MRL_NMT_PATIENCE=10  # longer patience
 
 # corpus: default-train
-export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/
-export MRL_NMT_EVAL_MODE="dev"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/eval/eval_slurmformer_clipnorm0.1_20k_lr0.001/checkpoint"
-export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
-export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
-export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.dev.detok.fi
+#export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/
+#export MRL_NMT_EVAL_MODE="dev"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+#export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
+#export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
+#export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.dev.detok.fi
 
 # uncomment to evaluate on newstest-2019
 #export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2019/
@@ -45,3 +45,11 @@ export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en
 #export MRL_NMT_EVAL_NAME="newstest-2019-20k"
 #export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019
 #export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019/en-fi.train.detok.fi
+
+# uncomment to evaluate on newstest-2018
+export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2018/
+export MRL_NMT_EVAL_MODE="train"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+export MRL_NMT_EVAL_NAME="newstest-2018-20k"
+export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018
+export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018/en-fi.train.detok.fi

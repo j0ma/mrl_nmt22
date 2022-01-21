@@ -22,8 +22,8 @@
     - Statmt-newstest_encs-2016-eng-ces
   dev:
     - Statmt-newstest_encs-2017-eng-ces
-    - Statmt-newstest_encs-2018-eng-ces
   test:
+    - Statmt-newstest_encs-2018-eng-ces
 
 - id: mrl-en-cs-wmt-early
   langs: eng-ces
@@ -108,7 +108,6 @@
     - Statmt-newsdev_enfi-2015-eng-fin
     - Statmt-newstest_enfi-2017-eng-fin
     - Statmt-newstest_enfi-2016-eng-fin
-    - Statmt-newstest_enfi-2015-eng-fin
   test:
 
 

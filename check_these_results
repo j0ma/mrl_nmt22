@@ -1,0 +1,22 @@
+- [x] en_sp32k_iu_sp32k_slurm
+    - [x] hansard dev
+    - [x] wmt20 newstest
+- [x] en_sp32k_cs_sp32k_slurm
+    - [x] own dev set
+    - [x] wmt20 newstest
+- [x] en_sp32k_de_sp32k_slurm
+    - [x] own dev set: 
+    - [x] wmt20 newstest
+- [x] en_sp32k_fi_sp32k_slurm
+    - [~] own dev set
+    - [~] newstest2019
+- [ ] en_sp32k_vi_sp32k_slurm
+    - [~] own dev set
+- [ ] en_sp32k_tr_sp32k_slurm
+    - [x] launch training
+    - [ ] own dev set
+    - [ ] newstest2019
+- [ ] en_sp32k_uz_sp32k_slurm
+    - [x] launch training
+    - [ ] own dev set
+    - [ ] newstest2019
