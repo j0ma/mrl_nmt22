@@ -239,7 +239,8 @@ def process_download(
     if not use_clean_corpus_n_perl and not moses_config:
         moses_config = MOSES_DEFAULTS
 
-    downloads = Path(input_base_folder) / "download"
+    input_base_path = Path(input_base_folder)
+    downloads = input_base_path / "download"
 
     if kind == "til":
         pair = f"{src_lang}-{tgt_lang}"
@@ -247,12 +248,18 @@ def process_download(
             downloads / split / pair / f"{pair}.{src_lang}",
             downloads / split / pair / f"{pair}.{tgt_lang}",
         )
+    elif kind == "phomt":
+        print("Loading PhoMT corpus...")
+        src_path, tgt_path = (
+            input_base_path / f"{split}.{src_lang}",
+            input_base_path / f"{split}.{tgt_lang}",
+        )
     elif kind == "mtdata":
         src_lang_long, tgt_lang_long = (
             u.get_long_lang_name(src_lang),
             u.get_long_lang_name(tgt_lang),
         )
-        # mtdata doesn't merge test files when handling recipes, work around this
+        # mtdata doesn't merge test files when handling recipes, work around this and take test1
         _split = split if split != "test" else "test1"
         src_path, tgt_path = (
             downloads / f"{_split}.{src_lang_long}",
@@ -283,7 +290,7 @@ def process_download(
     f_src = crp.LoadedTextFile(
         path=p_src, side="src", load_to_memory=False, language=src_lang
     )
-    print(f"Loading tgt text file from {src_path}")
+    print(f"Loading tgt text file from {tgt_path}")
     f_tgt = crp.LoadedTextFile(
         path=p_tgt, side="tgt", load_to_memory=False, language=tgt_lang
     )
@@ -320,32 +327,19 @@ def process_download(
             # As a last resort, we can write the data out using Moses detokenizer
             for f, output_path in [(f_tgt, src_output_path), (f_tgt, tgt_output_path)]:
 
-                p_tqdm_mode = False
-                if p_tqdm_mode:
-                    import functools
-                    import p_tqdm.p_tqdm as p_tqdm
-                    from p_tqdm import p_map
-
-                    def monkeypatch() -> None:
-                        p_tqdm.Pool.map = functools.partial(p_tqdm.Pool.map, chunksize=chunksize)
-
-                    monkeypatch()
-                    detok_lines = p_map(_detok, f.stream_lines)
-
-                else:
-                    with mp.Pool(n_workers) as pool:
-                        print(
-                            f"Detokenizing using {n_workers} cores and chunksize {chunksize}"
-                        )
-                        t_start = time.time()
-                        detok_lines = pool.map(_detok, f.stream_lines, chunksize=chunksize)
-                        t_end = time.time()
-                        print(f"Time elapsed: {round(t_end - t_start, 3)}s")
-                        print(f"Writing detokenized lines to {output_path}")
-                        u.write_lines(
-                            path=output_path,
-                            lines=detok_lines,
-                        )
+                with mp.Pool(n_workers) as pool:
+                    print(
+                        f"Detokenizing using {n_workers} cores and chunksize {chunksize}"
+                    )
+                    t_start = time.time()
+                    detok_lines = pool.map(_detok, f.stream_lines, chunksize=chunksize)
+                    t_end = time.time()
+                    print(f"Time elapsed: {round(t_end - t_start, 3)}s")
+                    print(f"Writing detokenized lines to {output_path}")
+                    u.write_lines(
+                        path=output_path,
+                        lines=detok_lines,
+                    )
 
     print("Processing subwords...")
     out = process_subwords(
@@ -369,6 +363,7 @@ def process_vi(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
+    phomt=False,
     *args, **kwargs
 ) -> crp.CorpusSplit:
 
@@ -380,7 +375,7 @@ def process_vi(
         src_output_level=en_output_level,
         tgt_output_level=vi_output_level,
         sentencepiece_config=sentencepiece_config,
-        kind="mtdata",
+        kind="mtdata" if not phomt else "phomt",
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,

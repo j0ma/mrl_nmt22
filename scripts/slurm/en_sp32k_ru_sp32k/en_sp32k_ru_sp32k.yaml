@@ -7,8 +7,7 @@ en-ru:
   tgt: ru
   corpora:
     - default-train
-    - wmt-early
-    - wmt-late
+    - wmt-18-20
   default-train:
     data_bin_folder: ~/mrl_nmt22/data-bin/en-ru/en_sp32k_ru_sp32k/default-train
     output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/default-train
@@ -86,6 +85,80 @@ en-ru:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
               model_file: ru_sp32k.bin
               use_pretrained_model: true
+
+  wmt-18-20:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/wmt-18-20
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-ru/en_sp32k_ru_sp32k/wmt-18-20
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-ru/en_sp32k_ru_sp32k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-ru/en_sp32k_ru_sp32k/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: ru_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: train  
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: ru_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: dev  
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k
+              model_file: ru_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: test  
+
 
   wmt-early:
     output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/wmt-early

@@ -180,6 +180,17 @@
     - Statmt-news_commentary-15-eng-rus
     - OPUS-wikimatrix-1-eng-rus
   dev:
+    - Statmt-newstest_enru-2015-eng-rus
+    - Statmt-newstest_enru-2016-eng-rus
+  test:
+    - Statmt-newstest_enru-2017-eng-rus
+
+- id: mrl-en-ru-wmt-18-20
+  langs: eng-rus
+  desc: "English - Russian, earlier WMT corpora"
+  train:
+    - Statmt-newstest_enru-2018-eng-rus
+  dev:
     - Statmt-newstest_enru-2019-eng-rus
   test:
     - Statmt-newstest_enru-2020-eng-rus
