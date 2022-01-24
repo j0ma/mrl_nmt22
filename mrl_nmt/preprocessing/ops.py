@@ -807,6 +807,7 @@ def process_with_sentencepiece(
             remove_extra_whitespaces=False,
             normalization_rule_name="identity",
             model_type=model_type,
+            character_coverage=1.0
         )
 
         if model_file_is_correct:
@@ -823,14 +824,13 @@ def process_with_sentencepiece(
     def final_lines(sp, lines, n_workers, chunksize=1000):
         print(f"[process_with_sentencepiece] Outputting final lines...")
 
-        apply_sp = ft.partial(_apply_sp_to_side, sp=sp, side=side, other_side=other_side)
-        if n_workers == 1:
-            output = [apply_sp(l) for l in lines]
-        else:
-            with mp.Pool(n_workers) as pool:
-                output = pool.map(apply_sp, tqdm(lines), chunksize=chunksize)
+        for line_dict in tqdm(lines):
+            side_line_dict = line_dict[side]
+            new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
+            sld = side_line_dict.copy()
+            sld["text"] = new_line
+            yield {side: sld, other_side: line_dict[other_side]}
 
-        return output
 
     output = final_lines(sp, lines, n_workers=n_workers, chunksize=chunksize)
 
