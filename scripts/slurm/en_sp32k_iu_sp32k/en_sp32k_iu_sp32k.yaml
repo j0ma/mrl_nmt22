@@ -56,12 +56,12 @@ en-iu:
           split: dev
           sentencepiece_config:
             src:
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
-              model_file: cs_sp32k.bin
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
+              model_file: iu_sp32k.bin
               use_pretrained_model: true
     test:
       input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
@@ -77,12 +77,12 @@ en-iu:
           split: test
           sentencepiece_config:
             src:
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
-              model_file: cs_sp32k.bin
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
+              model_file: iu_sp32k.bin
               use_pretrained_model: true
   wmt20:
     output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k/wmt20
@@ -106,12 +106,12 @@ en-iu:
           split: train
           sentencepiece_config:
             src:
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
-              model_file: cs_sp32k.bin
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
+              model_file: iu_sp32k.bin
               use_pretrained_model: true
     dev:
       input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/wmt20
@@ -127,10 +127,10 @@ en-iu:
           split: dev
           sentencepiece_config:
             src:
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
-              model_file: cs_sp32k.bin
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_sp32k_iu_sp32k
+              model_file: iu_sp32k.bin
               use_pretrained_model: true
