@@ -4,6 +4,7 @@ from pathlib import Path
 import multiprocessing as mp
 from typing import Union, Iterable, Optional, Dict, Any
 import itertools as it
+import functools as ft
 import math
 import time
 
@@ -181,6 +182,7 @@ def process_subwords(
     src_output_lvl: str,
     tgt_output_lvl: str,
     sentencepiece_config: Optional[Dict[str, str]],
+    n_workers: int = 1
 ) -> crp.CorpusSplit:
 
     assert (
@@ -203,7 +205,7 @@ def process_subwords(
                 )
             sp_conf = sentencepiece_config[side]
             validate_sentencepiece_config(sp_conf)
-            out = process_with_sentencepiece(corpus=out, side=side, **sp_conf)
+            out = process_with_sentencepiece(corpus=out, side=side, n_workers=n_workers, **sp_conf)
         elif output_level == "char":
             out = convert_to_chars(out, side=side)
         elif output_level == "morph":
@@ -347,6 +349,7 @@ def process_download(
         src_output_lvl=src_output_level,
         tgt_output_lvl=tgt_output_level,
         sentencepiece_config=sentencepiece_config,
+        n_workers=n_workers
     )
 
     return out
@@ -364,7 +367,8 @@ def process_vi(
     detokenized_copy_only=False,
     detokenized_link_only=False,
     phomt=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -379,8 +383,9 @@ def process_vi(
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
-        detokenized_link_only=detokenized_link_only
+        detokenized_link_only=detokenized_link_only,
     )
+
 
 def process_et(
     input_base_folder,
@@ -393,7 +398,8 @@ def process_et(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -408,7 +414,7 @@ def process_et(
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
-        detokenized_link_only=detokenized_link_only
+        detokenized_link_only=detokenized_link_only,
     )
 
 
@@ -423,7 +429,8 @@ def process_cs(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ) -> crp.CorpusSplit:
 
     return process_download(
@@ -438,7 +445,7 @@ def process_cs(
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
-        detokenized_link_only=detokenized_link_only
+        detokenized_link_only=detokenized_link_only,
     )
 
 
@@ -466,7 +473,8 @@ def process_tr(
         kind="til",
         write_detokenized=True,
         detokenized_output_path=detokenized_output_path,
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
 
 
@@ -510,7 +518,8 @@ def process_de(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ):
     return process_download(
         input_base_folder,
@@ -525,7 +534,8 @@ def process_de(
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
         detokenized_link_only=detokenized_link_only,
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
 
 
@@ -540,7 +550,8 @@ def process_fi(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ):
 
     return process_download(
@@ -556,7 +567,8 @@ def process_fi(
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
         detokenized_link_only=detokenized_link_only,
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
 
 
@@ -571,7 +583,8 @@ def process_iu(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ):
     return process_download(
         input_base_folder,
@@ -586,7 +599,8 @@ def process_iu(
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
         detokenized_link_only=detokenized_link_only,
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
 
 
@@ -601,7 +615,8 @@ def process_ru(
     detokenized_output_path="",
     detokenized_copy_only=False,
     detokenized_link_only=False,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ):
     return process_download(
         input_base_folder,
@@ -616,7 +631,8 @@ def process_ru(
         detokenized_output_path=detokenized_output_path,
         detokenized_copy_only=detokenized_copy_only,
         detokenized_link_only=detokenized_link_only,
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
 
 
@@ -718,6 +734,15 @@ def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
     )
 
 
+def _apply_sp_to_side(sp, line_dict, side, other_side):
+    """Apply sentencepiece processing to `side`, leaving `other_side` unchanged"""
+    side_line_dict = line_dict[side]
+    new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
+    sld = side_line_dict.copy()
+    sld["text"] = new_line
+    return {side: sld, other_side: line_dict[other_side]}
+
+
 def process_with_sentencepiece(
     corpus: crp.CorpusSplit,
     side: str,
@@ -728,6 +753,8 @@ def process_with_sentencepiece(
     input_sentence_size: int = 0,
     shuffle_input_sentence: bool = False,
     model_type: str = "unigram",
+    chunksize: int = 10000,
+    n_workers: int = 2
 ) -> crp.CorpusSplit:
     """Process one side of a CorpusSplit with SentencePiece
 
@@ -793,21 +820,19 @@ def process_with_sentencepiece(
         # apply the model to text
         sp = spm.SentencePieceProcessor(model_proto=model.getvalue())
 
-    def final_lines(sp, lines):
+    def final_lines(sp, lines, n_workers, chunksize=1000):
         print(f"[process_with_sentencepiece] Outputting final lines...")
 
-        for line_dict in tqdm(lines):
-            side_line_dict = line_dict[side]
+        apply_sp = ft.partial(_apply_sp_to_side, sp=sp, side=side, other_side=other_side)
+        if n_workers == 1:
+            output = [apply_sp(l) for l in lines]
+        else:
+            with mp.Pool(n_workers) as pool:
+                output = pool.map(apply_sp, tqdm(lines), chunksize=chunksize)
 
-            # TODO: can this be changed to calling sp.encode with an iterable?
-            new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
+        return output
 
-            sld = side_line_dict.copy()
-            sld["text"] = new_line
-
-            yield {side: sld, other_side: line_dict[other_side]}
-
-    output = final_lines(sp, lines)
+    output = final_lines(sp, lines, n_workers=n_workers, chunksize=chunksize)
 
     return crp.CorpusSplit(
         lines=output,
