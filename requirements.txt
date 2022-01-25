@@ -21,3 +21,4 @@ nltk
 git+https://github.com/cthoyt/p_tqdm@patch-1
 orjson
 pyconll==3.1.0.dev3
+rich
