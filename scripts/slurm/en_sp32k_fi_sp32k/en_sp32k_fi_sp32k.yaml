@@ -4,7 +4,7 @@ lang_pairs:
 
 en-fi:
   corpora:
-    #- default-train
+    - default-train
     - newstest-2019
     - newstest-2018
   src: en

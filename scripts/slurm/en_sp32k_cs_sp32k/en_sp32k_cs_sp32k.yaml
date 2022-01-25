@@ -6,8 +6,8 @@ en-cs:
   src: en
   tgt: cs
   corpora:
-    #- default-train
-    #- wmt-early
+    - default-train
+    - wmt-early
     - wmt-late
   default-train:
     data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train
@@ -39,7 +39,7 @@ en-cs:
               vocab_size: 32000
             tgt:
               input_sentence_size: 5000000
-              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k 
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               shuffle_input_sentence: true
               use_pretrained_model: false
@@ -61,7 +61,7 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
@@ -82,7 +82,7 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
@@ -109,13 +109,13 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
-          split: train  
+          split: train
     dev:
       input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
       preprocessing_steps:
@@ -130,13 +130,13 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
-          split: dev  
+          split: dev
 
   wmt-late:
     output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
@@ -161,13 +161,13 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
-          split: train  
+          split: train
     dev:
       input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
       preprocessing_steps:
@@ -182,13 +182,13 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
-          split: dev  
+          split: dev
     test:
       input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
       preprocessing_steps:
@@ -203,10 +203,10 @@ en-cs:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: en_sp32k.bin
               use_pretrained_model: true
-            tgt:                
+            tgt:
               model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
               model_file: cs_sp32k.bin
               use_pretrained_model: true
           en_output_level: sentencepiece
           cs_output_level: sentencepiece
-          split: test  
+          split: test
