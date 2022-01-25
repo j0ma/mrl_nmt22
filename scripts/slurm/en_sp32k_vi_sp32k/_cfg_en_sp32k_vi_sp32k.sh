@@ -32,11 +32,11 @@ export MRL_NMT_VALIDATE_INTERVAL_UPDATES=500
 
 # corpus: default-train
 export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-vi/en_sp32k_vi_sp32k/default-train/
-export MRL_NMT_EVAL_MODE="dev"
+export MRL_NMT_EVAL_MODE="test"
 export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/jonnesaleva/mrl_nmt22/experiments/en_sp32k_vi_sp32k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
-export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
+export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001_secondrun_test"
 export MRL_NMT_RAW_DATA_FOLDER=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-vi/en_sp32k_vi_sp32k/default-train
-export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-vi/en_sp32k_vi_sp32k/default-train/en-vi.dev.detok.vi
+export MRL_NMT_REFERENCES_FILE=/home/jonnesaleva/datasets/mrl_nmt22/processed/en-vi/en_sp32k_vi_sp32k/default-train/en-vi.test.detok.vi
 
 # corpus: opus-100 (uncomment to use this for train/dev/test)
 #export MRL_NMT_BIN_DATA_FOLDER=/home/jonnesaleva/mrl_nmt22/data-bin/en-vi/en_sp32k_vi_sp32k/opus-100/
