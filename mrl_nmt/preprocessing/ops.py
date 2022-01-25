@@ -734,15 +734,6 @@ def convert_to_chars(corpus: crp.CorpusSplit, side: str) -> crp.CorpusSplit:
     )
 
 
-def _apply_sp_to_side(sp, line_dict, side, other_side):
-    """Apply sentencepiece processing to `side`, leaving `other_side` unchanged"""
-    side_line_dict = line_dict[side]
-    new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
-    sld = side_line_dict.copy()
-    sld["text"] = new_line
-    return {side: sld, other_side: line_dict[other_side]}
-
-
 def process_with_sentencepiece(
     corpus: crp.CorpusSplit,
     side: str,
@@ -827,7 +818,13 @@ def process_with_sentencepiece(
 
         for line_dict in tqdm(lines):
             side_line_dict = line_dict[side]
-            new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
+            subword_tokens = []
+            for subword in sp.encode(side_line_dict["text"], out_type=str):
+                if sp.is_unknown(sp.PieceToId(subword)):
+                    subword_tokens.extend(subword)
+                else:
+                    subword_tokens.append(subword)
+            new_line = " ".join(subword_tokens)
             sld = side_line_dict.copy()
             sld["text"] = new_line
             yield {side: sld, other_side: line_dict[other_side]}
