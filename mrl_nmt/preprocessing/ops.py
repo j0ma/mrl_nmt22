@@ -807,7 +807,8 @@ def process_with_sentencepiece(
             remove_extra_whitespaces=False,
             normalization_rule_name="identity",
             model_type=model_type,
-            character_coverage=1.0
+            character_coverage=1.0, # Make sure to cover all characters
+            byte_fallback=True      # Segment UNKs into Unicode bytes
         )
 
         if model_file_is_correct:
