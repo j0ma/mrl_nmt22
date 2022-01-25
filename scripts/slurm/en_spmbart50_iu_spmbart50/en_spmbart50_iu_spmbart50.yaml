@@ -1,4 +1,4 @@
-name: en_spmbart_iu_spmbart
+name: en_spmbart50_iu_spmbart50
 lang_pairs:
 - en-iu
 
@@ -9,10 +9,10 @@ en-iu:
     - hansard
     - wmt20
   hansard:
-    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/hansard
-    data_bin_folder: ./data-bin/en-iu/en_spmbart_iu_spmbart/hansard
-    fairseq_src_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
-    fairseq_tgt_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
+    data_bin_folder: ./data-bin/en-iu/en_spmbart50_iu_spmbart50/hansard
+    fairseq_src_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.en_XX.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.iu_CA.txt
     splits:
     - train
     - dev
@@ -25,17 +25,17 @@ en-iu:
           write_detokenized: true
           detokenized_copy_only: false
           detokenized_link_only: true
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/hansard
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
           en_output_level: sentencepiece
           iu_output_level: sentencepiece
           split: train
           sentencepiece_config:
             src:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
     dev:
@@ -46,17 +46,17 @@ en-iu:
           write_detokenized: true
           detokenized_copy_only: false
           detokenized_link_only: true
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/hansard
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
           en_output_level: sentencepiece
           iu_output_level: sentencepiece
           split: dev
           sentencepiece_config:
             src:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
     test:
@@ -67,24 +67,24 @@ en-iu:
           write_detokenized: true
           detokenized_copy_only: false
           detokenized_link_only: true
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/hansard
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
           en_output_level: sentencepiece
           iu_output_level: sentencepiece
           split: test
           sentencepiece_config:
             src:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
   wmt20:
-    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/wmt20
-    data_bin_folder: ./data-bin/en-iu/en_spmbart_iu_spmbart/wmt20
-    fairseq_src_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
-    fairseq_tgt_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
+    data_bin_folder: ./data-bin/en-iu/en_spmbart50_iu_spmbart50/wmt20
+    fairseq_src_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.en_XX.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.iu_CA.txt
     splits:
     - train
     - dev
@@ -96,17 +96,17 @@ en-iu:
           write_detokenized: true
           detokenized_copy_only: false
           detokenized_link_only: true
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/wmt20
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
           en_output_level: sentencepiece
           iu_output_level: sentencepiece
           split: train
           sentencepiece_config:
             src:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
     dev:
@@ -117,16 +117,16 @@ en-iu:
           write_detokenized: true
           detokenized_copy_only: false
           detokenized_link_only: true
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart_iu_spmbart/wmt20
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
           en_output_level: sentencepiece
           iu_output_level: sentencepiece
           split: dev
           sentencepiece_config:
             src:
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
               model_file: sentence.bpe.model
               use_pretrained_model: true

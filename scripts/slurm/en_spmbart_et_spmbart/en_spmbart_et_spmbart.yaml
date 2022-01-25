@@ -8,6 +8,8 @@ en-et:
   corpora:
     - default-train
   default-train:
+    fairseq_src_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
     data_bin_folder: ~/mrl_nmt22/data-bin/en-et/en_spmbart_et_spmbart/default-train
     output_base_path: ~/datasets/mrl_nmt22/processed/en-et/en_spmbart_et_spmbart/default-train
     splits:
@@ -29,11 +31,11 @@ en-et:
           split: train
           sentencepiece_config:
             src:
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
     dev:
@@ -50,11 +52,11 @@ en-et:
           et_output_level: sentencepiece
           sentencepiece_config:
             src:
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
     test:
@@ -71,11 +73,11 @@ en-et:
           et_output_level: sentencepiece
           sentencepiece_config:
             src:
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
             tgt:                
-              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
               model_file: sentence.bpe.model
               use_pretrained_model: true
 

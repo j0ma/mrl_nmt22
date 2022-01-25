@@ -39,7 +39,7 @@ detokenize_references_clean="${MRL_NMT_DETOKENIZE_REFERENCES_CLEAN}"
 ### Source necessary function definitions
 source scripts/slurm/slurm_functions.sh
 
-activate_conda_env $conda_env_name
+#activate_conda_env $conda_env_name
 
 ### Create experiment folder & train/eval folders for default corpus
 prep_eval \

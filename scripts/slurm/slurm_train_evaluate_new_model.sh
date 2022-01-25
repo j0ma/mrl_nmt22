@@ -12,6 +12,7 @@
 set -euxo pipefail
 
 # Parse arguments from environment (passed by Guild)
+gpu="$CUDA_VISIBLE_DEVICES"
 batch_size="${MRL_NMT_BATCH_SIZE}"
 bin_data_folder="${MRL_NMT_BIN_DATA_FOLDER}"
 checkpoints_prefix="${MRL_NMT_CHECKPOINTS_FOLDER}"
@@ -31,7 +32,6 @@ encoder_layers="${MRL_NMT_ENCODER_LAYERS}"
 eval_name="${MRL_NMT_EVAL_NAME}"
 experiment_name="${MRL_NMT_EXPERIMENT_NAME}"
 experiments_prefix="${MRL_NMT_EXPERIMENTS_FOLDER}"
-gpu="$CUDA_VISIBLE_DEVICES"
 lr="${MRL_NMT_LEARNING_RATE}"
 max_tokens="${MRL_NMT_MAX_TOKENS}"
 max_updates="${MRL_NMT_MAX_UPDATES}"
@@ -50,12 +50,13 @@ validate_interval_updates="${MRL_NMT_VALIDATE_INTERVAL_UPDATES}"
 p_dropout="${MRL_NMT_P_DROPOUT}"
 patience="${MRL_NMT_PATIENCE}"
 
+
 source scripts/slurm/slurm_functions.sh
 
 # Set up Conda environment
-activate_conda_env $conda_env_name
-python --version
-which python
+#activate_conda_env $conda_env_name
+#python --version
+#which python
 
 _prep_train () {
     prep_train \
