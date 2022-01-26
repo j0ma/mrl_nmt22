@@ -104,6 +104,7 @@ train() {
     CUDA_VISIBLE_DEVICES=${GPU_DEVICE} fairseq-train \
         "${DATA_BIN_PATH}" \
         --task translation \
+        --log-format json \
         --save-dir="${CP}" \
         --source-lang="${SRC_LANG}" \
         --target-lang="${TGT_LANG}" \
