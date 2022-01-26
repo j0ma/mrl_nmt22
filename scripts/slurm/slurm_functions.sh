@@ -116,6 +116,14 @@ evaluate () {
     local mode=${15}
     local eval_name=${16}
 
+    if [ "${gpu}" = "none" ]
+    then
+        gpu_flag=""
+        use_cpu_flag="use_cpu_for_eval=yes"
+    else
+        gpu_flag="gpu_device=\"${gpu}\""
+        use_cpu_flag=""
+    fi
 
     guild run nmt:evaluate_transformer -y \
         experiment_name=$experiment_name \
@@ -130,5 +138,5 @@ evaluate () {
         detokenize_references=$detokenize_references \
         detokenize_source=$detokenize_source \
         detokenize_references_clean=$detokenize_references_clean \
-        gpu_device="${gpu}" mode=${mode}
+        mode=${mode} ${use_cpu_flag} ${gpu_flag}
 }

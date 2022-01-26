@@ -152,6 +152,7 @@ evaluate() {
         --task=translation --truncate-source --truncate-target \
         --source-lang="${SRC_LANG}" \
         --target-lang="${TGT_LANG}" \
+        --log-format json \
         --path="${EVAL_CHECKPOINT}" \
         --seed="${SEED}" \
         --gen-subset="${FAIRSEQ_MODE}" \
