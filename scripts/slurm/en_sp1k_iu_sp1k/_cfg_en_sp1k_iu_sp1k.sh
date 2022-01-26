@@ -18,7 +18,7 @@ export MRL_NMT_EXPERIMENTS_FOLDER=/home/$(whoami)/mrl_nmt22/experiments
 export MRL_NMT_LEARNING_RATE=0.001
 export MRL_NMT_MAX_TOKENS=23000
 export MRL_NMT_MAX_UPDATES=20000
-export MRL_NMT_MODEL_NAME=rtxformer 
+export MRL_NMT_MODEL_NAME=slurmformer_clipnorm0.1_20k_lr0.001 
 export MRL_NMT_PATIENCE=-1  # longer patience
 export MRL_NMT_P_DROPOUT=0.2
 export MRL_NMT_REMOVE_PREPROCESSING_HYPOTHESES=sentencepiece
@@ -33,15 +33,15 @@ export MRL_NMT_VALIDATE_INTERVAL_UPDATES=500
 # corpus: hansard
 export MRL_NMT_BIN_DATA_FOLDER=/home/$(whoami)/mrl_nmt22/data-bin/en-iu/en_sp1k_iu_sp1k/hansard/
 export MRL_NMT_EVAL_MODE="test"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp1k_iu_sp1k_slurm/train/rtxformer/checkpoints/checkpoint_best.pt"
-export MRL_NMT_EVAL_NAME="eval_rtxformer"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp1k_iu_sp1k_slurm/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
 export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp1k/hansard
 export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp1k/hansard/en-iu.test.detok.iu
 
 # uncomment to evaluate on WMT2020
 #export MRL_NMT_BIN_DATA_FOLDER=/home/$(whoami)/mrl_nmt22/data-bin/en-iu/en_sp1k_iu_sp1k/wmt20/
 #export MRL_NMT_EVAL_MODE="dev"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp1k_iu_sp1k_slurm/train/rtxformer/checkpoints/checkpoint_best.pt"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp1k_iu_sp1k_slurm_sanevocab/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
 #export MRL_NMT_EVAL_NAME="wmt20"
 #export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp1k/wmt20
 #export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-iu/en_sp1k_iu_sp1k/wmt20/en-iu.dev.detok.iu

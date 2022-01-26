@@ -1,0 +1,117 @@
+name: en_spmbart_fi_spmbart
+lang_pairs:
+  - en-fi
+
+en-fi:
+  corpora:
+    - default-train
+    - newstest-2019
+    - newstest-2018
+  src: en
+  tgt: fi
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/default-train
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+
+  newstest-2018:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/newstest-2018
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/newstest-2018
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2018
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/newstest-2018
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
+  newstest-2019:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/newstest-2019
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/newstest-2019
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-fi/en_spmbart_fi_spmbart/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2019
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-fi/en_spmbart_fi_spmbart/newstest-2019
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}

@@ -1,0 +1,206 @@
+name: en_spmbart_cs_spmbart
+lang_pairs:
+  - en-cs
+
+en-cs:
+  src: en
+  tgt: cs
+  corpora:
+    - default-train
+    - wmt-early
+    - wmt-late
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: false
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: false
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-early
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/wmt-early
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-late
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/wmt-late
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-cs/en_spmbart_cs_spmbart/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_spmbart_cs_spmbart/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: test

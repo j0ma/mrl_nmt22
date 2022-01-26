@@ -13,12 +13,12 @@ export MRL_NMT_DETOKENIZE_SOURCE=yes
 export MRL_NMT_ENCODER_HIDDEN_SIZE=2048
 export MRL_NMT_ENCODER_LAYERS=6
 export MRL_NMT_ENV_NAME=fairseq-py3.8
-export MRL_NMT_EXPERIMENT_NAME=en_sp32k_fi_sp32k_slurm
 export MRL_NMT_EXPERIMENTS_FOLDER=/home/$(whoami)/mrl_nmt22/experiments
+export MRL_NMT_EXPERIMENT_NAME=en_sp32k_fi_sp32k_slurm_sanevocab
 export MRL_NMT_LEARNING_RATE=0.001
 export MRL_NMT_MAX_TOKENS=3000
 export MRL_NMT_MAX_UPDATES=20000
-export MRL_NMT_MODEL_NAME=rtxformer 
+export MRL_NMT_MODEL_NAME="slurmformer_clipnorm0.1_20k_lr0.001"
 export MRL_NMT_P_DROPOUT=0.2
 export MRL_NMT_REMOVE_PREPROCESSING_HYPOTHESES=sentencepiece
 export MRL_NMT_REMOVE_PREPROCESSING_REFERENCES_CLEAN=none
@@ -33,15 +33,18 @@ export MRL_NMT_PATIENCE=-1  # longer patience
 # corpus: default-train
 export MRL_NMT_BIN_DATA_FOLDER=/home/$(whoami)/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/default-train/
 export MRL_NMT_EVAL_MODE="dev"
-export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/train/rtxformer/checkpoints/checkpoint_best.pt"
-export MRL_NMT_EVAL_NAME="eval_rtxformer"
+export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
+export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.dev.detok.fi
+export MRL_NMT_EVAL_MODE="dev"
+export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm_sanevocab/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
+export MRL_NMT_EVAL_NAME="eval_slurmformer_clipnorm0.1_20k_lr0.001"
 export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train
 export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.dev.detok.fi
 
 # uncomment to evaluate on newstest-2019
 #export MRL_NMT_BIN_DATA_FOLDER=/home/$(whoami)/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2019/
 #export MRL_NMT_EVAL_MODE="train"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/train/rtxformer/checkpoints/checkpoint_best.pt"
+#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm_sanevocab/train/slurmformer_clipnorm0.1_20k_lr0.001/checkpoints/checkpoint_best.pt"
 #export MRL_NMT_EVAL_NAME="newstest-2019-20k"
 #export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019
 #export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2019/en-fi.train.detok.fi
@@ -49,7 +52,6 @@ export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-f
 # uncomment to evaluate on newstest-2018
 #export MRL_NMT_BIN_DATA_FOLDER=/home/$(whoami)/mrl_nmt22/data-bin/en-fi/en_sp32k_fi_sp32k/newstest-2018/
 #export MRL_NMT_EVAL_MODE="train"
-#export MRL_NMT_EVAL_MODEL_CHECKPOINT="/home/$(whoami)/mrl_nmt22/experiments/en_sp32k_fi_sp32k_slurm/train/rtxformer/checkpoints/checkpoint_best.pt"
 #export MRL_NMT_EVAL_NAME="newstest-2018-20k"
 #export MRL_NMT_RAW_DATA_FOLDER=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018
 #export MRL_NMT_REFERENCES_FILE=/home/$(whoami)/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/newstest-2018/en-fi.train.detok.fi

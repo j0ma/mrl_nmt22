@@ -1,0 +1,238 @@
+name: en_spmbart_vi_spmbart
+lang_pairs:
+  - en-vi
+
+en-vi:
+  src: en
+  tgt: vi
+  corpora:
+    - default-train
+    - opus-100
+  default-train-tokenized:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-vi/en_spmbart_vi_spmbart/default-train-tokenized
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train-tokenized
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/tokenization/train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train-tokenized
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/tokenization/dev
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train-tokenized
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/tokenization/test
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: test
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train-tokenized
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-vi/en_spmbart_vi_spmbart/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/dev
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/test
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+
+  opus-100:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/opus-100
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-vi/en_spmbart_vi_spmbart/opus-100
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-vi/en_spmbart_vi_spmbart/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-vi/en_spmbart_vi_spmbart/default-train/dict.vi.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/opus-100
+          sentencepiece_config:
+            src:
+              input_sentence_size: 5000000
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              shuffle_input_sentence: true
+              use_pretrained_model: true
+              vocab_size: 32000
+            tgt:
+              input_sentence_size: 5000000
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              shuffle_input_sentence: true
+              use_pretrained_model: true
+              vocab_size: 32000
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/opus-100
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_spmbart_vi_spmbart/opus-100
+          sentencepiece_config:
+            src:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/mrl_nmt22/scratch/datasets/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: test
