@@ -1,0 +1,132 @@
+name: en_spmbart50_iu_spmbart50
+lang_pairs:
+- en-iu
+
+en-iu:
+  src: en
+  tgt: iu
+  corpora:
+    - hansard
+    - wmt20
+  hansard:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
+    data_bin_folder: ./data-bin/en-iu/en_spmbart50_iu_spmbart50/hansard
+    fairseq_src_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.en_XX.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.iu_CA.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: dev
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: test
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+  wmt20:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
+    data_bin_folder: ./data-bin/en-iu/en_spmbart50_iu_spmbart50/wmt20
+    fairseq_src_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.en_XX.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart50.ft.nn/dict.iu_CA.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/wmt20
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/wmt20
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-iu/en_spmbart50_iu_spmbart50/wmt20
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: dev
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart50.ft.nn
+              model_file: sentence.bpe.model
+              use_pretrained_model: true

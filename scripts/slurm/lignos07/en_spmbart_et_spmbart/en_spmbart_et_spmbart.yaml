@@ -1,0 +1,83 @@
+name: en_spmbart_et_spmbart
+lang_pairs:
+  - en-et
+
+en-et:
+  src: en
+  tgt: et
+  corpora:
+    - default-train
+  default-train:
+    fairseq_src_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
+    fairseq_tgt_dict: /mnt/storage/scratch/mbart.cc25.v2/dict.txt
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-et/en_spmbart_et_spmbart/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-et/en_spmbart_et_spmbart/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-et/en_spmbart_et_spmbart/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-et/en_spmbart_et_spmbart/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-et/en_spmbart_et_spmbart/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+            tgt:                
+              model_base_path: /mnt/storage/scratch/mbart.cc25.v2
+              model_file: sentence.bpe.model
+              use_pretrained_model: true
+

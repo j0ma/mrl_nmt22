@@ -1,0 +1,98 @@
+name: en_char_vi_char
+lang_pairs:
+- en-vi
+
+en-vi:
+  src: en
+  tgt: vi
+  corpora:
+    - default-train
+    - opus-100
+  default-train:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/default-train
+    data_bin_folder: ./data-bin/en-vi/en_char_vi_char/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/default-train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/default-train
+          en_output_level: char
+          vi_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/default-train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/default-train
+          en_output_level: char
+          vi_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/default-train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/default-train
+          en_output_level: char
+          vi_output_level: char
+          split: test
+  opus-100:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/opus-100
+    data_bin_folder: ./data-bin/en-vi/en_char_vi_char/opus-100
+    fairseq_src_dict: ./data-bin/en-vi/en_char_vi_char/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/en-vi/en_char_vi_char/default-train/dict.vi.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/opus-100
+          en_output_level: char
+          vi_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/opus-100
+          en_output_level: char
+          vi_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/opus-100
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-vi/en_char_vi_char/opus-100
+          en_output_level: char
+          vi_output_level: char
+          split: test

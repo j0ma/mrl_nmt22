@@ -1,0 +1,144 @@
+name: en_char_ru_char
+lang_pairs:
+- en-ru
+
+en-ru:
+  src: en
+  tgt: ru
+  corpora:
+    - default-train
+    - wmt-early
+    - wmt-late
+  default-train:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/default-train
+    data_bin_folder: ./data-bin/en-ru/en_char_ru_char/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/default-train
+          en_output_level: char
+          ru_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/default-train
+          en_output_level: char
+          ru_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/default-train
+          en_output_level: char
+          ru_output_level: char
+          split: test
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-early
+    data_bin_folder: ./data-bin/en-ru/en_char_ru_char/wmt-early
+    fairseq_src_dict: ./data-bin/en-ru/en_char_ru_char/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/en-ru/en_char_ru_char/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-early
+          en_output_level: char
+          ru_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-early
+          en_output_level: char
+          ru_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-early
+          en_output_level: char
+          ru_output_level: char
+          split: test
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-late
+    data_bin_folder: ./data-bin/en-ru/en_char_ru_char/wmt-late
+    fairseq_src_dict: ./data-bin/en-ru/en_char_ru_char/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/en-ru/en_char_ru_char/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-late
+          en_output_level: char
+          ru_output_level: char
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-late
+          en_output_level: char
+          ru_output_level: char
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_char_ru_char/wmt-late
+          en_output_level: char
+          ru_output_level: char
+          split: test
