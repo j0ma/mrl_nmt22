@@ -122,6 +122,7 @@ class LoadedTSVFile(LoadedFile):
         self.other_side_map = {"src": "tgt", "tgt": "src"}
         self.use_dict_reader = bool(self.fieldnames)
         self.validate_columns()
+
         if not self.expected_n_fields:
             # default: two fields (src/tgt) or no. of field names given
             self.expected_n_fields = max(2, len(self.fieldnames))
@@ -156,6 +157,7 @@ class LoadedTSVFile(LoadedFile):
 
             if prefix:
                 print(f"{prefix} {err}", file=sys.stderr)
+
             return False
 
         return True
@@ -207,9 +209,11 @@ class LoadedTSVFile(LoadedFile):
 
         n_valid_lines, n_lines = 0, 0
         print(f"[LoadedTSVFile] Loading lines from {self.path}", file=sys.stderr)
+
         for ix, line in enumerate(line_iterator):
             n_lines += 1
             cond = self.validate_line(line, line_ix=ix) if self.validate_line else True
+
             if cond:
                 n_valid_lines += 1
                 yield self.line_to_dict(line)
@@ -380,6 +384,7 @@ class CorpusSplit:
                             f"WARNING: Skipping since both sides not complete. Line: {line}",
                             file=sys.stderr,
                         )
+
                         continue
                     else:
                         raise ValueError("Failing since skip_upon_fail=False.")
@@ -399,6 +404,7 @@ class CorpusSplit:
         assert (
             len({type(src), type(tgt)}) == 1
         ), f"Both src and tgt must have the same type! Got: {type(src)} (src) {type(tgt)} (tgt)"
+
         if isinstance(src, LoadedFile):
             return cls._from_src_tgt_file(src, tgt, split=split, verbose=verbose)
         elif isinstance(src, CorpusSplit):
@@ -437,6 +443,7 @@ class CorpusSplit:
 
         joined_lines = (
             {"src": s["src"], "tgt": t["tgt"]}
+
             for s, t in zip(src.lines_as_dicts, tgt.lines_as_dicts)
         )
 
@@ -488,6 +495,7 @@ class CorpusSplit:
     ) -> "CorpusSplit":
         other_side = {"src": "tgt", "tgt": "src"}[text_file.side]
         lang_kwarg = {f"{text_file.side}_lang": text_file.language}
+
         return cls(lines=text_file.lines_as_dicts, split=split, **lang_kwarg)
 
     @classmethod
@@ -521,17 +529,19 @@ class CorpusSplit:
 
     @classmethod
     def stack_corpus_splits(
-        cls, corpus_splits: Sequence["CorpusSplit"], split: str, verbose: bool = True
+        cls, corpus_splits: Sequence["CorpusSplit"], split: str, verbose: bool = True, multilingual: bool = False
     ) -> "CorpusSplit":
         """Create a single CorpusSplit by concatenating lines of multiple CorpusSplits together."""
 
         all_src = list(set(cs.src_lang for cs in corpus_splits))
-        assert len(all_src) == 1, "All corpus splits must have the same source language"
-
         all_tgt = list(set(cs.tgt_lang for cs in corpus_splits))
-        assert len(all_tgt) == 1, "All corpus splits must have the same target language"
 
-        src_lang, tgt_lang = all_src[0], all_tgt[0]
+        if not multilingual:
+            assert len(all_src) == 1, "All corpus splits must have the same source language"
+            assert len(all_tgt) == 1, "All corpus splits must have the same target language"
+            src_lang, tgt_lang = all_src[0], all_tgt[0]
+        else:
+            src_lang, tgt_lang = "multi", "multi"
 
         concatenated_lines = (line for cs in corpus_splits for line in cs.lines)
 

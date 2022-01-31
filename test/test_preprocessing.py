@@ -8,6 +8,7 @@ import psutil as psu
 
 from tqdm import tqdm
 
+from rich import print
 import mrl_nmt.utils as u
 import mrl_nmt.preprocessing as pp
 import mrl_nmt.preprocessing.corpora
@@ -623,6 +624,9 @@ class TestPreprocessingOps(unittest.TestCase):
         self.fin = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=FIN_DEV, side="src", language="fi", load_to_memory=False
         )
+        self.fin_tgt = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=FIN_DEV, side="tgt", language="fi", load_to_memory=False
+        )
         self.swe = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=SWE_DEV, side="src", language="sv", load_to_memory=False
         )
@@ -631,6 +635,9 @@ class TestPreprocessingOps(unittest.TestCase):
         )
         self.eng = mrl_nmt.preprocessing.corpora.LoadedTextFile(
             path=ENG_DEV, side="tgt", language="en", load_to_memory=False
+        )
+        self.eng_src = mrl_nmt.preprocessing.corpora.LoadedTextFile(
+            path=ENG_DEV, side="src", language="en", load_to_memory=False
         )
         self.fin_corpus = mrl_nmt.preprocessing.CorpusSplit.from_text_file(
             text_file=self.fin, split="dev"
@@ -671,7 +678,26 @@ class TestPreprocessingOps(unittest.TestCase):
 
         self.assertEqual(n_lines_round_robin, n_lines_repeat_each)
 
-    def test_create_multilingual_corpus(self):
+    def test_create_multilingual_corpus_stacked(self):
+
+        en_fi_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
+            src=self.eng_src, tgt=self.fin_tgt, split="train"
+        )
+        en_sv_corpus = mrl_nmt.preprocessing.CorpusSplit.from_src_tgt(
+            src=self.eng_src, tgt=self.swe_tgt, split="train"
+        )
+        multi_corpus = ops.add_lang_token(
+            mrl_nmt.preprocessing.CorpusSplit.stack_corpus_splits(
+                corpus_splits=[en_fi_corpus, en_sv_corpus],
+                split="train",
+                multilingual=True,
+            ),
+            side="tgt",
+        )
+        multi_corpus_lines = list(multi_corpus.lines)
+        print(multi_corpus_lines[-10:])
+
+    def test_create_multilingual_corpus_duplicate(self):
 
         en_corpus = ops.duplicate_lines(
             mrl_nmt.preprocessing.CorpusSplit.from_text_file(
@@ -693,7 +719,7 @@ class TestPreprocessingOps(unittest.TestCase):
         u.print_a_few_lines(
             combined_corpus.lines,
             msg="[test_create_multilingual_corpus] Multilingual corpus lines:",
-            n_lines=10
+            n_lines=10,
         )
 
     @unittest.skip("Deprecated in favor of MTData")
