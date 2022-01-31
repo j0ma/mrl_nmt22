@@ -1,0 +1,1277 @@
+name: en_spmulti64k_multi_spmulti64k
+lang_pairs:
+  - en-de
+  - en-cs
+  - en-ru
+  - en-fi
+  - en-et
+  - en-iu
+  - en-uz
+  - en-tr
+  - en-vi
+
+en-de:
+  src: en
+  tgt: de
+  corpora:
+    - default-train
+    - wmt-early
+    - wmt-late
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/default-train
+      preprocessing_steps:
+      - name: process_de
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/default-train
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/default-train
+      preprocessing_steps:
+      - name: process_de
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/default-train
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/default-train
+      preprocessing_steps:
+      - name: process_de
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/default-train
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-early
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/wmt-early
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.de.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/wmt-early
+      preprocessing_steps:
+      - name: process_de
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/wmt-early
+      preprocessing_steps:
+      - name: process_de
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: dev
+
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-late
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/wmt-late
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.de.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/wmt-late
+      preprocessing_steps:
+      - name: process_de
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/wmt-late
+      preprocessing_steps:
+      - name: process_de
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/de/en-de/wmt-late
+      preprocessing_steps:
+      - name: process_de
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_de_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          de_output_level: sentencepiece
+          split: test
+
+en-cs:
+  src: en
+  tgt: cs
+  corpora:
+    - default-train
+    - wmt-early
+    - wmt-late
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_cs_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-early
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_cs_spmulti64k/wmt-early
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_cs_spmulti64k/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-late
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_cs_spmulti64k/wmt-late
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_cs_spmulti64k/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_cs_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: test
+
+en-ru:
+  src: en
+  tgt: ru
+  corpora:
+    - default-train
+    - wmt-18-20
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/default-train
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/default-train
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/default-train
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/default-train
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+  wmt-18-20:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-18-20
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/wmt-18-20
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-18-20
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-ru/en_spmulti64k_ru_spmulti64k/wmt-18-20
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: test
+
+
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-early
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/wmt-early
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-early
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: test
+
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-late
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/wmt-late
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_ru_spmulti64k/default-train/dict.ru.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/ru/en-ru/wmt-late
+      preprocessing_steps:
+      - name: process_ru
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_ru_spmulti64k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          ru_output_level: sentencepiece
+          split: test
+
+en-fi:
+  corpora:
+    - default-train
+    - newstest-2018
+    - newstest-2019
+  src: en
+  tgt: fi
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_fi_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/default-train
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/default-train
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+  newstest-2018:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/newstest-2018
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_fi_spmulti64k/newstest-2018
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_fi_spmulti64k/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2018
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/newstest-2018
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
+  newstest-2019:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/newstest-2019
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_fi_spmulti64k/newstest-2019
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_fi_spmulti64k/default-train/dict.fi.txt
+    splits:
+    - train
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/fi/en-fi/newstest-2019
+      preprocessing_steps:
+      - name: process_fi
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_fi_spmulti64k/newstest-2019
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          fi_output_level: sentencepiece
+          split: train  # this "hack" is necessary since
+                        # the downloaded files are train.{eng,fin}
+
+en-et:
+  src: en
+  tgt: et
+  corpora:
+    - default-train
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_et_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_et_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_et_spmulti64k/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_et_spmulti64k/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/et/en-et/default-train
+      preprocessing_steps:
+      - name: process_et
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_et_spmulti64k/default-train
+          en_output_level: sentencepiece
+          et_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+
+en-iu:
+  src: en
+  tgt: iu
+  corpora:
+    - hansard
+    - wmt20
+  hansard:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/hansard
+    data_bin_folder: ./data-bin/multi/en_spmulti64k_iu_spmulti64k/hansard
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: dev
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/hansard
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/hansard
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: test
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+  wmt20:
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/wmt20
+    data_bin_folder: ./data-bin/multi/en_spmulti64k_iu_spmulti64k/wmt20
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    fairseq_tgt_dict: ./data-bin/multi/en_spmulti64k_iu_spmulti64k/hansard/dict.iu.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/wmt20
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/wmt20
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/iu/en-iu/wmt20
+      preprocessing_steps:
+      - name: process_iu
+        options:
+          write_detokenized: true
+          detokenized_copy_only: false
+          detokenized_link_only: true
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_iu_spmulti64k/wmt20
+          en_output_level: sentencepiece
+          iu_output_level: sentencepiece
+          split: dev
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+en-tr:
+  corpora:
+    - default-train
+  src: en
+  tgt: tr
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_tr_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_tr_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_tr_spmulti64k/default-train
+          en_output_level: sentencepiece
+          tr_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_tr_spmulti64k/default-train
+          en_output_level: sentencepiece
+          tr_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/tr/en-tr/default-train
+      preprocessing_steps:
+      - name: process_tr
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_tr_spmulti64k/default-train
+          en_output_level: sentencepiece
+          tr_output_level: sentencepiece
+          split: test
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+en-uz:
+  corpora:
+    - default-train
+  src: en
+  tgt: uz
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_uz_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_uz_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/uz/en-uz/default-train
+      preprocessing_steps:
+      - name: process_uz
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_uz_spmulti64k/default-train
+          en_output_level: sentencepiece
+          uz_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/uz/en-uz/default-train
+      preprocessing_steps:
+      - name: process_uz
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_uz_spmulti64k/default-train
+          en_output_level: sentencepiece
+          uz_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/uz/en-uz/default-train
+      preprocessing_steps:
+      - name: process_uz
+        options:
+          write_detokenized: true
+          detokenized_link_only: false
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_uz_spmulti64k/default-train
+          en_output_level: sentencepiece
+          uz_output_level: sentencepiece
+          split: test
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+
+en-vi:
+  src: en
+  tgt: vi
+  corpora:
+    - default-train
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_vi_spmulti64k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_vi_spmulti64k/default-train
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/multi/en_spmulti64k_de_spmulti64k/default-train/dict.en.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/train
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_vi_spmulti64k/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/dev
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_vi_spmulti64k/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/vi/en-vi/phomt/PhoMT/detokenization/test
+      preprocessing_steps:
+      - name: process_vi
+        options:
+          phomt: true
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/multi/en_spmulti64k_vi_spmulti64k/default-train
+          en_output_level: sentencepiece
+          vi_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/multi/
+              model_file: multilingual_sp64k.bin
+              use_pretrained_model: true
