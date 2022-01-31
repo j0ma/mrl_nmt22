@@ -1,0 +1,212 @@
+name: en_sp32k_cs_sp32k
+lang_pairs:
+  - en-cs
+
+en-cs:
+  src: en
+  tgt: cs
+  corpora:
+    - default-train
+    - wmt-early
+    - wmt-late
+  default-train:
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: train
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+          sentencepiece_config:
+            src:
+              input_sentence_size: 5000000
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              shuffle_input_sentence: true
+              use_pretrained_model: false
+              vocab_size: 32000
+            tgt:
+              input_sentence_size: 5000000
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              shuffle_input_sentence: true
+              use_pretrained_model: false
+              vocab_size: 32000
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: dev
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/default-train
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          split: test
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+
+  wmt-early:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-early
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/wmt-early
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-early
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-early
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+
+  wmt-late:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/wmt-late
+    fairseq_src_dict: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train/dict.en.txt
+    fairseq_tgt_dict: ~/mrl_nmt22/data-bin/en-cs/en_sp32k_cs_sp32k/default-train/dict.cs.txt
+    splits:
+    - train
+    - dev
+    - test
+    train:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: train
+    dev:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: dev
+    test:
+      input_base_path: ~/datasets/mrl_nmt22/cs/en-cs/wmt-late
+      preprocessing_steps:
+      - name: process_cs
+        options:
+          write_detokenized: true
+          detokenized_link_only: true
+          detokenized_copy_only: false
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/wmt-late
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: en_sp32k.bin
+              use_pretrained_model: true
+            tgt:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k
+              model_file: cs_sp32k.bin
+              use_pretrained_model: true
+          en_output_level: sentencepiece
+          cs_output_level: sentencepiece
+          split: test

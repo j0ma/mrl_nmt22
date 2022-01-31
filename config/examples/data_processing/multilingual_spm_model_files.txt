@@ -1,0 +1,12 @@
+/home/jonne/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train/en-cs.train.detok.cs
+/home/jonne/datasets/mrl_nmt22/processed/en-cs/en_sp32k_cs_sp32k/default-train/en-cs.train.detok.en
+/home/jonne/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k/default-train/en-de.train.detok.de
+/home/jonne/datasets/mrl_nmt22/processed/en-et/en_sp32k_et_sp32k/default-train/en-et.train.detok.et
+/home/jonne/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.train.detok.en
+/home/jonne/datasets/mrl_nmt22/processed/en-fi/en_sp32k_fi_sp32k/default-train/en-fi.train.detok.fi
+/home/jonne/datasets/mrl_nmt22/processed/en-iu/en_bpe1k_iu_bpe1k/hansard/en-iu.train.detok.en
+/home/jonne/datasets/mrl_nmt22/processed/en-iu/en_bpe1k_iu_bpe1k/hansard/en-iu.train.detok.iu
+/home/jonne/datasets/mrl_nmt22/processed/en-ru/en_sp32k_ru_sp32k/default-train/en-ru.train.detok.ru
+/home/jonne/datasets/mrl_nmt22/processed/en-tr/en_sp32k_tr_sp32k/default-train/en-tr.train.detok.tr
+/home/jonne/datasets/mrl_nmt22/processed/en-uz/en_sp32k_uz_sp32k/default-train/en-uz.train.detok.uz
+/home/jonne/datasets/mrl_nmt22/processed/en-vi/en_sp32k_vi_sp32k/default-train/en-vi.train.detok.vi

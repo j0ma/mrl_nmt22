@@ -22,6 +22,7 @@ from tqdm import tqdm
 import pycountry
 import yaml
 import toml
+import orjson
 
 SPACE_SYMBOL = "﹏"
 SP_BOW_SYMBOL = "▁"
@@ -311,3 +312,6 @@ def read_yaml(p: Union[str, Path]) -> Dict[Any, Any]:
 
 def str_to_path(path_as_str: str) -> Path:
     return Path(path_as_str)
+
+def read_json(json_str: str) -> Dict[Any, Any]:
+    return orjson.loads(json_str)
