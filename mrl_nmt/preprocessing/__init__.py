@@ -43,6 +43,7 @@ class FairseqPreprocessor:
     test_prefix: str = ""
     splits: Iterable[str] = ("train", "valid")
     joined_dictionary: bool = False
+    source_only: bool = False
 
     gpu_devices: str = ""
     use_gpu: bool = False
@@ -97,6 +98,9 @@ class FairseqPreprocessor:
 
         if self.joined_dictionary:
             popen_args.append("--joined-dictionary")
+        
+        if self.source_only:
+            popen_args.append("--source-only")
 
         popen_args = " ".join([a for a in popen_args if len(a)])
 
@@ -173,6 +177,7 @@ class ExperimentPreprocessingPipeline:
         gpu_devices: str = "",
         n_workers: int = 1,
         joined_dictionary: bool = False,
+        source_only: bool = False,
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = toml.load(toml_path)
 
@@ -183,6 +188,7 @@ class ExperimentPreprocessingPipeline:
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
+            source_only=source_only
         )
 
     @classmethod
@@ -194,6 +200,7 @@ class ExperimentPreprocessingPipeline:
         gpu_devices: str = "",
         n_workers: int = 1,
         joined_dictionary: bool = False,
+        source_only: bool = False,
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = u.read_yaml(yaml_path)
 
@@ -204,6 +211,7 @@ class ExperimentPreprocessingPipeline:
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
+            source_only=source_only
         )
 
     def process(self):
