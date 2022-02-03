@@ -7,7 +7,7 @@
 import argparse
 import fileinput
 
-from rich.progress import track
+from tqdm import tqdm
 
 
 def main():
@@ -56,7 +56,7 @@ def main():
     with open(args.output + "." + args.srclang, "w") as src_h, open(
         args.output + "." + args.tgtlang, "w"
     ) as tgt_h:
-        for line in track(fileinput.input(args.files)):
+        for line in tqdm(fileinput.input(args.files)):
             if line.startswith("S-"):
                 tgt = safe_index(line.rstrip().split("\t"), 1, "")
             elif line.startswith("H-"):
