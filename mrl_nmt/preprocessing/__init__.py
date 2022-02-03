@@ -64,6 +64,7 @@ class FairseqPreprocessor:
             "test": self.test_prefix,
             "valid": self.dev_prefix,
         }
+
         if self.use_gpu:
             assert (
                 self.gpu_devices
@@ -73,6 +74,7 @@ class FairseqPreprocessor:
 
         popen_args = [
             f"CUDA_VISIBLE_DEVICES={self.gpu_devices} && {self.fairseq_cmd}"
+
             if self.use_gpu
             else self.fairseq_cmd,
             f"--source-lang {self.src_lang}",
@@ -87,12 +89,13 @@ class FairseqPreprocessor:
         popen_args.extend(
             [
                 f"--{spl if spl != 'dev' else 'valid'}pref {self.prefixes[spl]}"
+
                 for spl in self.splits
             ]
         )
 
         if not self.use_gpu:
-            popen_args.extend(["--cpu"])
+            popen_args.append("--cpu")
 
         popen_args.append(f"--workers {self.n_workers}")
 
@@ -226,8 +229,10 @@ class ExperimentPreprocessingPipeline:
 
         # if there are others left, process them
         # (this is necessary in case we re-use a fairseq dict from the first lang pair)
+
         if _lang_pairs:
             print(f"Processing rest of language pairs: {_lang_pairs}")
+
             if self.n_workers == 1:
                 for lang_pair in _lang_pairs:
                     self.maybe_print(
@@ -285,11 +290,13 @@ class ExperimentPreprocessingPipeline:
             if self.use_fairseq:
                 src_dict = str(
                     Path(corpus_config["fairseq_src_dict"]).expanduser()
+
                     if "fairseq_src_dict" in corpus_config
                     else ""
                 )
                 tgt_dict = str(
                     Path(corpus_config["fairseq_tgt_dict"]).expanduser()
+
                     if "fairseq_tgt_dict" in corpus_config
                     else ""
                 )
