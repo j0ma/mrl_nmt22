@@ -1,5 +1,6 @@
 import mrl_nmt.preprocessing as pp
 import click
+from rich import print
 
 
 @click.command()
@@ -8,7 +9,9 @@ import click
 @click.option("--verbose", is_flag=True)
 @click.option("--use-gpu", is_flag=True)
 @click.option("--gpu-devices", default="")
-def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices):
+@click.option("--n-workers", default=1, type=int)
+@click.option("--joined-dictionary", is_flag=True, default=False)
+def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices, n_workers, joined_dictionary):
 
     assert bool(toml_config) ^ bool(
         yaml_config
@@ -16,11 +19,21 @@ def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices):
 
     if toml_config:
         pipeline = pp.ExperimentPreprocessingPipeline.from_toml(
-            toml_config, verbose=verbose, use_gpu=use_gpu, gpu_devices=gpu_devices
+            toml_config,
+            verbose=verbose,
+            use_gpu=use_gpu,
+            gpu_devices=gpu_devices,
+            n_workers=n_workers,
+            joined_dictionary=joined_dictionary
         )
     else:
         pipeline = pp.ExperimentPreprocessingPipeline.from_yaml(
-            yaml_config, verbose=verbose, use_gpu=use_gpu, gpu_devices=gpu_devices
+            yaml_config,
+            verbose=verbose,
+            use_gpu=use_gpu,
+            gpu_devices=gpu_devices,
+            n_workers=n_workers,
+            joined_dictionary=joined_dictionary
         )
 
     pipeline.process()

@@ -10,11 +10,13 @@ from typing import (
 from pathlib import Path
 from collections import defaultdict
 import tempfile as tf
-import multiprocessing
+import multiprocessing as mp
 import subprocess
+import time
 
 import toml
 import attr
+from rich import print
 import mrl_nmt.preprocessing.ops as ops
 from mrl_nmt import utils as u
 from mrl_nmt.preprocessing.corpora import CorpusSplit, LoadedTextFile
@@ -22,7 +24,7 @@ from mrl_nmt.preprocessing.corpora import CorpusSplit, LoadedTextFile
 from sacremoses import MosesDetokenizer
 import sentencepiece as spm
 
-CPU_COUNT = multiprocessing.cpu_count()
+CPU_COUNT = mp.cpu_count()
 
 # keep list of types of supported subword processing
 PROCESSING_TYPES = ops.OUTPUT_LEVELS
@@ -40,6 +42,7 @@ class FairseqPreprocessor:
     dev_prefix: str = ""
     test_prefix: str = ""
     splits: Iterable[str] = ("train", "valid")
+    joined_dictionary: bool = False
 
     gpu_devices: str = ""
     use_gpu: bool = False
@@ -92,6 +95,9 @@ class FairseqPreprocessor:
 
         popen_args.append(f"--workers {self.n_workers}")
 
+        if self.joined_dictionary:
+            popen_args.append("--joined-dictionary")
+
         popen_args = " ".join([a for a in popen_args if len(a)])
 
         subprocess.run(
@@ -138,6 +144,8 @@ class ExperimentPreprocessingPipeline:
     verbose: bool = attr.ib(default=False)
     use_gpu: bool = attr.ib(default=False)
     gpu_devices: str = attr.ib(default="")
+    n_workers: int = attr.ib(default=1)
+    joined_dictionary: bool = attr.ib(default=False)
 
     def __attrs_post_init__(self):
         self.lang_pairs = self.config["lang_pairs"]
@@ -163,6 +171,8 @@ class ExperimentPreprocessingPipeline:
         verbose: bool = False,
         use_gpu: bool = False,
         gpu_devices: str = "",
+        n_workers: int = 1,
+        joined_dictionary: bool = False,
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = toml.load(toml_path)
 
@@ -171,6 +181,8 @@ class ExperimentPreprocessingPipeline:
             verbose=verbose,
             use_gpu=use_gpu,
             gpu_devices=gpu_devices,
+            n_workers=n_workers,
+            joined_dictionary=joined_dictionary,
         )
 
     @classmethod
@@ -180,6 +192,8 @@ class ExperimentPreprocessingPipeline:
         verbose: bool = False,
         use_gpu: bool = False,
         gpu_devices: str = "",
+        n_workers: int = 1,
+        joined_dictionary: bool = False,
     ) -> "ExperimentPreprocessingPipeline":
         config_dict = u.read_yaml(yaml_path)
 
@@ -188,14 +202,36 @@ class ExperimentPreprocessingPipeline:
             verbose=verbose,
             use_gpu=use_gpu,
             gpu_devices=gpu_devices,
+            n_workers=n_workers,
+            joined_dictionary=joined_dictionary,
         )
 
     def process(self):
-        for lang_pair in self.lang_pairs:
-            self.maybe_print(
-                f"[ExperimentPreprocessingPipeline] Language pair: {lang_pair}"
-            )
-            self.process_lang_pair(lang_pair)
+
+        # process first language pair
+        _lang_pairs = [l for l in self.lang_pairs]
+        first_lang = _lang_pairs.pop(0)
+        print(f"Processing first lang: {first_lang}")
+        self.process_lang_pair(first_lang)
+
+        time.sleep(5)
+
+        # if there are others left, process them
+        # (this is necessary in case we re-use a fairseq dict from the first lang pair)
+        if _lang_pairs:
+            print(f"Processing rest of language pairs: {_lang_pairs}")
+            if self.n_workers == 1:
+                for lang_pair in _lang_pairs:
+                    self.maybe_print(
+                        f"[ExperimentPreprocessingPipeline] Language pair: {lang_pair}"
+                    )
+                    self.process_lang_pair(lang_pair)
+            else:
+                with mp.Pool(self.n_workers) as pool:
+                    print(
+                        f"[ExperimentPreprocessingPipeline] Processing language pairs {self.lang_pairs} using {self.n_workers} workers"
+                    )
+                    pool.map(self.process_lang_pair, self.lang_pairs)
 
     def process_lang_pair(self, lang_pair: str) -> None:
         """Processes raw language pair data into format usable by an NMT toolkit.
@@ -261,6 +297,7 @@ class ExperimentPreprocessingPipeline:
                     splits=corpus_config["splits"],
                     use_gpu=self.use_gpu,
                     gpu_devices=self.gpu_devices,
+                    joined_dictionary=self.joined_dictionary,
                 )
                 fairseq.process()
 
