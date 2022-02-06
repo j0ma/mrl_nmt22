@@ -467,7 +467,7 @@ def process_monolingual(
             n_workers=n_workers,
             chunksize=chunksize,
             monolingual=True,
-            tgt_lang="",
+            tgt_lang="mono",
             tgt_path="",
             tgt_file="",
         )
