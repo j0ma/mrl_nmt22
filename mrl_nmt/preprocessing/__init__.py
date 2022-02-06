@@ -56,9 +56,17 @@ class FairseqPreprocessor:
 
     def __attrs_post_init__(self):
 
-        self.train_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.train"
-        self.dev_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.dev"
-        self.test_prefix = f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.test"
+        self.train_prefix = (
+            self.train_prefix
+            or f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.train"
+        )
+        self.dev_prefix = (
+            self.dev_prefix or f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.dev"
+        )
+        self.test_prefix = (
+            self.test_prefix
+            or f"{self.data_folder}/{self.src_lang}-{self.tgt_lang}.test"
+        )
         self.prefixes = {
             "train": self.train_prefix,
             "dev": self.dev_prefix,
@@ -314,6 +322,10 @@ class ExperimentPreprocessingPipeline:
                     use_gpu=self.use_gpu,
                     gpu_devices=self.gpu_devices,
                     joined_dictionary=self.joined_dictionary,
+                    source_only=self.source_only,
+                    train_prefix=corpus_config.get("train_prefix", ""),
+                    dev_prefix=corpus_config.get("dev_prefix", ""),
+                    test_prefix=corpus_config.get("test_prefix", ""),
                 )
                 fairseq.process()
 
