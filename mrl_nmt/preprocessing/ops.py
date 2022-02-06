@@ -184,17 +184,26 @@ def process_subwords(
     src_output_lvl: str,
     tgt_output_lvl: str,
     sentencepiece_config: Optional[Dict[str, str]],
-    n_workers: int = 1
+    n_workers: int = 1,
+    monolingual: bool = False,
 ) -> crp.CorpusSplit:
 
     assert (
         src_output_lvl in OUTPUT_LEVELS
     ), f"src output level must be one of {OUTPUT_LEVELS}. Got: {src_output_lvl}"
-    assert (
-        tgt_output_lvl in OUTPUT_LEVELS
-    ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
 
-    for side, output_level in zip(("src", "tgt"), (src_output_lvl, tgt_output_lvl)):
+    if not monolingual:
+        assert (
+            tgt_output_lvl in OUTPUT_LEVELS
+        ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
+
+    if monolingual:
+        raise NotImplementedError
+        side_output_lvl_iter = [("src", src_output_lvl)]
+    else:
+        side_output_lvl_iter = [("src", src_output_lvl), ("tgt", tgt_output_lvl)]
+
+    for side, output_level in side_output_lvl_iter:
         print(
             f'[process_subwords] Processing {side} side into output level "{output_level}"'
         )
