@@ -259,7 +259,7 @@ def get_src_tgt_paths(src_lang, tgt_lang, kind, downloads, split, input_base_pat
     return src_path, tgt_path
 
 
-def write_detokenized(
+def write_detokenized_lines(
     detokenized_output_path,
     src_lang,
     tgt_lang,
@@ -272,6 +272,7 @@ def write_detokenized(
     tgt_file,
     n_workers,
     chunksize,
+    monolingual=False,
 ):
     detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
 
@@ -282,35 +283,37 @@ def write_detokenized(
     src_output_path = (
         detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
     )
-    tgt_output_path = (
-        detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
-    )
+    paths = [(src_path, src_output_path)]
+
+    if not monolingual:
+        tgt_output_path = (
+            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
+        )
+        paths.append((tgt_path, tgt_output_path))
 
     if detokenized_copy_only:
         # This can be useful when we only need to copy a single file per side
 
-        for p, output_path in [
-            (src_path, src_output_path),
-            (tgt_path, tgt_output_path),
-        ]:
+        for p, output_path in paths:
             shutil.copy(src=p, dst=output_path)
 
     elif detokenized_link_only:
         # Alternatively we can just create symlinks to the raw data if it's not pretokenized
 
-        for p, output_path in [
-            (src_path, src_output_path),
-            (tgt_path, tgt_output_path),
-        ]:
+        for p, output_path in paths:
             u.create_symlink(link_path=output_path, dest_path=p)
 
     else:
         # As a last resort, we can write the data out using Moses detokenizer
 
-        for f, output_path in [
-            (tgt_file, src_output_path),
-            (tgt_file, tgt_output_path),
-        ]:
+        files = [
+            (src_file, src_output_path),
+        ]
+
+        if not monolingual:
+            files.append((tgt_file, tgt_output_path))
+
+        for f, output_path in files:
 
             with mp.Pool(n_workers) as pool:
                 print(f"Detokenizing using {n_workers} cores and chunksize {chunksize}")
