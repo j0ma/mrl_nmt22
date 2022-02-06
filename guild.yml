@@ -190,7 +190,7 @@
         - file: config
     download_newscrawl_mono:
       description: "Download monolingual News crawl corpora from StatMT"
-      exec: "bash scripts/download/download_news_crawl.sh ${language} ${download_folder} ${corpus_name}"
+      exec: "bash scripts/download/download_news_crawl.sh ${language} ${download_folder} ${conv_to_utf} ${original_encoding} ${subsample} ${subsample_size}"
       flags:
         download_folder:
           type: string
@@ -198,9 +198,18 @@
         language:
           type: string
           required: true
-        corpus_name:
+        conv_to_utf:
+          type: boolean
+          default: false
+        original_encoding:
           type: string
-          required: true
+          default: ISO-8859-1
+        subsample:
+          type: boolean
+          default: true
+        subsample_size:
+          type: string
+          default: 5000000
       requires:
         - file: scripts
     download_til:
