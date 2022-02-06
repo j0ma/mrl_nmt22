@@ -1,0 +1,30 @@
+name: en_sp32k_de_sp32k
+lang_pairs:
+  - mono
+
+mono:
+  src: de
+  corpora:
+    - default-train
+  default-train:
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-de/mono_sp32k
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-de/mono_sp32k
+    splits:
+    - train
+    train:
+      input_base_path: /home/jonne/datasets/mrl_nmt22/de/mono
+      preprocessing_steps:
+      - name: process_monolingual
+        options:
+          language: de
+          input_file_name: de_mono.25k
+          output_level: sentencepiece
+          split: train
+          write_detokenized: true
+          detokenized_output_path: /home/jonne/datasets/mrl_nmt22/de/mono
+          detokenized_filename: de_mono.25k.detok
+          sentencepiece_config:
+            src:
+              model_base_path: ~/datasets/mrl_nmt22/processed/en-de/en_sp32k_de_sp32k
+              model_file: de_sp32k.bin
+              use_pretrained_model: true
