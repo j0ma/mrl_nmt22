@@ -110,7 +110,7 @@ class FairseqPreprocessor:
             popen_args.append("--joined-dictionary")
 
         if self.source_only:
-            popen_args.append("--source-only")
+            popen_args.append("--only-source")
 
         popen_args = " ".join([a for a in popen_args if len(a)])
 
@@ -160,6 +160,7 @@ class ExperimentPreprocessingPipeline:
     gpu_devices: str = attr.ib(default="")
     n_workers: int = attr.ib(default=1)
     joined_dictionary: bool = attr.ib(default=False)
+    source_only: bool = attr.ib(default=False)
 
     def __attrs_post_init__(self):
         self.lang_pairs = self.config["lang_pairs"]
@@ -198,7 +199,7 @@ class ExperimentPreprocessingPipeline:
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
-            source_only=source_only
+            source_only=source_only,
         )
 
     @classmethod
@@ -290,7 +291,10 @@ class ExperimentPreprocessingPipeline:
             for split, corpus_split in split_dict.items():
 
                 output_folder.mkdir(parents=True, exist_ok=True)
-                corpus_split.write_to_disk(folder=output_folder)
+                corpus_split.write_to_disk(
+                    folder=output_folder,
+                    monolingual=self.source_only,
+                )
 
             # Finally binarize using fairseq if needed
 
