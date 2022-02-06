@@ -216,7 +216,9 @@ def process_subwords(
                 )
             sp_conf = sentencepiece_config[side]
             validate_sentencepiece_config(sp_conf)
-            out = process_with_sentencepiece(corpus=out, side=side, n_workers=n_workers, **sp_conf)
+            out = process_with_sentencepiece(
+                corpus=out, side=side, n_workers=n_workers, **sp_conf
+            )
         elif output_level == "char":
             out = convert_to_chars(out, side=side)
         elif output_level == "morph":
@@ -862,6 +864,7 @@ def _apply_sp_to_side(sp, line_dict, side, other_side):
     new_line = " ".join(sp.encode(side_line_dict["text"], out_type=str))
     sld = side_line_dict.copy()
     sld["text"] = new_line
+
     return {side: sld, other_side: line_dict[other_side]}
 
 
@@ -876,7 +879,7 @@ def process_with_sentencepiece(
     shuffle_input_sentence: bool = False,
     model_type: str = "unigram",
     chunksize: int = 10000,
-    n_workers: int = 2
+    n_workers: int = 2,
 ) -> crp.CorpusSplit:
     """Process one side of a CorpusSplit with SentencePiece
 
@@ -929,8 +932,8 @@ def process_with_sentencepiece(
             remove_extra_whitespaces=False,
             normalization_rule_name="identity",
             model_type=model_type,
-            character_coverage=1.0, # Make sure to cover all characters
-            byte_fallback=True      # Segment UNKs into Unicode bytes
+            character_coverage=1.0,  # Make sure to cover all characters
+            byte_fallback=True,  # Segment UNKs into Unicode bytes
         )
 
         if model_file_is_correct:
@@ -953,7 +956,6 @@ def process_with_sentencepiece(
             sld = side_line_dict.copy()
             sld["text"] = new_line
             yield {side: sld, other_side: line_dict[other_side]}
-
 
     output = final_lines(sp, lines, n_workers=n_workers, chunksize=chunksize)
 
