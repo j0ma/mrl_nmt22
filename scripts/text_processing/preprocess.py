@@ -12,7 +12,16 @@ from rich import print
 @click.option("--n-workers", default=1, type=int)
 @click.option("--joined-dictionary", is_flag=True, default=False)
 @click.option("--source-only", is_flag=True, default=False)
-def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices, n_workers, joined_dictionary, source_only):
+def main(
+    toml_config,
+    yaml_config,
+    verbose,
+    use_gpu,
+    gpu_devices,
+    n_workers,
+    joined_dictionary,
+    source_only,
+):
 
     assert bool(toml_config) ^ bool(
         yaml_config
@@ -26,7 +35,7 @@ def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices, n_workers, joi
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
-            source_only=source_only
+            source_only=source_only,
         )
     else:
         pipeline = pp.ExperimentPreprocessingPipeline.from_yaml(
@@ -36,7 +45,7 @@ def main(toml_config, yaml_config, verbose, use_gpu, gpu_devices, n_workers, joi
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
-            source_only=source_only
+            source_only=source_only,
         )
 
     pipeline.process()
