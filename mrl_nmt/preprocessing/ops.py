@@ -179,9 +179,9 @@ def validate_sentencepiece_config(config: Dict[str, Any]) -> bool:
 
 def process_subwords(
     out: crp.CorpusSplit,
-    src_output_lvl: str,
-    tgt_output_lvl: str,
-    sentencepiece_config: Optional[Dict[str, str]],
+    src_output_lvl: str = "word",
+    tgt_output_lvl: str = "word",
+    sentencepiece_config: Optional[Dict[str, str]] = None,
     n_workers: int = 1,
     monolingual: bool = False,
 ) -> crp.CorpusSplit:
@@ -196,7 +196,6 @@ def process_subwords(
         ), f"tgt output level must be one of {OUTPUT_LEVELS}. Got: {tgt_output_lvl}"
 
     if monolingual:
-        raise NotImplementedError
         side_output_lvl_iter = [("src", src_output_lvl)]
     else:
         side_output_lvl_iter = [("src", src_output_lvl), ("tgt", tgt_output_lvl)]
@@ -273,6 +272,7 @@ def write_detokenized_lines(
     n_workers,
     chunksize,
     monolingual=False,
+    detokenized_filename="",
 ):
     detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
 
@@ -280,14 +280,14 @@ def write_detokenized_lines(
         print(f"Creating folder: {detokenized_output_path}")
         detokenized_output_path.mkdir(exist_ok=True, parents=True)
 
-    src_output_path = (
-        detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
+    src_output_path = detokenized_output_path / (
+        detokenized_filename or f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
     )
     paths = [(src_path, src_output_path)]
 
     if not monolingual:
-        tgt_output_path = (
-            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
+        tgt_output_path = detokenized_output_path / (
+            detokenized_filename or f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
         )
         paths.append((tgt_path, tgt_output_path))
 
@@ -420,7 +420,7 @@ def process_download(
 def process_monolingual(
     input_base_folder,
     input_file_name,
-    lang,
+    language,
     split="train",
     output_level="word",
     sentencepiece_config=None,
@@ -432,6 +432,7 @@ def process_monolingual(
     moses_config=None,
     n_workers=(os.cpu_count() - 4),
     chunksize=10000,
+    detokenized_filename=""
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
@@ -444,12 +445,12 @@ def process_monolingual(
 
     print(f"Loading src text file from {mono_path}")
     f_mono = crp.LoadedTextFile(
-        path=mono_path, side="src", load_to_memory=False, language=lang
+        path=mono_path, side="src", load_to_memory=False, language=language
     )
 
     print("Creating corpus split...")
     out = crp.CorpusSplit(
-        lines=f_mono.lines_as_dicts, split=split, src_lang=lang, verbose=True
+        lines=f_mono.lines_as_dicts, split=split, src_lang=language, verbose=True
     )
 
     if write_detokenized:
@@ -457,7 +458,7 @@ def process_monolingual(
 
         write_detokenized_lines(
             detokenized_output_path=detokenized_output_path,
-            src_lang=lang,
+            src_lang=language,
             split=split,
             detokenized_copy_only=detokenized_copy_only,
             detokenized_link_only=detokenized_link_only,
