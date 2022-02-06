@@ -4,7 +4,10 @@ experiments/
 data-bin/
 log/
 scratch/
+raw_data/
 raw_data
+staging/
+
 
 *.idea/
 # Slurm output files
