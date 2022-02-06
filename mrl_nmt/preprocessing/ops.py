@@ -419,6 +419,7 @@ def process_download(
 
 def process_monolingual(
     input_base_folder,
+    input_file_name,
     lang,
     split="train",
     output_level="word",
@@ -438,34 +439,36 @@ def process_monolingual(
         moses_config = MOSES_DEFAULTS
 
     input_base_path = Path(input_base_folder)
-    downloads = input_base_path / "download"
 
-    mono_path = get_monolingual_path(lang, downloads, split, input_base_path)
+    mono_path = input_base_path / input_file_name
 
     print(f"Loading src text file from {mono_path}")
-    f_src = crp.LoadedTextFile(
+    f_mono = crp.LoadedTextFile(
         path=mono_path, side="src", load_to_memory=False, language=lang
     )
 
     print("Creating corpus split...")
-    # TODO: fix call
-    out = crp.CorpusSplit.from_monolingual(f_src, split=split, verbose=True)
+    out = crp.CorpusSplit(
+        lines=f_mono.lines_as_dicts, split=split, src_lang=lang, verbose=True
+    )
 
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
 
-        # TODO: enable monolingual
-        write_detokenized(
+        write_detokenized_lines(
             detokenized_output_path=detokenized_output_path,
             src_lang=lang,
             split=split,
             detokenized_copy_only=detokenized_copy_only,
             detokenized_link_only=detokenized_link_only,
             src_path=mono_path,
-            src_file=f_src,
+            src_file=f_mono,
             n_workers=n_workers,
             chunksize=chunksize,
             monolingual=True,
+            tgt_lang="",
+            tgt_path="",
+            tgt_file="",
         )
 
     print("Processing subwords...")
