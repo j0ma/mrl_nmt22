@@ -210,7 +210,18 @@ def print_a_few_lines(
 
 
 def get_line_from_dict(d):
-    return d["src"]["text"], d["tgt"]["text"]
+    try:
+        src_line = d["src"]["text"]
+    except:
+        src_line = None
+    try:
+        tgt_line = d["tgt"]["text"]
+    except:
+        tgt_line = None
+    if not bool(src_line) ^ bool(tgt_line):
+        raise ValueError(f"Both lines are None with d = {d}")
+    return src_line, tgt_line
+
 
 
 def maybe_search(pattern: str, string: str, guess: int = 5) -> int:
