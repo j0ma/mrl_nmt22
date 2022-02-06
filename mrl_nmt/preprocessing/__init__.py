@@ -16,7 +16,8 @@ import time
 
 import toml
 import attr
-from rich import print
+
+# from rich import print
 import mrl_nmt.preprocessing.ops as ops
 from mrl_nmt import utils as u
 from mrl_nmt.preprocessing.corpora import CorpusSplit, LoadedTextFile
