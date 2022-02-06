@@ -345,6 +345,7 @@ class CorpusSplit:
         folder: Path,
         prefix: str = "",
         skip_upon_fail: bool = True,
+        monolingual: bool = False,
     ) -> None:
         """Writes self.lines to the folder specified by folder,
         inside which two files will be created, one for src and tgt.
@@ -354,7 +355,7 @@ class CorpusSplit:
 
         By default, skip_upon_fail=True which causes lines where either side is empty to be skipped.
         """
-        prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
+        prefix = prefix or f"{self.src_lang}-{self.tgt_lang or 'mono'}.{self.split}"
         src_out_path = folder / f"{prefix}.{self.src_lang}"
         tgt_out_path = folder / f"{prefix}.{self.tgt_lang}"
 
@@ -369,19 +370,23 @@ class CorpusSplit:
                 src_line, tgt_line = get_line_from_dict(line)
                 try:
                     assert (
-                        len(src_line) > 0 and len(tgt_line) > 0
-                    ), f"Null source and/or target line! Got: src={src_line}, tgt={tgt_line}"
-
+                        len(src_line) > 0
+                    ), f"Null source line! Got: src={src_line}"
                     src_out.write(f"{src_line}\n")
                     src_lines_written += 1
-                    tgt_out.write(f"{tgt_line}\n")
-                    tgt_lines_written += 1
+                    
+                    if not monolingual:
+                        assert (
+                            len(tgt_line) > 0
+                        ), f"Null source line! Got: tgt={tgt_line}"
+                        tgt_out.write(f"{tgt_line}\n")
+                        tgt_lines_written += 1
 
                 except:
                     if skip_upon_fail:
                         skipped_lines += 1
                         print(
-                            f"WARNING: Skipping since both sides not complete. Line: {line}",
+                            f"WARNING: Skipping. Line: {line}",
                             file=sys.stderr,
                         )
 
@@ -389,9 +394,13 @@ class CorpusSplit:
                     else:
                         raise ValueError("Failing since skip_upon_fail=False.")
 
-        assert (
-            src_lines_written == tgt_lines_written
-        ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
+        if not monolingual:
+            assert (
+                src_lines_written == tgt_lines_written
+            ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
+
+        if monolingual:
+            tgt_out_path.unlink()
 
     @classmethod
     def from_src_tgt(
@@ -443,7 +452,6 @@ class CorpusSplit:
 
         joined_lines = (
             {"src": s["src"], "tgt": t["tgt"]}
-
             for s, t in zip(src.lines_as_dicts, tgt.lines_as_dicts)
         )
 
@@ -529,7 +537,11 @@ class CorpusSplit:
 
     @classmethod
     def stack_corpus_splits(
-        cls, corpus_splits: Sequence["CorpusSplit"], split: str, verbose: bool = True, multilingual: bool = False
+        cls,
+        corpus_splits: Sequence["CorpusSplit"],
+        split: str,
+        verbose: bool = True,
+        multilingual: bool = False,
     ) -> "CorpusSplit":
         """Create a single CorpusSplit by concatenating lines of multiple CorpusSplits together."""
 
@@ -537,8 +549,12 @@ class CorpusSplit:
         all_tgt = list(set(cs.tgt_lang for cs in corpus_splits))
 
         if not multilingual:
-            assert len(all_src) == 1, "All corpus splits must have the same source language"
-            assert len(all_tgt) == 1, "All corpus splits must have the same target language"
+            assert (
+                len(all_src) == 1
+            ), "All corpus splits must have the same source language"
+            assert (
+                len(all_tgt) == 1
+            ), "All corpus splits must have the same target language"
             src_lang, tgt_lang = all_src[0], all_tgt[0]
         else:
             src_lang, tgt_lang = "multi", "multi"
