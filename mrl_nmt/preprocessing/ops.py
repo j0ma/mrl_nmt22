@@ -18,6 +18,8 @@ import mrl_nmt.preprocessing.corpora as crp
 import mrl_nmt.utils as u
 from mrl_nmt.utils import SPACE_SYMBOL
 
+from rich import print
+
 
 OUTPUT_LEVELS = {"word", "sentencepiece", "morph", "char", "bpe", "none"}
 MOSES_DEFAULTS = {"min_len": 1, "max_len": 80, "ratio": 9}
