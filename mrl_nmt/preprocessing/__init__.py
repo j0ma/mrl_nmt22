@@ -264,7 +264,8 @@ class ExperimentPreprocessingPipeline:
         """
         config = self.config[lang_pair]
         corpus_names = config["corpora"]
-        src, tgt = config["src"], config["tgt"]
+        src = config["src"]
+        tgt = config.get("tgt", "mono")
         lines: DefaultDict[Dict[str, CorpusSplit]] = defaultdict(dict)
 
         # Load in all the data and text_processing it
