@@ -222,40 +222,41 @@ class ExperimentPreprocessingPipeline:
             gpu_devices=gpu_devices,
             n_workers=n_workers,
             joined_dictionary=joined_dictionary,
-            source_only=source_only
+            source_only=source_only,
         )
 
     def process(self):
 
-        # process first language pair
-        _lang_pairs = [l for l in self.lang_pairs]
-        first_lang = _lang_pairs.pop(0)
-        print(f"Processing first lang: {first_lang}")
-        self.process_lang_pair(first_lang)
+        # process first item
+        # TODO: rename lang_pairs
+        processables = [l for l in self.lang_pairs]
+        first = processables.pop(0)
+        print(f"Processing: {first}")
+        self.process_one(first)
 
         time.sleep(5)
 
         # if there are others left, process them
         # (this is necessary in case we re-use a fairseq dict from the first lang pair)
 
-        if _lang_pairs:
-            print(f"Processing rest of language pairs: {_lang_pairs}")
+        if processables:
+            print(f"Processing rest: {processables}")
 
             if self.n_workers == 1:
-                for lang_pair in _lang_pairs:
+                for processable in processables:
                     self.maybe_print(
-                        f"[ExperimentPreprocessingPipeline] Language pair: {lang_pair}"
+                        f"[ExperimentPreprocessingPipeline] Processing: {processable}"
                     )
-                    self.process_lang_pair(lang_pair)
+                    self.process_one(processable)
             else:
                 with mp.Pool(self.n_workers) as pool:
                     print(
-                        f"[ExperimentPreprocessingPipeline] Processing language pairs {self.lang_pairs} using {self.n_workers} workers"
+                        f"[ExperimentPreprocessingPipeline] Processing {processables} using {self.n_workers} workers"
                     )
-                    pool.map(self.process_lang_pair, self.lang_pairs)
+                    pool.map(self.process_one, self.lang_pairs)
 
-    def process_lang_pair(self, lang_pair: str) -> None:
-        """Processes raw language pair data into format usable by an NMT toolkit.
+    def process_one(self, lang_pair: str) -> None:
+        """Processes raw language data into format usable by an NMT toolkit.
 
         This processing can include
         - Parsing various formats (XML, CSV) into one-sentence-per-line format
