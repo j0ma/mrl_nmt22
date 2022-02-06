@@ -48,7 +48,7 @@ main () {
 
     mkdir -vp $(dirname $output_file)
 
-    get_newscrawl_urls "${language}" | parallel -t wget -O - {} "|" gunzip -c ">>" "${output_file}"
+    rm -fv $output_file && get_newscrawl_urls "${language}" | parallel -t wget -O - {} "|" gunzip -c ">>" "${output_file}"
 
     if [ "${subsample}"="yes" ]
     then
