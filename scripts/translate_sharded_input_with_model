@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# translate_with_model.sh
+
+# Translates raw text with a fairseq model and postprocesses the output
+
+set -euo
+
+# Grab options from command line
+shards_file=$1
+model_checkpoint=$2
+output_file=$3
+gpu_device=$4
+use_cpu_for_eval=$5
+use_sampling=$6
+
+src_lang=$7
+tgt_lang=$8
+
+random_seed=$9
+
+use_sampling=${10:-no}
+max_tokens=${11:-4096}
+beam_size=${12:-5}
+
+output_folder=$(dirname $output_file)
+
+# get suffix using unix epoch timestamp
+create_suffix () { 
+    sleep 1 && echo "$(date +%s)" 
+}
+
+# call this on a single input file
+translate_sharded_input_with_model () {
+    local input_folder=$1
+    local output_file=$2
+    local model_checkpoint=$3
+    
+    local gpu_device=$4
+    local use_cpu_for_eval=$5
+
+    local src_lang=$6
+    local tgt_lang=$7
+
+    local random_seed=${8:-1917}
+
+    local use_sampling=${9:-yes}
+    local max_tokens=${10:-4096}
+    local beam_size=${11:-1} 
+
+
+    case "${use_cpu_for_eval}" in
+        "yes")
+            cpu_flag="--cpu"
+            cuda_flag=""
+            ;;
+        *)
+            cpu_flag=""
+            cuda_flag=CUDA_VISIBLE_DEVICES=${gpu_device}
+            ;;
+    esac
+
+    case "${use_sampling}" in
+        "no"|"false")
+            use_sampling_flag=""
+            ;;
+        *)
+            use_sampling_flag="--sampling"
+            beam_size=1
+            ;;
+    esac
+
+    $cuda_flag fairseq-generate "${input_folder}" --fp16 \
+        -s "${src_lang}" -t "${tgt_lang}" \
+        --task=translation --log-formatj json \
+        --seed "${random_seed}" \
+        --truncate-source --truncate-target \
+        --path "${model_checkpoint}" \
+        --skip-invalid-size-inputs-valid-test \
+        --max-tokens "${max_tokens}" \
+        $use_cpu_flag ${gpu_device} \
+        $use_sampling_flag --beam "${beam_size}" > "${output_file}"
+}
+
+
+cat "${shards_file}" | while read shard_input_file
+do
+    
+    shard_output_file=${output_folder}/$(basename ${shard_input_file})_$(create_suffix)
+    echo "input file: ${shard_input_file}"
+    echo "output file: ${shard_output_file}"
+
+    translate_sharded_input_with_model \
+        "${shard_input_file}" \
+        "${shard_output_file}" \
+        "${model_checkpoint}" \
+        "${gpu_device}" \
+        "${use_cpu_for_eval}" \
+        "${src_lang}" "${tgt_lang}" \
+        "${random_seed}" \
+        "${use_sampling}" \
+        "${max_tokens}" \
+        "${beam_size}" \
+done 
+

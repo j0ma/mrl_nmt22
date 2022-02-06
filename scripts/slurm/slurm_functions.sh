@@ -140,3 +140,39 @@ evaluate () {
         detokenize_references_clean=$detokenize_references_clean \
         mode=${mode} ${use_cpu_flag} ${gpu_flag}
 }
+
+
+translate_sharded_input_with_model () {
+    local shards_file=$1
+    local model_checkpoint=$2
+    local output_file=$3
+    local gpu_device=$4
+    local use_cpu_for_eval=$5
+    local src_lang=$6
+    local tgt_lang=$7
+
+    local seed=$8
+
+    local use_sampling=${10:-no}
+    local max_tokens=${11:-4096}
+    local beam_size=${12:-5}
+
+    if [ "${gpu}" = "none" ]
+    then
+        gpu_flag=""
+        use_cpu_flag="use_cpu_for_eval=yes"
+    else
+        gpu_flag="gpu_device=\"${gpu}\""
+        use_cpu_flag=""
+    fi
+
+    guild run nmt:translate_sharded_input_with_model -y \
+        src_lang=$src_lang tgt_lang=$tgt_lang \
+        shards_file=$shards_file \
+        model_checkpoint=$model_checkpoint \
+        output_file=$output_file \
+        seed=$seed \
+        ${use_cpu_flag} ${gpu_flag}
+}
+
+

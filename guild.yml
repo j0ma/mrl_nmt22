@@ -297,74 +297,45 @@
         - file: scripts
         - file: checkpoints
         - file: experiments
-    experiment_pipeline:
-      description: "Prep experiment -> train model -> evaluate model"
+    translate_sharded_input_with_model:
+      description: "Translate with model"
+      exec: "bash scripts/translate_sharded_input_with_model ${shards_file} ${model_checkpoint} ${output_file} ${gpu_device} ${use_cpu_for_eval} ${src_lang} ${tgt_lang} ${seed} ${use_sampling} ${max_tokens} ${beam_size}"
       flags:
-          $include: ["basic-flags", "prep-flags", "transformer-flags", "evaluate-flags"]
-      steps:
-          - run: prep_experiment
-            flags:
-                experiment_name: "${experiment_name}"
-                src_lang: "${src_lang}"
-                tgt_lang: "${tgt_lang}"
-                model_name: "${model_name}"
-                seed: "${seed}"
-                gpu_device: "${gpu_device}"
-                raw_data_folder: "${raw_data_folder}"
-                bin_data_folder: "${bin_data_folder}"
-          - run: train_transformer
-            flags:
-                experiment_name: "${experiment_name}"
-                src_lang: "${src_lang}"
-                tgt_lang: "${tgt_lang}"
-                model_name: "${model_name}"
-                seed: "${seed}"
-                gpu_device: "${gpu_device}"
-                criterion: "${criterion}"
-                label_smoothing: "${label_smoothing}"
-                lr: "${lr}"
-                lr_scheduler: "${lr_scheduler}"
-                warmup_init_lr: "${warmup_init_lr}"
-                clip_norm: "${clip_norm}"
-                save_interval_updates: "${save_interval_updates}"
-                activation_fn: "${activation_fn}"
-                encoder_layers: "${encoder_layers}"
-                decoder_layers: "${decoder_layers}"
-                encoder_attention_heads: "${encoder_attention_heads}"
-                decoder_attention_heads: "${decoder_attention_heads}"
-                decoder_embedding_dim: "${decoder_embedding_dim}"
-                decoder_hidden_size: "${decoder_hidden_size}"
-                encoder_embedding_dim: "${encoder_embedding_dim}"
-                encoder_hidden_size: "${encoder_hidden_size}"
-                batch_size: "${batch_size}"
-                max_tokens: "${max_tokens}"
-                optimizer: "${optimizer}"
-                p_dropout: "${p_dropout}"
-                max_updates: "${max_updates}"
-                max_epoch: "${max_epoch}"
-                validate_interval: "${validate_interval}"
-                validate_interval_updates: "${validate_interval_updates}"
-                warmup_updates: "${warmup_updates}"
-          - run: evaluate_transformer
-            flags:
-                experiment_name: "${experiment_name}"
-                src_lang: "${src_lang}"
-                tgt_lang: "${tgt_lang}"
-                model_name: "${model_name}"
-                seed: "${seed}"
-                gpu_device: "${gpu_device}"
-                mode: "${mode}"
-                beam_size: "${beam_size}"
-                remove_preprocessing_source: "${remove_preprocessing_source}"
-                remove_preprocessing_hypotheses: "${remove_preprocessing_hypotheses}"
-                remove_preprocessing_references: "${remove_preprocessing_references}"
-                remove_preprocessing_references_clean: "${remove_preprocessing_references_clean}"
-                detokenize_source: "${detokenize_source}"
-                detokenize_hypotheses: "${detokenize_hypotheses}"
-                detokenize_references: "${detokenize_references}"
-                detokenize_references_clean: "${detokenize_references_clean}"
-                references_clean_file: "${references_clean_file}"
-                use_cpu_for_eval: "${use_cpu_for_eval}"
+        src_lang:
+          type: string
+          required: true
+        tgt_lang:
+          type: string
+          required: true
+        shards_file:
+          type: string
+          required: true
+        model_checkpoint:
+          type: string
+          required: true
+        output_file:
+          type: string
+          required: true
+        gpu_device:
+          type: string
+          default: "none"
+        use_cpu_for_eval:
+          type: boolean
+          default: true
+        seed:
+          type: string
+          default: 1917
+        use_sampling:
+          type: boolean
+          default: false
+        max_tokens:
+          type: int
+          default: 4096
+        beam_size:
+          type: int
+          default: 5
+      output-scalars: no
+      sourcecode: no
       requires:
         - file: data-bin
         - file: scripts
