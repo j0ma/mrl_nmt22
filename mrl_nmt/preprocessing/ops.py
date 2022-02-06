@@ -220,6 +220,102 @@ def _detok(l):
     return MosesDetokenizer().detokenize(l.split(" "))
 
 
+def get_src_tgt_paths(src_lang, tgt_lang, kind, downloads, split, input_base_path):
+    if kind == "til":
+        pair = f"{src_lang}-{tgt_lang}"
+        src_path, tgt_path = (
+            downloads / split / pair / f"{pair}.{src_lang}",
+            downloads / split / pair / f"{pair}.{tgt_lang}",
+        )
+    elif kind == "phomt":
+        print("Loading PhoMT corpus...")
+        src_path, tgt_path = (
+            input_base_path / f"{split}.{src_lang}",
+            input_base_path / f"{split}.{tgt_lang}",
+        )
+    elif kind == "mtdata":
+        src_lang_long, tgt_lang_long = (
+            u.get_long_lang_name(src_lang),
+            u.get_long_lang_name(tgt_lang),
+        )
+        # mtdata doesn't merge test files when handling recipes, work around this and take test1
+        _split = split if split != "test" else "test1"
+        src_path, tgt_path = (
+            downloads / f"{_split}.{src_lang_long}",
+            downloads / f"{_split}.{tgt_lang_long}",
+        )
+    else:
+        raise ValueError(f"Unable to resolve src/tgt paths for kind={kind}")
+
+    return src_path, tgt_path
+
+
+def write_detokenized(
+    detokenized_output_path,
+    src_lang,
+    tgt_lang,
+    split,
+    detokenized_copy_only,
+    detokenized_link_only,
+    src_path,
+    tgt_path,
+    src_file,
+    tgt_file,
+    n_workers,
+    chunksize,
+):
+    detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
+
+    if not detokenized_output_path.exists():
+        print(f"Creating folder: {detokenized_output_path}")
+        detokenized_output_path.mkdir(exist_ok=True, parents=True)
+
+    src_output_path = (
+        detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
+    )
+    tgt_output_path = (
+        detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
+    )
+
+    if detokenized_copy_only:
+        # This can be useful when we only need to copy a single file per side
+
+        for p, output_path in [
+            (src_path, src_output_path),
+            (tgt_path, tgt_output_path),
+        ]:
+            shutil.copy(src=p, dst=output_path)
+
+    elif detokenized_link_only:
+        # Alternatively we can just create symlinks to the raw data if it's not pretokenized
+
+        for p, output_path in [
+            (src_path, src_output_path),
+            (tgt_path, tgt_output_path),
+        ]:
+            u.create_symlink(link_path=output_path, dest_path=p)
+
+    else:
+        # As a last resort, we can write the data out using Moses detokenizer
+
+        for f, output_path in [
+            (tgt_file, src_output_path),
+            (tgt_file, tgt_output_path),
+        ]:
+
+            with mp.Pool(n_workers) as pool:
+                print(f"Detokenizing using {n_workers} cores and chunksize {chunksize}")
+                t_start = time.time()
+                detok_lines = pool.map(_detok, f.stream_lines, chunksize=chunksize)
+                t_end = time.time()
+                print(f"Time elapsed: {round(t_end - t_start, 3)}s")
+                print(f"Writing detokenized lines to {output_path}")
+                u.write_lines(
+                    path=output_path,
+                    lines=detok_lines,
+                )
+
+
 def process_download(
     input_base_folder,
     src_lang,
@@ -246,40 +342,17 @@ def process_download(
     input_base_path = Path(input_base_folder)
     downloads = input_base_path / "download"
 
-    if kind == "til":
-        pair = f"{src_lang}-{tgt_lang}"
-        src_path, tgt_path = (
-            downloads / split / pair / f"{pair}.{src_lang}",
-            downloads / split / pair / f"{pair}.{tgt_lang}",
-        )
-    elif kind == "phomt":
-        print("Loading PhoMT corpus...")
-        src_path, tgt_path = (
-            input_base_path / f"{split}.{src_lang}",
-            input_base_path / f"{split}.{tgt_lang}",
-        )
-    elif kind == "mtdata":
-        src_lang_long, tgt_lang_long = (
-            u.get_long_lang_name(src_lang),
-            u.get_long_lang_name(tgt_lang),
-        )
-        # mtdata doesn't merge test files when handling recipes, work around this and take test1
-        _split = split if split != "test" else "test1"
-        src_path, tgt_path = (
-            downloads / f"{_split}.{src_lang_long}",
-            downloads / f"{_split}.{tgt_lang_long}",
-        )
-    else:
-        raise ValueError(f"Expected kind=mtdata or til but got {kind}")
+    src_path, tgt_path = get_src_tgt_paths(
+        src_lang, tgt_lang, kind, downloads, split, input_base_path
+    )
 
     if use_clean_corpus_n_perl:
-        cleaner = pp.MosesCleanCorpusNProcessor(**moses_config)
+        print("[process_download] Cleaning corpus using clean-corpus-n.perl...")
 
         src_path_clean = f"{src_path}.clean"
         tgt_path_clean = f"{tgt_path}.clean"
-        print("[process_download] Cleaning corpus using clean-corpus-n.perl...")
 
-        cleaner.process_files(
+        pp.MosesCleanCorpusNProcessor(**moses_config).process_files(
             src_input_file=src_path,
             tgt_input_file=tgt_path,
             src_output_file=src_path_clean,
@@ -305,45 +378,20 @@ def process_download(
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
 
-        detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
-        if not detokenized_output_path.exists():
-            print(f"Creating folder: {detokenized_output_path}")
-            detokenized_output_path.mkdir(exist_ok=True, parents=True)
-
-        src_output_path = (
-            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
+        write_detokenized(
+            detokenized_output_path=detokenized_output_path,
+            src_lang=src_lang,
+            tgt_lang=tgt_lang,
+            split=split,
+            detokenized_copy_only=detokenized_copy_only,
+            detokenized_link_only=detokenized_link_only,
+            src_path=p_src,
+            tgt_path=p_tgt,
+            src_file=f_src,
+            tgt_file=f_tgt,
+            n_workers=n_workers,
+            chunksize=chunksize,
         )
-        tgt_output_path = (
-            detokenized_output_path / f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
-        )
-
-        if detokenized_copy_only:
-            # This can be useful when we only need to copy a single file per side
-            for p, output_path in [(p_src, src_output_path), (p_tgt, tgt_output_path)]:
-                shutil.copy(src=p, dst=output_path)
-
-        elif detokenized_link_only:
-            # Alternatively we can just create symlinks to the raw data if it's not pretokenized
-            for p, output_path in [(p_src, src_output_path), (p_tgt, tgt_output_path)]:
-                u.create_symlink(link_path=output_path, dest_path=p)
-
-        else:
-            # As a last resort, we can write the data out using Moses detokenizer
-            for f, output_path in [(f_tgt, src_output_path), (f_tgt, tgt_output_path)]:
-
-                with mp.Pool(n_workers) as pool:
-                    print(
-                        f"Detokenizing using {n_workers} cores and chunksize {chunksize}"
-                    )
-                    t_start = time.time()
-                    detok_lines = pool.map(_detok, f.stream_lines, chunksize=chunksize)
-                    t_end = time.time()
-                    print(f"Time elapsed: {round(t_end - t_start, 3)}s")
-                    print(f"Writing detokenized lines to {output_path}")
-                    u.write_lines(
-                        path=output_path,
-                        lines=detok_lines,
-                    )
 
     print("Processing subwords...")
     out = process_subwords(
@@ -351,7 +399,70 @@ def process_download(
         src_output_lvl=src_output_level,
         tgt_output_lvl=tgt_output_level,
         sentencepiece_config=sentencepiece_config,
-        n_workers=n_workers
+        n_workers=n_workers,
+    )
+
+    return out
+
+
+def process_monolingual(
+    input_base_folder,
+    lang,
+    split="train",
+    output_level="word",
+    sentencepiece_config=None,
+    write_detokenized=True,
+    detokenized_output_path="",
+    detokenized_copy_only=False,
+    detokenized_link_only=False,
+    use_clean_corpus_n_perl=False,
+    moses_config=None,
+    n_workers=(os.cpu_count() - 4),
+    chunksize=10000,
+) -> crp.CorpusSplit:
+    """Processes TIL / MTData download into a CorpusSplit object"""
+
+    if not use_clean_corpus_n_perl and not moses_config:
+        moses_config = MOSES_DEFAULTS
+
+    input_base_path = Path(input_base_folder)
+    downloads = input_base_path / "download"
+
+    mono_path = get_monolingual_path(lang, downloads, split, input_base_path)
+
+    print(f"Loading src text file from {mono_path}")
+    f_src = crp.LoadedTextFile(
+        path=mono_path, side="src", load_to_memory=False, language=lang
+    )
+
+    print("Creating corpus split...")
+    # TODO: fix call
+    out = crp.CorpusSplit.from_monolingual(f_src, split=split, verbose=True)
+
+    if write_detokenized:
+        assert detokenized_output_path, "Unset argument: detokenized_output_path"
+
+        # TODO: enable monolingual
+        write_detokenized(
+            detokenized_output_path=detokenized_output_path,
+            src_lang=lang,
+            split=split,
+            detokenized_copy_only=detokenized_copy_only,
+            detokenized_link_only=detokenized_link_only,
+            src_path=mono_path,
+            src_file=f_src,
+            n_workers=n_workers,
+            chunksize=chunksize,
+            monolingual=True,
+        )
+
+    print("Processing subwords...")
+    out = process_subwords(
+        out=out,
+        src_output_lvl=output_level,
+        sentencepiece_config=sentencepiece_config,
+        n_workers=n_workers,
+        monolingual=True,
     )
 
     return out
