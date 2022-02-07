@@ -83,6 +83,7 @@ class FairseqPreprocessor:
 
         popen_args = [
             f"CUDA_VISIBLE_DEVICES={self.gpu_devices} && {self.fairseq_cmd}"
+
             if self.use_gpu
             else self.fairseq_cmd,
             f"--source-lang {self.src_lang}",
@@ -97,6 +98,7 @@ class FairseqPreprocessor:
         popen_args.extend(
             [
                 f"--{spl if spl != 'dev' else 'valid'}pref {self.prefixes[spl]}"
+
                 for spl in self.splits
             ]
         )
@@ -303,11 +305,13 @@ class ExperimentPreprocessingPipeline:
             if self.use_fairseq:
                 src_dict = str(
                     Path(corpus_config["fairseq_src_dict"]).expanduser()
+
                     if "fairseq_src_dict" in corpus_config
                     else ""
                 )
                 tgt_dict = str(
                     Path(corpus_config["fairseq_tgt_dict"]).expanduser()
+
                     if "fairseq_tgt_dict" in corpus_config
                     else ""
                 )

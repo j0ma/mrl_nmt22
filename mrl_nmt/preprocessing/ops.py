@@ -488,10 +488,6 @@ def process_monolingual(
     chunksize=10000,
     detokenized_filename="",
 ) -> crp.CorpusSplit:
-    """Processes TIL / MTData download into a CorpusSplit object"""
-
-    if not use_clean_corpus_n_perl and not moses_config:
-        moses_config = MOSES_DEFAULTS
 
     input_base_path = Path(input_base_folder)
 
