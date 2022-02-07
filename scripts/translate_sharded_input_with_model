@@ -82,7 +82,7 @@ translate_sharded_input_with_model () {
         --path "${model_checkpoint}" \
         --skip-invalid-size-inputs-valid-test \
         --max-tokens "${max_tokens}" \
-        --gen-subset=train \
+        --gen-subset="test" \
         $use_cpu_flag \
         $use_sampling_flag --beam "${beam_size}" > "${output_file}"
 }
