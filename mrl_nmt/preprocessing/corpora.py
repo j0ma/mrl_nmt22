@@ -355,7 +355,7 @@ class CorpusSplit:
 
         By default, skip_upon_fail=True which causes lines where either side is empty to be skipped.
         """
-        prefix = prefix or f"{self.src_lang}-{self.tgt_lang or 'mono'}.{self.split}"
+        prefix = prefix or f"{self.src_lang}-{self.tgt_lang}.{self.split}"
         src_out_path = folder / f"{prefix}.{self.src_lang}"
         tgt_out_path = folder / f"{prefix}.{self.tgt_lang}"
 

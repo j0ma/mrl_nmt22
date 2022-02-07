@@ -295,6 +295,11 @@ class ExperimentPreprocessingPipeline:
             for split, corpus_split in split_dict.items():
 
                 output_folder.mkdir(parents=True, exist_ok=True)
+
+                # inject source and target languages despite monolingual
+                corpus_split.src_lang = src
+                corpus_split.tgt_lang = tgt
+
                 corpus_split.write_to_disk(
                     folder=output_folder,
                     monolingual=self.source_only,
