@@ -12,12 +12,13 @@ mono:
     splits:
     - train
     train:
+      fairseq_src_dict: ~/mrl_nmt22/data-bin/en-de/en_sp32k_de_sp32k/default-train/dict.de.txt
       input_base_path: /home/jonne/datasets/mrl_nmt22/de/mono
       preprocessing_steps:
       - name: process_monolingual
         options:
           language: de
-          input_file_name: de_mono.25k
+          input_file_regex: "de_mono\.25m\.shard"
           output_level: sentencepiece
           split: train
           write_detokenized: true

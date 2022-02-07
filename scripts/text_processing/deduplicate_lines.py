@@ -31,7 +31,7 @@ def main():
         pool = Pool(args.workers)
         results = pool.imap_unordered(get_hashes_and_lines, h, 1000)
 
-        for i, (_hash, raw_line) in track(enumerate(results):)
+        for i, (_hash, raw_line) in track(enumerate(results), total=100):
             if _hash not in seen:
                 seen.add(_hash)
                 sys.stdout.buffer.write(raw_line)

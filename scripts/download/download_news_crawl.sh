@@ -13,7 +13,9 @@ OUTPUT_FILE="${OUTPUT_FOLDER}/${DEFAULT_FNAME}"
 CONV_TO_UTF=${3:-yes}
 DEFAULT_ENC=${4:-ISO-8859-1}
 SUBSAMPLE=${5:-yes}
-SUBSAMPLE_SIZE=${6:-5000000}
+SUBSAMPLE_SIZE=${6:-25000000}
+SHARD=${7:-yes}
+SHARD_SIZE=${8:-5000000}
 
 get_newscrawl_urls () {
 
@@ -46,6 +48,9 @@ main () {
     local subsample=$5
     local subsample_size=$6
 
+    local shard=$7
+    local shard_size=$8
+
     mkdir -vp $(dirname $output_file)
 
     rm -fv $output_file && get_newscrawl_urls "${language}" | parallel -t wget -O - {} "|" gunzip -c ">>" "${output_file}"
@@ -63,7 +68,12 @@ main () {
         convert_to_utf8 $output_file $utf8_output_file $orig_enc
     fi
 
-    echo "Lines written:"
+    # always deduplicate
+    local dedup_output_file=${output_file}.dedup
+    python scripts/text_processing/deduplicate_lines.py $output_file > "${dedup_output_file}"
+    local output_file=${dedup_output_file} 
+
+    echo "Final monolingual lines:"
     wc -l "${output_file}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
 
 }
@@ -74,4 +84,6 @@ main \
     $CONV_TO_UTF \
     $DEFAULT_ENC \
     $SUBSAMPLE \
-    $SUBSAMPLE_SIZE
+    $SUBSAMPLE_SIZE \
+    $SHARD \
+    $SHARD_SIZE
