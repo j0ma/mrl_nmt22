@@ -517,8 +517,14 @@ def process_monolingual(
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
 
+        # Create another temporary CorpusSplit for detok writing
+        # This is so that we can still iterate over out.lines later
+        tmp_cs = crp.CorpusSplit.stack_text_files(
+            text_files=mono_files, split=split, verbose=True
+        )
+
         write_detokenized_lines_from_corpus_split(
-            corpus_split=out,
+            corpus_split=tmp_cs,
             detokenized_output_path=detokenized_output_path,
             n_workers=n_workers,
             chunksize=chunksize,
