@@ -367,8 +367,8 @@ class CorpusSplit:
         ) as tgt_out:
 
             for ix, line in tqdm(enumerate(self.lines)):
-                src_line, tgt_line = get_line_from_dict(line)
                 try:
+                    src_line, tgt_line = get_line_from_dict(line)
                     assert (
                         len(src_line) > 0
                     ), f"Null source line! Got: src={src_line}"
