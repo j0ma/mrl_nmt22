@@ -610,6 +610,21 @@ class TestCorpusSplit(unittest.TestCase):
             text_files=files, split="train"
         )
 
+    def test_stack_text_files_write_detok(self):
+
+        files = [self.fin, self.swe_src]
+        _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(
+            text_files=files, split="train"
+        )
+        ops.write_detokenized_lines_from_corpus_split(
+            corpus_split=_,
+            detokenized_output_path="/tmp",
+            n_workers=os.cpu_count() - 4,
+            chunksize=10000,
+            monolingual=True,
+            detokenized_filename="unittest_detok"
+        )
+
     def test_stack_text_files_side_mismatch_raises_error(self):
 
         files = [self.fin, self.swe]

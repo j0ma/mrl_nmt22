@@ -5,6 +5,7 @@ import multiprocessing as mp
 from typing import Union, Iterable, Optional, Dict, Any
 import math
 import time
+import re
 
 from sacremoses import MosesDetokenizer
 import sentencepiece as spm
@@ -258,6 +259,59 @@ def get_src_tgt_paths(src_lang, tgt_lang, kind, downloads, split, input_base_pat
     return src_path, tgt_path
 
 
+def write_detokenized_lines_from_corpus_split(
+    corpus_split,
+    detokenized_output_path,
+    n_workers,
+    chunksize,
+    monolingual=False,
+    detokenized_filename="",
+):
+
+    src_lang = corpus_split.src_lang
+    tgt_lang = corpus_split.tgt_lang or "mono"
+    split = corpus_split.split
+
+    # As a last resort, we can write the data out using Moses detokenizer
+    detokenized_output_path = Path(detokenized_output_path).expanduser().resolve()
+
+    if not detokenized_output_path.exists():
+        print(f"Creating folder: {detokenized_output_path}")
+        detokenized_output_path.mkdir(exist_ok=True, parents=True)
+
+    src_output_path = detokenized_output_path / (
+        detokenized_filename or f"{src_lang}-{tgt_lang}.{split}.detok.{src_lang}"
+    )
+
+    if not monolingual:
+        tgt_output_path = detokenized_output_path / (
+            detokenized_filename or f"{src_lang}-{tgt_lang}.{split}.detok.{tgt_lang}"
+        )
+
+    src_tgt_lines = list(u.get_line_from_dict(d) for d in corpus_split.lines)
+    src_lines, tgt_lines = zip(*src_tgt_lines)
+    src_lines, tgt_lines = list(src_lines), list(tgt_lines)
+
+    files = [(src_lines, src_output_path)]
+
+    if not monolingual:
+        files.append((tgt_lines, tgt_output_path))
+
+    for _lines, output_path in files:
+
+        with mp.Pool(n_workers) as pool:
+            print(f"Detokenizing using {n_workers} cores and chunksize {chunksize}")
+            t_start = time.time()
+            detok_lines = pool.map(_detok, _lines, chunksize=chunksize)
+            t_end = time.time()
+            print(f"Time elapsed: {round(t_end - t_start, 3)}s")
+            print(f"Writing detokenized lines to {output_path}")
+            u.write_lines(
+                path=output_path,
+                lines=detok_lines,
+            )
+
+
 def write_detokenized_lines(
     detokenized_output_path,
     src_lang,
@@ -419,7 +473,7 @@ def process_download(
 
 def process_monolingual(
     input_base_folder,
-    input_file_name,
+    input_file_regex,
     language,
     split="train",
     output_level="word",
@@ -432,7 +486,7 @@ def process_monolingual(
     moses_config=None,
     n_workers=(os.cpu_count() - 4),
     chunksize=10000,
-    detokenized_filename=""
+    detokenized_filename="",
 ) -> crp.CorpusSplit:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
@@ -441,35 +495,34 @@ def process_monolingual(
 
     input_base_path = Path(input_base_folder)
 
-    mono_path = input_base_path / input_file_name
+    mono_files = []
 
-    print(f"Loading src text file from {mono_path}")
-    f_mono = crp.LoadedTextFile(
-        path=mono_path, side="src", load_to_memory=False, language=language
-    )
+    for mono_path in input_base_path.iterdir():
+        matched_file = re.search(r"{}".format(input_file_regex), str(mono_path))
+
+        if matched_file:
+            mono_path = input_base_path / matched_file.group()
+            mono_file = crp.LoadedTextFile(
+                path=mono_path, side="src", load_to_memory=False, language=language
+            )
+
+            print(f"Loading src text file from {mono_path}")
+            mono_files.append(mono_file)
 
     print("Creating corpus split...")
-    out = crp.CorpusSplit(
-        lines=f_mono.lines_as_dicts, split=split, src_lang=language, verbose=True
+    out = crp.CorpusSplit.stack_text_files(
+        text_files=mono_files, split=split, verbose=True
     )
 
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
 
-        write_detokenized_lines(
+        write_detokenized_lines_from_corpus_split(
+            corpus_split=out,
             detokenized_output_path=detokenized_output_path,
-            src_lang=language,
-            split=split,
-            detokenized_copy_only=detokenized_copy_only,
-            detokenized_link_only=detokenized_link_only,
-            src_path=mono_path,
-            src_file=f_mono,
             n_workers=n_workers,
             chunksize=chunksize,
             monolingual=True,
-            tgt_lang="mono",
-            tgt_path="",
-            tgt_file="",
         )
 
     print("Processing subwords...")
@@ -904,7 +957,9 @@ def process_with_sentencepiece(
         model_file.parent.mkdir(parents=True)
 
     if use_pretrained_model:
-        assert model_file.exists(), "Must specify a valid model file."
+        assert (
+            model_file.exists()
+        ), f"Must specify a valid model file. Got: {model_file}"
         model_file = str(model_file)
         print(f"Applying SP model from {model_file}...")
         sp = spm.SentencePieceProcessor(model_file=model_file)

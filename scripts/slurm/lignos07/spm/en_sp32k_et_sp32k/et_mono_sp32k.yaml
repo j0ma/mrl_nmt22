@@ -1,0 +1,31 @@
+name: en_sp32k_et_sp32k
+lang_pairs:
+  - mono
+
+mono:
+  src: et
+  corpora:
+    - default-train
+  default-train:
+    fairseq_src_dict: /tmp/dict.et.txt  # TODO: fix
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-et/mono_sp32k
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-et/mono_sp32k
+    splits:
+    - train
+    train:
+      input_base_path: /home/jonne/datasets/mrl_nmt22/et/mono  # TODO: fix
+      preprocessing_steps:
+      - name: process_monolingual
+        options:
+          language: et
+          input_file_regex: "et_mono.sub.dedup"
+          output_level: sentencepiece
+          split: train
+          write_detokenized: true
+          detokenized_output_path: /home/jonne/datasets/mrl_nmt22/et/mono  # TODO: fix
+          detokenized_filename: et_mono.sub.dedup.detok
+          sentencepiece_config:
+            src:
+              model_base_path: /tmp/  # TODO: fix
+              model_file: et_sp32k.bin
+              use_pretrained_model: true
