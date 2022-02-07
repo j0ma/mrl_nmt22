@@ -4,7 +4,7 @@
 
 # Translates raw text with a fairseq model and postprocesses the output
 
-set -xeuo
+set -euo
 
 # Grab options from command line
 shards_file=$1
