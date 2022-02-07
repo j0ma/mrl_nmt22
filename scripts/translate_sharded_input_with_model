@@ -4,7 +4,7 @@
 
 # Translates raw text with a fairseq model and postprocesses the output
 
-set -euo
+set -xeuo
 
 # Grab options from command line
 shards_file=$1
@@ -12,16 +12,18 @@ model_checkpoint=$2
 output_file=$3
 gpu_device=$4
 use_cpu_for_eval=$5
-use_sampling=$6
 
-src_lang=$7
-tgt_lang=$8
+src_lang=$6
+tgt_lang=$7
 
-random_seed=$9
+random_seed=$8
+
+dict_en=${9}
 
 use_sampling=${10:-no}
 max_tokens=${11:-4096}
 beam_size=${12:-5}
+
 
 output_folder=$(dirname $output_file)
 
@@ -51,11 +53,11 @@ translate_sharded_input_with_model () {
 
     case "${use_cpu_for_eval}" in
         "yes")
-            cpu_flag="--cpu"
+            use_cpu_flag="--cpu"
             cuda_flag=""
             ;;
         *)
-            cpu_flag=""
+            use_cpu_flag=""
             cuda_flag=CUDA_VISIBLE_DEVICES=${gpu_device}
             ;;
     esac
@@ -70,15 +72,18 @@ translate_sharded_input_with_model () {
             ;;
     esac
 
+    cp -v $dict_en $input_folder
+
     $cuda_flag fairseq-generate "${input_folder}" --fp16 \
         -s "${src_lang}" -t "${tgt_lang}" \
-        --task=translation --log-formatj json \
+        --task=translation --log-format json \
         --seed "${random_seed}" \
         --truncate-source --truncate-target \
         --path "${model_checkpoint}" \
         --skip-invalid-size-inputs-valid-test \
         --max-tokens "${max_tokens}" \
-        $use_cpu_flag ${gpu_device} \
+        --gen-subset=train \
+        $use_cpu_flag \
         $use_sampling_flag --beam "${beam_size}" > "${output_file}"
 }
 
@@ -100,6 +105,6 @@ do
         "${random_seed}" \
         "${use_sampling}" \
         "${max_tokens}" \
-        "${beam_size}" \
+        "${beam_size}"
 done 
 
