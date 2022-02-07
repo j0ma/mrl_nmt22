@@ -19,10 +19,11 @@ tgt_lang=$7
 random_seed=$8
 
 dict_en=${9}
+dict_foreign=${10}
 
-use_sampling=${10:-no}
-max_tokens=${11:-4096}
-beam_size=${12:-5}
+use_sampling=${11:-no}
+max_tokens=${12:-4096}
+beam_size=${13:-5}
 
 
 output_folder=$(dirname $output_file)
@@ -72,9 +73,10 @@ translate_sharded_input_with_model () {
             ;;
     esac
 
-    cp -v $dict_en $input_folder
+    cp -v $dict_foreign $input_folder/"dict.${src_lang}.txt"
+    cp -v $dict_en $input_folder/"dict.${tgt_lang}.txt"
 
-    $cuda_flag fairseq-generate "${input_folder}" --fp16 \
+    $cuda_flag fairseq-generate "${input_folder}"  \
         -s "${src_lang}" -t "${tgt_lang}" \
         --task=translation --log-format json \
         --seed "${random_seed}" \
