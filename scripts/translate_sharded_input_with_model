@@ -55,11 +55,10 @@ translate_sharded_input_with_model () {
     case "${use_cpu_for_eval}" in
         "yes")
             use_cpu_flag="--cpu"
-            cuda_flag=""
             ;;
         *)
             use_cpu_flag=""
-            cuda_flag=CUDA_VISIBLE_DEVICES=${gpu_device}
+            export CUDA_VISIBLE_DEVICES=${gpu_device}
             ;;
     esac
 
@@ -73,20 +72,20 @@ translate_sharded_input_with_model () {
             ;;
     esac
 
-    cp -v $dict_foreign $input_folder/"dict.${src_lang}.txt"
-    cp -v $dict_en $input_folder/"dict.${tgt_lang}.txt"
+    cp $dict_foreign $input_folder/"dict.${src_lang}.txt" || echo "${dict_foreign} already in ${input_folder}, not copying!"
+    cp $dict_en $input_folder/"dict.${tgt_lang}.txt" || echo "${dict_foreign} already in ${input_folder}, not copying!"
 
-    $cuda_flag fairseq-generate "${input_folder}"  \
-        -s "${src_lang}" -t "${tgt_lang}" \
-        --task=translation --log-format json \
-        --seed "${random_seed}" \
+    fairseq-generate "${input_folder}"  \
         --truncate-source --truncate-target \
+        -s "${src_lang}" -t "${tgt_lang}" \
+        --seed "${random_seed}" \
         --path "${model_checkpoint}" \
         --skip-invalid-size-inputs-valid-test \
         --max-tokens "${max_tokens}" \
-        --gen-subset="test" \
+        --gen-subset="test" --num-workers 0 \
         $use_cpu_flag \
-        $use_sampling_flag --beam "${beam_size}" > "${output_file}"
+        $use_sampling_flag --beam "${beam_size}" | tee "${output_file}"
+    
 }
 
 
