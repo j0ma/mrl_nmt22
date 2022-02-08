@@ -8,8 +8,8 @@ en-uz:
   src: en
   tgt: uz
   default-train:
-    data_bin_folder: ~/mrl_nmt22/data-bin/en-uz/en_sp4k_uz_sp4k/default-train
-    output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train
+    data_bin_folder: ~/mrl_nmt22/data-bin/en-uz/en_sp4k_uz_sp4k/default-train-shardsupport
+    output_base_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train-shardsupport
     splits:
     - train
     - dev
@@ -23,7 +23,7 @@ en-uz:
           write_detokenized: true
           detokenized_link_only: false
           detokenized_copy_only: false
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train-shardsupport
           en_output_level: sentencepiece
           uz_output_level: sentencepiece
           split: train
@@ -51,7 +51,7 @@ en-uz:
           write_detokenized: true
           detokenized_link_only: false
           detokenized_copy_only: false
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train-shardsupport
           en_output_level: sentencepiece
           uz_output_level: sentencepiece
           sentencepiece_config:
@@ -71,7 +71,7 @@ en-uz:
           write_detokenized: true
           detokenized_link_only: false
           detokenized_copy_only: false
-          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train
+          detokenized_output_path: ~/datasets/mrl_nmt22/processed/en-uz/en_sp4k_uz_sp4k/default-train-shardsupport
           en_output_level: sentencepiece
           uz_output_level: sentencepiece
           split: test
