@@ -5,15 +5,15 @@ set -euxo
 export shards_file=staging/shards.txt
 export model_checkpoint=staging/checkpoint_de2en_best.pt
 export output_file=staging/en_de_bt_out
-export gpu_device=none
-export use_cpu_for_eval=yes
+export gpu_device="0,1"
+export use_cpu_for_eval=no
 export src_lang=de
 export tgt_lang=en
 export random_seed=1917
 export use_sampling=yes
-export dict_en=/tmp/dict.en.txt
-export dict_foreign=/tmp/dict.de.txt
-export max_tokens=4096
+export dict_en=staging/dict.en.txt.de2en
+export dict_foreign=staging/dict.de.txt.de2en
+export max_tokens=150000
 export beam_size=1
 
 bash scripts/translate_sharded_input_with_model \
