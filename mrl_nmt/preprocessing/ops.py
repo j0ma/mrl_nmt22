@@ -399,7 +399,8 @@ def process_download(
     moses_config=None,
     n_workers=(os.cpu_count() - 4),
     chunksize=10000,
-) -> crp.CorpusSplit:
+    shard_size=1,
+) -> Iterable[crp.CorpusSplit]:
     """Processes TIL / MTData download into a CorpusSplit object"""
 
     if not use_clean_corpus_n_perl and not moses_config:
@@ -468,7 +469,9 @@ def process_download(
         n_workers=n_workers,
     )
 
-    return out
+    shards = out.split_into_shards(shard_size)
+
+    return shards
 
 
 def process_monolingual(
@@ -487,7 +490,8 @@ def process_monolingual(
     n_workers=(os.cpu_count() - 4),
     chunksize=10000,
     detokenized_filename="",
-) -> crp.CorpusSplit:
+    shard_size=1000000,
+) -> Iterable[crp.CorpusSplit]:
 
     input_base_path = Path(input_base_folder)
 
@@ -536,7 +540,10 @@ def process_monolingual(
         monolingual=True,
     )
 
-    return out
+    print("Splitting into shards of {shard_size} lines each....")
+    shards = out.split_into_shards(shard_size=shard_size)
+
+    return shards
 
 
 def process_vi(
@@ -553,7 +560,7 @@ def process_vi(
     phomt=False,
     *args,
     **kwargs,
-) -> crp.CorpusSplit:
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -584,7 +591,7 @@ def process_et(
     detokenized_link_only=False,
     *args,
     **kwargs,
-) -> crp.CorpusSplit:
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -615,7 +622,7 @@ def process_cs(
     detokenized_link_only=False,
     *args,
     **kwargs,
-) -> crp.CorpusSplit:
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -644,7 +651,7 @@ def process_tr(
     write_detokenized=True,
     *args,
     **kwargs,
-) -> crp.CorpusSplit:
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -673,7 +680,7 @@ def process_uz(
     detokenized_output_path="",
     *args,
     **kwargs,
-) -> crp.CorpusSplit:
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -704,7 +711,7 @@ def process_de(
     detokenized_link_only=False,
     *args,
     **kwargs,
-):
+) -> Iterable[crp.CorpusSplit]:
     return process_download(
         input_base_folder,
         split=split,
@@ -736,7 +743,7 @@ def process_fi(
     detokenized_link_only=False,
     *args,
     **kwargs,
-):
+) -> Iterable[crp.CorpusSplit]:
 
     return process_download(
         input_base_folder,
@@ -769,7 +776,7 @@ def process_iu(
     detokenized_link_only=False,
     *args,
     **kwargs,
-):
+) -> Iterable[crp.CorpusSplit]:
     return process_download(
         input_base_folder,
         split=split,
@@ -801,7 +808,7 @@ def process_ru(
     detokenized_link_only=False,
     *args,
     **kwargs,
-):
+) -> Iterable[crp.CorpusSplit]:
     return process_download(
         input_base_folder,
         split=split,

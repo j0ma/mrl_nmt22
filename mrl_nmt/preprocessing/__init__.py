@@ -291,54 +291,65 @@ class ExperimentPreprocessingPipeline:
         for corpus_name, split_dict in lines.items():
             corpus_config = config[corpus_name]
             output_folder = Path(corpus_config["output_base_path"]).expanduser()
+            output_folder.mkdir(parents=True, exist_ok=True)
 
-            for split, corpus_split in split_dict.items():
+            for split, corpus_splits in split_dict.items():
 
-                output_folder.mkdir(parents=True, exist_ok=True)
+                # Legacy behavior (unsharded) corresponds
+                # to a single CorpusSplit => detect this.
+                sharded = bool(len(corpus_splits) > 1)
 
-                # inject source and target languages despite monolingual
-                corpus_split.src_lang = src
-                corpus_split.tgt_lang = tgt
+                for sid, corpus_split in enumerate(corpus_splits):
 
-                corpus_split.write_to_disk(
-                    folder=output_folder,
-                    monolingual=self.source_only,
-                )
+                    # inject source and target languages despite monolingual
+                    corpus_split.src_lang = src
+                    corpus_split.tgt_lang = tgt
 
-            # Finally binarize using fairseq if needed
+                    corpus_split.write_to_disk(
+                        folder=output_folder,
+                        monolingual=self.source_only,
+                        prefix=f"{src}-{tgt}.{corpus_split.split}.shard{sid}"
 
-            if self.use_fairseq:
-                src_dict = str(
-                    Path(corpus_config["fairseq_src_dict"]).expanduser()
+                        if sharded
+                        else "",
+                    )
 
-                    if "fairseq_src_dict" in corpus_config
-                    else ""
-                )
-                tgt_dict = str(
-                    Path(corpus_config["fairseq_tgt_dict"]).expanduser()
+                # Finally binarize using fairseq if needed
 
-                    if "fairseq_tgt_dict" in corpus_config
-                    else ""
-                )
-                data_bin_folder = Path(corpus_config["data_bin_folder"]).expanduser()
-                data_bin_folder.mkdir(parents=True, exist_ok=True)
-                fairseq = FairseqPreprocessor(
-                    src_lang=src,
-                    tgt_lang=tgt,
-                    data_folder=str(output_folder),
-                    data_bin_folder=str(data_bin_folder),
-                    src_dict=src_dict,
-                    tgt_dict=tgt_dict,
-                    splits=corpus_config["splits"],
-                    use_gpu=self.use_gpu,
-                    gpu_devices=self.gpu_devices,
-                    joined_dictionary=self.joined_dictionary,
-                    source_only=self.source_only,
-                    train_prefix=corpus_config.get("train_prefix", ""),
-                    dev_prefix=corpus_config.get("dev_prefix", ""),
-                    test_prefix=corpus_config.get("test_prefix", ""),
-                )
-                fairseq.process()
+                if self.use_fairseq:
+                    src_dict = str(
+                        Path(corpus_config["fairseq_src_dict"]).expanduser()
+
+                        if "fairseq_src_dict" in corpus_config
+                        else ""
+                    )
+                    tgt_dict = str(
+                        Path(corpus_config["fairseq_tgt_dict"]).expanduser()
+
+                        if "fairseq_tgt_dict" in corpus_config
+                        else ""
+                    )
+                    data_bin_folder = Path(
+                        corpus_config["data_bin_folder"]
+                    ).expanduser()
+                    data_bin_folder.mkdir(parents=True, exist_ok=True)
+                    fairseq = FairseqPreprocessor(
+                        src_lang=src,
+                        tgt_lang=tgt,
+                        data_folder=str(output_folder),
+                        data_bin_folder=str(data_bin_folder),
+                        src_dict=src_dict,
+                        tgt_dict=tgt_dict,
+                        splits=corpus_config["splits"],
+                        use_gpu=self.use_gpu,
+                        gpu_devices=self.gpu_devices,
+                        joined_dictionary=self.joined_dictionary,
+                        source_only=self.source_only,
+                        train_prefix=corpus_config.get("train_prefix", ""),
+                        dev_prefix=corpus_config.get("dev_prefix", ""),
+                        test_prefix=corpus_config.get("test_prefix", ""),
+                    )
+                    fairseq.process()
 
 
 @attr.s(auto_attribs=True)
