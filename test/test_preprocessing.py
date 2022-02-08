@@ -93,6 +93,19 @@ def get_moses_path():
 
 
 class TestTextUtils(unittest.TestCase):
+    def test_can_get_line_from_dict(self):
+        line_dict = {
+            "tgt": {
+                "text": "▁aksincha ▁yuzida ▁sho don ▁ta ba ss u mi ▁bo ▁ ’ ▁lgan ▁o ▁ ’ ▁ yinchi lar ▁o ▁ ’ ▁ rtacha ▁ 80 ▁yil ▁yasha gan lar ▁.",
+                "language": "uz",
+            },
+            "src": {
+                "text": "▁P la y ers ▁who ▁did n ▁& amp ; ▁apos ▁; ▁t ▁s mi le ▁in ▁their ▁picture s ▁live d ▁an ▁average ▁of ▁only ▁7 2 . 9 ▁years ▁, ▁where ▁play ers ▁with ▁be am ing ▁s mi les ▁live d ▁an ▁average ▁of ▁almost ▁ 80 ▁years ▁.",
+                "language": "en",
+            },
+        }
+        src, tgt = u.get_line_from_dict(line_dict)
+
     def test_can_read_txt_into_memory(self):
         sample_sents = u.read_lines(path=SAMPLE_SENTENCES_TXT)
         self.assertEqual(3, len(sample_sents))
@@ -258,7 +271,6 @@ class TestLoadedTextFileRAM(unittest.TestCase):
             msg="Here area few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
-
                 for first, second in enumerate(
                     zip(self.swe_in_ram_src.lines, self.swe_in_ram_src.lines[1:])
                 )
@@ -327,7 +339,6 @@ class TestLoadedTextFileStream(unittest.TestCase):
             msg="Here are a few line bigrams:",
             line_iter=(
                 {"first": first, "second": second}
-
                 for first, second in enumerate(zip(first_iter, second_iter))
             ),
         )
@@ -816,7 +827,6 @@ class TestPreprocessingOps(unittest.TestCase):
 
         u.print_a_few_lines(
             "Source: {}\nTarget: {}".format(d["tgt"]["text"], d["src"]["text"])
-
             for d in corpus.lines
         )
 
