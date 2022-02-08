@@ -219,10 +219,9 @@ def get_line_from_dict(d):
         tgt_line = d["tgt"]["text"]
     except:
         tgt_line = None
-    if not bool(src_line) ^ bool(tgt_line):
+    if not (bool(src_line) or bool(tgt_line)):
         raise ValueError(f"Both lines are None with d = {d}")
     return src_line, tgt_line
-
 
 
 def maybe_search(pattern: str, string: str, guess: int = 5) -> int:
@@ -239,7 +238,9 @@ def read_text(path: str) -> TextIO:
     return open(path, encoding="utf-8")
 
 
-def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path], exists_ok: bool = True) -> None:
+def create_symlink(
+    link_path: Union[str, Path], dest_path: Union[str, Path], exists_ok: bool = True
+) -> None:
     try:
         Path(link_path).expanduser().absolute().symlink_to(
             target=Path(dest_path).expanduser().absolute()
@@ -249,7 +250,6 @@ def create_symlink(link_path: Union[str, Path], dest_path: Union[str, Path], exi
             print(f"Existing link found at {link_path}! Skipping...")
         else:
             raise
-
 
 
 def move(source: Union[str, Path], destination: Union[str, Path]) -> None:
@@ -324,6 +324,7 @@ def read_yaml(p: Union[str, Path]) -> Dict[Any, Any]:
 
 def str_to_path(path_as_str: str) -> Path:
     return Path(path_as_str)
+
 
 def read_json(json_str: str) -> Dict[Any, Any]:
     return orjson.loads(json_str)
