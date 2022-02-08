@@ -370,30 +370,30 @@ class CorpusSplit:
         ) as tgt_out:
 
             for ix, line in tqdm(enumerate(self.lines)):
-                # try:
-                src_line, tgt_line = get_line_from_dict(line)
-                assert len(src_line) > 0, f"Null source line! Got: src={src_line}"
-                src_out.write(f"{src_line}\n")
-                src_lines_written += 1
+                try:
+                    src_line, tgt_line = get_line_from_dict(line)
+                    assert len(src_line) > 0, f"Null source line! Got: src={src_line}"
+                    src_out.write(f"{src_line}\n")
+                    src_lines_written += 1
 
-                if not monolingual:
-                    assert (
-                        len(tgt_line) > 0
-                    ), f"Null source line! Got: tgt={tgt_line}"
-                    tgt_out.write(f"{tgt_line}\n")
-                    tgt_lines_written += 1
+                    if not monolingual:
+                        assert (
+                            len(tgt_line) > 0
+                        ), f"Null source line! Got: tgt={tgt_line}"
+                        tgt_out.write(f"{tgt_line}\n")
+                        tgt_lines_written += 1
 
-                # except:
-                    # if skip_upon_fail:
-                        # skipped_lines += 1
-                        # print(
-                            # f"WARNING: Skipping. Line: {line}",
-                            # file=sys.stderr,
-                        # )
+                except:
+                    if skip_upon_fail:
+                        skipped_lines += 1
+                        print(
+                            f"WARNING: Skipping. Line: {line}",
+                            file=sys.stderr,
+                        )
 
-                        # continue
-                    # else:
-                        # raise ValueError("Failing since skip_upon_fail=False.")
+                        continue
+                    else:
+                        raise ValueError("Failing since skip_upon_fail=False.")
 
         if not monolingual:
             assert (
