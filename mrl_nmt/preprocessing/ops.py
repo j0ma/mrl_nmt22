@@ -445,7 +445,7 @@ def process_download(
     if write_detokenized:
         assert detokenized_output_path, "Unset argument: detokenized_output_path"
 
-        write_detokenized(
+        write_detokenized_lines(
             detokenized_output_path=detokenized_output_path,
             src_lang=src_lang,
             tgt_lang=tgt_lang,
