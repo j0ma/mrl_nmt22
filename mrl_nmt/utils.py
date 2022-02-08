@@ -23,6 +23,7 @@ import pycountry
 import yaml
 import toml
 import orjson
+from rich import print
 
 SPACE_SYMBOL = "﹏"
 SP_BOW_SYMBOL = "▁"

@@ -332,10 +332,13 @@ class LoadedTMXFile(LoadedTSVFile):
 @attr.s(auto_attribs=True)
 class CorpusSplit:
     split: str
-    lines: Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]
+    lines: Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]] = attr.ib(repr=False)
     src_lang: Optional[str] = None
     tgt_lang: Optional[str] = None
     verbose: bool = True
+
+    def __iter__(self) -> Iterable[Dict[str, Optional[Dict[str, Optional[str]]]]]:
+        return iter(self.lines)
 
     def __attrs_post_init__(self) -> None:
         assert self.src_lang or self.tgt_lang, "src_lang or tgt_lang must be specified."
@@ -369,12 +372,10 @@ class CorpusSplit:
             for ix, line in tqdm(enumerate(self.lines)):
                 try:
                     src_line, tgt_line = get_line_from_dict(line)
-                    assert (
-                        len(src_line) > 0
-                    ), f"Null source line! Got: src={src_line}"
+                    assert len(src_line) > 0, f"Null source line! Got: src={src_line}"
                     src_out.write(f"{src_line}\n")
                     src_lines_written += 1
-                    
+
                     if not monolingual:
                         assert (
                             len(tgt_line) > 0
@@ -398,9 +399,36 @@ class CorpusSplit:
             assert (
                 src_lines_written == tgt_lines_written
             ), f"Different number of src/tgt lines written: {src_lines_written} (src) vs. {tgt_lines_written} (tgt)"
+        else:
+            tgt_out_path.unlink(missing_ok=True)
 
-        if monolingual:
-            tgt_out_path.unlink()
+    def grab_shard(
+        self,
+        iterable: Iterable[Any],
+        shard_size: int,
+    ):
+        """Collect data into non-overlapping fixed-length chunks or blocks
+
+        NOTE: taken from the itertools recipes with slight modifications
+        """
+
+        return zip(*[iter(iterable)] * shard_size)
+
+    def split_into_shards(self, shard_size: Optional[int]) -> Iterable["CorpusSplit"]:
+        if not shard_size or shard_size == 1:
+            return [self]
+
+        return [
+            CorpusSplit(
+                lines=shard,
+                src_lang=self.src_lang,
+                tgt_lang=self.tgt_lang,
+                split=self.split,
+                verbose=self.verbose,
+            )
+
+            for shard in self.grab_shard(self.lines, shard_size)
+        ]
 
     @classmethod
     def from_src_tgt(
@@ -452,6 +480,7 @@ class CorpusSplit:
 
         joined_lines = (
             {"src": s["src"], "tgt": t["tgt"]}
+
             for s, t in zip(src.lines_as_dicts, tgt.lines_as_dicts)
         )
 

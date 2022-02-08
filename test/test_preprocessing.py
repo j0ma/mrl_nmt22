@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 import itertools as it
 import psutil as psu
+import time
 
 from tqdm import tqdm
 
@@ -622,7 +623,7 @@ class TestCorpusSplit(unittest.TestCase):
             n_workers=os.cpu_count() - 4,
             chunksize=10000,
             monolingual=True,
-            detokenized_filename="unittest_detok"
+            detokenized_filename="unittest_detok",
         )
 
     def test_stack_text_files_side_mismatch_raises_error(self):
@@ -632,6 +633,17 @@ class TestCorpusSplit(unittest.TestCase):
             _ = mrl_nmt.preprocessing.corpora.CorpusSplit.stack_text_files(
                 text_files=files, split="train"
             )
+
+    def test_can_split_into_shards(self):
+        shards = self.cs.split_into_shards(shard_size=100)
+
+        print(f"After splitting, there are {len(shards)} shards")
+        time.sleep(1)
+
+        for shard_ix, cs_shard in enumerate(shards):
+            print(cs_shard)
+            u.print_a_few_lines(cs_shard, msg=f"Shard{shard_ix}:")
+            time.sleep(1)
 
 
 class TestPreprocessingOps(unittest.TestCase):
